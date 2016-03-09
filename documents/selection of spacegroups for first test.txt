@@ -1,0 +1,4 @@
+cI, invsym: [230, 204, 229, 206] (only cI1)
+cI, noinvsym: [197, 199, 211, 214, 217, 220]
+* mC, invsym: [12, 15]  (mC3: b>a sin(beta), 14 faces = -a cos(beta)/c + a^2 sin^2 beta/c^2 > 1)
+mC, noinvsym: [8, 9, 5]
