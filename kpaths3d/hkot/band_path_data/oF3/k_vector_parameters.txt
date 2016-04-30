@@ -1,0 +1,3 @@
+H (1+a*a/b/b-a*a/c/c)/4
+K (1+b*b/a/a-b*b/c/c)/4
+P (1+c*c/b/b-c*c/a/a)/4

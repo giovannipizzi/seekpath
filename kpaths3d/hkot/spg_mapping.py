@@ -1,7 +1,9 @@
 def get_crystal_family(number):
     """
-    Given a spacegroup number (from 1 to 230), returns a string to identify it is
+    Given a spacegroup number, returns a string to identify its
     crystal family (triclinic, monoclinic, ...).
+
+    :param number: the spacegroup number, from 1 to 230
     """
     if not isinstance(number, int):
         raise TypeError("number should be integer")
@@ -24,22 +26,25 @@ def get_crystal_family(number):
 
 def pointgroup_has_inversion(number):
     """
-    Return True if the pointgroup with given number has inversion, False otherwise.
+    Return True if the pointgroup with given number has inversion, 
+    False otherwise.
+
+    :param number: The integer number of the pointgroup, from 1 to 32.
     """
     if number in [2,5,8,11,15,17,20,23,27,29,32]:
         return True
-    if number in [1,3,4,6,7,9,10,12,13,14,16,18,19,21,22,24,25,26,28,30,31]:
+    elif number in [1,3,4,6,7,9,10,12,13,14,16,18,19,21,22,24,25,26,28,30,31]:
         return False
     else:
         raise ValueError("number should be between 1 and 32")
 
 def get_spgroup_data():
     """
-    Return a dictionary that has the spacegroup number as key, and a tuple as value,
-    with (crystal family letter, centering, has_inversion).
+    Return a dictionary that has the spacegroup number as key, and a tuple 
+    as value, with (crystal family letter, centering, has_inversion).
     """
     import json
-    from spg_db import settings
+    from .spg_db import settings
 
     spgroups = {}
     for s in settings:
@@ -49,13 +54,15 @@ def get_spgroup_data():
         data = {'name':   s[5].strip(),
                 'pointgroup_number': s[8]
                 }
-        if number not in spgroups: # Just keep the first one (the name can change, e.g. P222_1 or P22_12 or P2_122) - Confimed by A. Togo
+        if number not in spgroups: 
+            # Just keep the first one (the name can change, e.g. P222_1 or 
+            # P22_12 or P2_122) - Confimed by A. Togo
             spgroups[number] = data
 
     # contains (crystal_family, centering)
-    info = {k: (get_crystal_family(k), v['name'][0], pointgroup_has_inversion(v['pointgroup_number'])) for k, v in spgroups.iteritems()}
-    #info2 = {k: (v[0], v[1], "+" if v[2] else "-") for k, v in info.iteritems()}
-    #print json.dumps({k: "{}{}{}".format(*v) for k, v in info2.iteritems()},indent=2)
+    info = {k: (get_crystal_family(k), v['name'][0], 
+                pointgroup_has_inversion(v['pointgroup_number'])) for k, v 
+            in spgroups.iteritems()}
 
     return info
  

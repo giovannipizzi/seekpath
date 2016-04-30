@@ -1,0 +1,7 @@
+GAMMA X
+X U
+K GAMMA
+GAMMA L
+L W
+W X
+X W_2

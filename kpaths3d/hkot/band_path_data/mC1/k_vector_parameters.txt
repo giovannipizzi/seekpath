@@ -1,0 +1,4 @@
+Z (2+a/c*cosbeta)/4/sinbeta/sinbeta
+H 1/2-2*Z*c*cosbeta/a
+S 3/4-b*b/4/a/a/sinbeta/sinbeta
+P S-(3/4-S)*a*cosbeta/c

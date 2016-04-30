@@ -1,0 +1,2 @@
+Y (1+a/c*cosbeta)/2/sinbeta/sinbeta
+N 1/2+Y*c*cosbeta/a

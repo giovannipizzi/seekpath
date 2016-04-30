@@ -1,0 +1,5 @@
+GAMMA L
+L T
+T P_0
+P_2 GAMMA
+GAMMA F

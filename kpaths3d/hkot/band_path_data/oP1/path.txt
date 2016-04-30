@@ -1,0 +1,12 @@
+GAMMA X
+X S
+S Y
+Y GAMMA
+GAMMA Z
+Z U
+U R
+R T
+T Z
+X U
+Y T
+S R
