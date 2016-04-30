@@ -10,14 +10,12 @@ def get_path(structure):
 
     # TODO: write full reference
 
-    # TODO: implement edge cases
-    # TODO: implement other cases
     # TODO: implement inversion symmetry
+
     # I assume here structure is an ase structure, but this can be changed
     # Use probably 1.9.3 and fix the check_spglib_version
 
-    # TO DISCUSS: PUT _1 instead of simply 1?
-    # TO DISCUSS: examples of structure for each case?
+    # TODO: implement edge cases (issue warning!)
     """
     from math import sqrt
     
@@ -46,35 +44,83 @@ def get_path(structure):
 
     # Implement all different cases
     if label == "cP":
-        raise NotImplementedError
+        if spgrp_num >= 195 and spgrp <= 206:
+            case = "cP1"
+        elif spgrp_num >= 207 and spgrp <= 230:
+            case = "cP2"
+        else:
+            raise ValueError("Internal error! should be cP, but the spacegroup "
+                "number is not in the correct range")
     elif label == "cF":
-        raise NotImplementedError
+        if spgrp_num >= 195 and spgrp <= 206:
+            case = "cF1"
+        elif spgrp_num >= 207 and spgrp <= 230:
+            case = "cF2"
+        else:
+            raise ValueError("Internal error! should be cP, but the spacegroup "
+                "number is not in the correct range")
     elif label == "cI":
         case = "cI1"
     elif label == "tP":
         case = "tP1"
     elif label == "tI":
-        raise NotImplementedError
+        if c < a:
+            case = "tI1"
+        elif c > a:
+            case = "tI2"
+        else:
+            ## TODO WARNING
+            case = "tI1"
     elif label == "oP":
         case = "oP1"
     elif label == "oF":
-        raise NotImplementedError
+        if 1./(a**2) > 1./(b**2) + 1./(c**2):
+            case = "oF1"
+        elif 1./(c**2) > 1./(a**2) + 1./(b**2):
+            case = "oF2"
+        else: # 1/a^2, 1/b^2, 1/c^2 edges of a triangle
+            case = "oF3"
     elif label == "oI":
-        raise NotImplementedError
+        # Sort a,b,c, first is the largest
+        sorted_vectors = sorted([(c,1),(b,3),(a,2)])[::-1]
+        case = "{}{}".format(label, sorted_vectors[0][1])
     elif label == "oC":
-        raise NotImplementedError
+        if a < b:
+            case = "oC1"
+        elif a > b:
+            case = "oC2"
+        else:
+            ## TODO WARNING
+            case = "oC1"
     elif label == "oA":
-        raise NotImplementedError
+        if b < c:
+            case = "oA1"
+        elif b > c:
+            case = "oA2"
+        else:
+            ## TODO WARNING
+            case = "oA1"
     elif label == "hP":
-        raise NotImplementedError
+        if spgnum in [143, 144, 145, 146, 147, 148, 149, 151, 153, 157, 
+            159, 160, 161, 162, 163]:
+            case = "hP1"
+        else:
+            case = "hP2"
     elif label == "hR":
-        raise NotImplementedError
+        if sqrt(3.) * a < sqrt(2.) * c:
+            case = "hR1"
+        elif sqrt(3.) * a > sqrt(2.) * c:
+            case = "hR2"
+        else:
+            # TODO WARNING
+            case = "hR1"
     elif label == "mP":
         case = "mP1"
     elif label == "mC":
         if b < a * sqrt(1-cosbeta**2):
             case = "mC1"
         else:
+            # TODO WARNING FOR EDGE CASE
             if -a * cosbeta / c + a**2 * (1 - cosbeta**2) / b**2 < 1.: 
                 # 12-face
                 case = "mC2"
