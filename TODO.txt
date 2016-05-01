@@ -1,3 +1,5 @@
+- add license (first remove code copypasted from spglib?)
+
 - Implement edge cases
 - wait for spglib 1.9.3 to remove hardcoded spacegroups
 

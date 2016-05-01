@@ -10,7 +10,20 @@ def get_path(structure, with_time_reversal=True):
     G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016).
 
     :param structure: The crystal structure for which we want to obtain
-        the suggested path
+        the suggested path. It should be a structure accepted by spglib:
+        either a ASE Atoms class (or a compatible class), or a tuple
+        (cell, positions, numbers), where (if N is the number of atoms):
+
+        - cell is a 3x3 list of floats (cell[0] is the first lattice 
+          vector, ...)
+        - positions is a Nx3 list of floats with the atomic coordinates
+          in scaled coordinates (i.e., w.r.t. the cell vectors)
+        - numbers is a length-N list with integers identifying uniquely
+          the atoms in the cell (e.g., the Z number of the atom, but 
+          any other positive non-zero integer will work - e.g. if you
+          want to distinguish two Carbon atoms, you can set one number
+          to 6 and the other to 1006)
+
     :param with_time_reversal: if False, and the group has no inversion 
         symmetry, additional lines are returned as described in the HKOT
         paper.
