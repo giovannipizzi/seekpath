@@ -1,11 +1,17 @@
-- add license (first remove code copypasted from spglib?)
+TODO add license (first remove code copypasted from spglib?)
 
-- Implement edge cases
-- wait for spglib 1.9.3 to remove hardcoded spacegroups
+SAID Implement edge cases
+SAID wait for spglib 1.9.3 to remove hardcoded spacegroups
+ASKED docstring
 
-- Discuss differences to Yoyo
-- oF2 does not exist with inversion symmetry;
+ASKED Discuss differences to Yoyo
+ASKED oF2 does not exist with inversion symmetry;
   what about oA1 and oA2?
-- Check why also aP2 POSCARs are identified as aP3 (spglib 1.9.0)
+ASKED Check why also aP2 POSCARs are identified as aP3 (spglib 1.9.0)
 
-- how to check correctness?
+ASKED how to check correctness?
+
+ASKED Can we offer a way to provide the path of a different bravais lattice?
+  (e.g. tetragonal supercell of a hexagonal one). Mainly for comparison...
+  Should we do any check (e.g. that at least the cell shape is correct?)
+ALSO!  very important: If the user passes explicitly a supercell different than the primitive cell, the point coordinates are referred to the primitive cell. This will generate the wrong path in practice, because the reciprocal lattice vectors used by the code are the one provided in input and not the primitive ones! Should we pass additional information, as the matrix of change of basis set?

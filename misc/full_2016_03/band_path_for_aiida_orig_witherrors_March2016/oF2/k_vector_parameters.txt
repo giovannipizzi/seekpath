@@ -1,0 +1,2 @@
+J (1+c*c/a/a-c*c/b/b)/4
+K (1+c*c/a/a+c*c/b/b)/4

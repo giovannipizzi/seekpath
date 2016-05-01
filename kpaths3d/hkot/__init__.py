@@ -28,6 +28,23 @@ def get_path(structure, with_time_reversal=True):
         symmetry, additional lines are returned as described in the HKOT
         paper.
 
+    :return: a dictionary with the following 
+      keys:
+
+        - point_coords: a dictionary with label -> float coordinates
+        - path: a list of length-2 tuples, with the labels of the starting
+          and ending point of each label section
+        - has_inversion_symmetry: True or False, depending on whether the
+          input crystal structure has inversion symmetry or not.
+        - path_with_time_reversal: if True, it means that the path was
+          augmented with the -k points (this happens if both 
+          has_inversion_symmetry is False, and the user set 
+          with_time_reversal=False in the input)
+        - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
+        - bravais_lattice_case: the specific case used to define labels and
+          coordinates (like 'cP1', 'tI2', ...)
+ 
+
     # I assume here structure is an ase structure, but this can be changed
     # Use probably 1.9.3 and fix the check_spglib_version
 
@@ -190,6 +207,7 @@ def get_path(structure, with_time_reversal=True):
     # If there is no inversion symmetry nor time-reversal symmetry, add
     # additional path
     if not has_inv and not with_time_reversal:
+        augmented_path = True
         for pointname, coords in list(points.iteritems()):
             if pointname == 'GAMMA':
                 continue
@@ -210,7 +228,7 @@ def get_path(structure, with_time_reversal=True):
     return {'point_coords': points,
             'path': path,
             'has_inversion_symmetry': has_inv,
-            'path_with_time_reversal': with_time_reversal,
+            'path_with_time_reversal': augmented_path,
             'bravais_lattice': bravais_lattice,
             'bravais_lattice_case': case
             }

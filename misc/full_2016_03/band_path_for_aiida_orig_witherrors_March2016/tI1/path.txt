@@ -1,0 +1,8 @@
+GAMMA X
+X M
+M GAMMA
+GAMMA Z
+Z_0 M
+X P
+P N
+N GAMMA

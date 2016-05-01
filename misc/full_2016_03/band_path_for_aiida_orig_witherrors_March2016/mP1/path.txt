@@ -1,0 +1,10 @@
+GAMMA Z
+Z D
+D B
+B GAMMA
+GAMMA A
+A E
+E Z
+Z C_2
+C_2 Y_2
+Y_2 GAMMA

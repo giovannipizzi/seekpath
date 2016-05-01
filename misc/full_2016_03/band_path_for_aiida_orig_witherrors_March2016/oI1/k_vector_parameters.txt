@@ -1,0 +1,4 @@
+Z (1+a*a/c/c)/4
+H (1+b*b/c/c)/4
+D (b*b-a*a)/4/c/c
+N (a*a+b*b)/4/c/c

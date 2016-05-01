@@ -1,0 +1,7 @@
+GAMMA X
+X M
+M GAMMA
+GAMMA R
+R X
+R M
+M X_1
