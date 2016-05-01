@@ -180,11 +180,19 @@ def eval_expr(expr,a,b,c,cosalpha,cosbeta,cosgamma,kparam):
         raise ValueError("Asking for evaluation of symbol '{}' but this has "
             "not been defined or not yet computed".format(e.message))
 
-def check_spglib_version(spglib_module):
+def check_spglib_version():
     """
     Check the SPGLIB version and raise a ValueError if the version is
-    older than 1.9.0
+    older than 1.9.0.
+
+    Return the spglib module.
     """
+    try:
+        import spglib
+    except ImportError:
+        raise ValueError("spglib >= 1.9.0 is required for the creation "
+            "of the k-paths, but it could not be imported")
+
     try:
         version = spglib.__version__
     except NameError:
@@ -199,6 +207,10 @@ def check_spglib_version(spglib_module):
 
     if tuple(version[:2]) < (1,9):
         raise ValueError("Invalid spglib version, need >= 1.9.0")
+
+    #if version[:2] == (1,9) and version[2] < 3:
+    #    raise ValueError("Invalid spglib version, need >= 1.9.3")        
+    return spglib
 
 def get_cell_params(cell):
     """

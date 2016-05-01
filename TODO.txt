@@ -1,0 +1,9 @@
+- Implement edge cases
+- wait for spglib 1.9.3 to remove hardcoded spacegroups
+
+- Discuss differences to Yoyo
+- oF2 does not exist with inversion symmetry;
+  what about oA1 and oA2?
+- Check why also aP2 POSCARs are identified as aP3 (spglib 1.9.0)
+
+- how to check correctness?

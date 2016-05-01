@@ -12,19 +12,18 @@ def get_path(structure, with_time_reversal=True):
     :param structure: The crystal structure for which we want to obtain
         the suggested path
     :param with_time_reversal: if False, and the group has no inversion 
-        symmetry,
-
+        symmetry, additional lines are returned as described in the HKOT
+        paper.
 
     # I assume here structure is an ase structure, but this can be changed
     # Use probably 1.9.3 and fix the check_spglib_version
 
-    # TODO: implement edge cases (issue warning!)
+    :note: (TODO) No warning is issued for edge cases (e.g. if a==b==c for
+        orthorhombic systems), but just one of the cases is picked
     """
     import copy
     from math import sqrt
     
-    import spglib
-
     from .tools import (
         check_spglib_version, extend_kparam, eval_expr, eval_expr_simple, 
         get_cell_params, get_path_data)
@@ -32,7 +31,7 @@ def get_path(structure, with_time_reversal=True):
 
     # I check if the SPGlib version is recent enough (raises ValueError)
     # otherwise
-    check_spglib_version(spglib)
+    spglib = check_spglib_version()
 
     # Symmetry analysis by SPGlib, get standard lattice, 
     # and cell parameters for this lattice
@@ -121,19 +120,32 @@ def get_path(structure, with_time_reversal=True):
     elif bravais_lattice == "mP":
         case = "mP1"
     elif bravais_lattice == "mC":
-        if b < a * sqrt(1-cosbeta**2):
+        if b < a * sqrt(1.-cosbeta**2):
             case = "mC1"
         else:
             # TODO WARNING FOR EDGE CASE
-            if -a * cosbeta / c + a**2 * (1 - cosbeta**2) / b**2 < 1.: 
+            if -a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 < 1.: 
                 # 12-face
                 case = "mC2"
             else:
+                # TODO WARNING FOR EDGE CASE
                 case = "mC3"
     elif bravais_lattice == "aP":
-        # Hinuma et al have defined aP2 and aP3 as triclinic all-obtuse 
-        # and all-acute respectively.
-        raise NotImplementedError 
+        if cosalpha <= 0. and cosbeta <= 0. and cosgamma <= 0.:
+            # all-obtuse
+            # TODO WARNING IF AT LEAST ONE IS PRACTICALLY ZERO
+            case = "aP2"
+        elif cosalpha >= 0. and cosbeta >= 0. and cosgamma >= 0.:
+            # all-acute
+            # TODO WARNING IF AT LEAST ONE IS PRACTICALLY ZERO
+            case = "aP3"
+        else:
+            raise ValueError("Unexpected aP triclinic case, it neither "
+                "all-obtuse nor all-acute! Sign of cosines: cosalpha{}0, "
+                "cosbeta{}0, cosgamma{}0".format(
+                    ">=" if cosalpha >= 0 else "<",
+                    ">=" if cosbeta >= 0 else "<"
+                    ">=" if cosgamma >= 0 else "<"))
     else:
         raise ValueError("Unknown type '{}' for spgrp {}".format(
             bravais_lattice, dataset['number']))
