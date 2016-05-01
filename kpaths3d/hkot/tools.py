@@ -6,10 +6,20 @@ def eval_expr_simple(expr,kparam):
         return 0.
     elif expr == "1/2":
         return 1./2.
+    elif expr == "1":
+        return 1.
     elif expr == "-1/2":
         return -1./2.
     elif expr == "1/4":
         return 1./4.
+    elif expr == "3/8":
+        return 3./8.
+    elif expr == "3/4":
+        return 3./4.
+    elif expr == "5/8":
+        return 5./8.
+    elif expr == "1/3":
+        return 1./3.
     else:
         try:
             return kparam[expr]
@@ -32,6 +42,8 @@ def extend_kparam(kparam):
         kparam_extended["-{}".format(k)] = -v
         kparam_extended["1-{}".format(k)] = 1.-v
         kparam_extended["-1+{}".format(k)] = -1.+v
+        kparam_extended["1/2-{}".format(k)] = 1./2.-v
+        kparam_extended["1/2+{}".format(k)] = 1./2.+v
 
     return kparam_extended
 
@@ -104,11 +116,62 @@ def eval_expr(expr,a,b,c,cosalpha,cosbeta,cosgamma,kparam):
             D = kparam['D']
             return X-2*D
         elif expr == "(1+a/c*cosbeta)/2/sinbeta/sinbeta":
-            return (1+a/c*cosbeta)/2/sinbeta/sinbeta
+            return (1.+a/c*cosbeta)/2./sinbeta/sinbeta
         elif expr == "1/2+Y*c*cosbeta/a":
             Y = kparam['Y']
-            return 1/2+Y*c*cosbeta/a                        
-
+            return 1./2.+Y*c*cosbeta/a                        
+        elif expr == "a*a/4/c/c":
+            return a*a/4./c/c
+        elif expr == "5/6-2*D":
+            D = kparam['D']
+            return 5./6.-2.*D         
+        elif expr == "1/3+D":
+            D = kparam['D']
+            return 1./3.+D               
+        elif expr == "1/6-c*c/9/a/a":
+            return 1./6.-c*c/9./a/a
+        elif expr == "1/2-2*Z":
+            Z = kparam['Z']
+            return 1./2.-2.*Z  
+        elif expr == "1/2+Z":
+            Z = kparam['Z']
+            return 1./2.+Z                      
+        elif expr == "(1+b*b/c/c)/4":
+            return (1.+b*b/c/c)/4.
+        elif expr == "(1+c*c/b/b)/4":
+            return (1.+c*c/b/b)/4.                        
+        elif expr == "(1+b*b/a/a)/4":
+            return (1.+b*b/a/a)/4.   
+        elif expr == "(1+a*a/b/b-a*a/c/c)/4":
+            return (1.+a*a/b/b-a*a/c/c)/4.
+        elif expr == "(1+a*a/b/b+a*a/c/c)/4":
+            return (1.+a*a/b/b+a*a/c/c)/4.    
+        elif expr == "(1+c*c/a/a-c*c/b/b)/4":
+            return (1.+c*c/a/a-c*c/b/b)/4.
+        elif expr == "(1+c*c/a/a+c*c/b/b)/4":
+            return (1.+c*c/a/a+c*c/b/b)/4.                                               
+        elif expr == "(1+b*b/a/a-b*b/c/c)/4":
+            return (1.+b*b/a/a-b*b/c/c)/4.            
+        elif expr == "(1+c*c/b/b-c*c/a/a)/4":
+            return (1.+c*c/b/b-c*c/a/a)/4.            
+        elif expr == "(1+a*a/c/c)/4":
+            return (1.+a*a/c/c)/4.            
+        elif expr == "(b*b-a*a)/4/c/c":
+            return (b*b-a*a)/4./c/c            
+        elif expr == "(a*a+b*b)/4/c/c":
+            return (a*a+b*b)/4./c/c            
+        elif expr == "(1+c*c/a/a)/4":
+            return (1.+c*c/a/a)/4.            
+        elif expr == "(c*c-b*b)/4/a/a":
+            return (c*c-b*b)/4./a/a            
+        elif expr == "(b*b+c*c)/4/a/a":
+            return (b*b+c*c)/4./a/a            
+        elif expr == "(a*a-c*c)/4/b/b":
+            return (a*a-c*c)/4./b/b            
+        elif expr == "(c*c+a*a)/4/b/b":
+            return (c*c+a*a)/4./b/b            
+        elif expr == "a*a/2/c/c":
+            return a*a/2./c/c            
         else:
             raise ValueError('Unknown expression, define a new case:\n'
                             '        elif expr == "{0}":\n'
@@ -194,10 +257,16 @@ def get_path_data(case):
         raise ValueError("Invalid line length in {}".format(path_file))
     if any(len(_) != 4 for _ in points_raw):
         raise ValueError("Invalid line length in {}".format(points_file))
-    # orde must be preserved here
+    # order must be preserved here
     kparam_def = [(_[0], _[1].strip()) for _ in kparam_raw] 
-    points_def = {_[0]: (_[1], _[2], _[3]) for _ in points_raw}
+    points_def = {}
+    for label, kPx, kPy, kPz in points_raw:
+        if label in points_def:
+            raise ValueError("Internal error! Point {} defined multiple times "
+                "for case {}".format(label, case))
+        points_def[label] = (kPx, kPy, kPz)
     path = [(_[0], _[1]) for _ in path_raw]
+
 
     # check path is valid
     for p1, p2 in path:

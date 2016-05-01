@@ -12,13 +12,24 @@ def test_case(case, with_inv):
 
     poscar = poscar_with_inv if with_inv else poscar_no_inv
     asecell = ase.io.read(poscar)
+    # With time reversal set to False to get the most complete path
     try:
-        res = hkot.get_path(asecell)
-    except NotImplementedError:
-        res = "NOT IMPLEMENTED YET"
+        res = hkot.get_path(asecell, with_time_reversal=False) 
 
-    print "*** {} (inv={}): {}".format(
-        case, with_inv, res)
+        if res['bravais_lattice_case'] != case:
+            raise AssertionError("bravais_lattice_case: expected {} "
+                "but detected {}".format(case, res['bravais_lattice_case']))
+        if res['has_inversion_symmetry'] != with_inv:
+            raise AssertionError("inversion_symmetry: expected {} "
+                "but detected {}".format(with_inv, res['has_inversion_symmetry']))
+
+        print "*** {} (inv={})".format(
+            case, with_inv)
+        for p1, p2 in res['path']:
+            print "   {} -- {}: {} -- {}".format(p1, p2, 
+                res['point_coords'][p1], res['point_coords'][p2])
+    except NotImplementedError:
+        print "*** {} (inv={}): {}".format(case, with_inv, "NOT IMPLEMENTED")
 
 if __name__ == "__main__":
 
