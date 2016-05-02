@@ -1,17 +1,16 @@
 TODO add license (first remove code copypasted from spglib?)
+TODO Make tests for edge cases
 
-SAID Implement edge cases
-SAID wait for spglib 1.9.3 to remove hardcoded spacegroups
-ASKED docstring
+TODO wait for spglib 1.9.3 to remove hardcoded spacegroups, and for Niggli reduction (also, in the test clases, use tuples instead of ASE)
 
-ASKED Discuss differences to Yoyo
-ASKED oF2 does not exist with inversion symmetry;
-  what about oA1 and oA2?
-ASKED Check why also aP2 POSCARs are identified as aP3 (spglib 1.9.0)
+TODO implement aP case (niggli reduction in reciprocal space + reordering, see HKOT paper)
 
-ASKED how to check correctness?
+TODO provide as output also:
+  - primitive cell (+ new atoms and types)
+  - transformation matrix
+  - used reciprocal lattice (in general, and especially for aP!]
+  - [optionally?] absolute coords (in 2pi/original_units) of the k_path
+    (this requires a 'density' of kpoints, take it from the KpointsData class?)
 
-ASKED Can we offer a way to provide the path of a different bravais lattice?
-  (e.g. tetragonal supercell of a hexagonal one). Mainly for comparison...
-  Should we do any check (e.g. that at least the cell shape is correct?)
-ALSO!  very important: If the user passes explicitly a supercell different than the primitive cell, the point coordinates are referred to the primitive cell. This will generate the wrong path in practice, because the reciprocal lattice vectors used by the code are the one provided in input and not the primitive ones! Should we pass additional information, as the matrix of change of basis set?
+ASKED how to check correctness? -> probably calculate bands?
+

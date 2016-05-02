@@ -1,3 +1,5 @@
+import numpy, numpy.linalg
+
 def eval_expr_simple(expr,kparam):
     """
     To evaluate expressions tha only require kparams and not a,b,c,...
@@ -220,7 +222,7 @@ def get_cell_params(cell):
     import numpy
     from math import sqrt
     
-    v1, v2, v3 = cell
+    v1, v2, v3 = numpy.array(cell)
     a = sqrt(sum(v1**2))
     b = sqrt(sum(v2**2))
     c = sqrt(sum(v3**2))
@@ -229,7 +231,20 @@ def get_cell_params(cell):
     cosgamma = numpy.dot(v1,v2)/a/b
     
     return (a,b,c,cosalpha,cosbeta,cosgamma)
-    
+ 
+def get_reciprocal_cell_rows(real_space_cell):
+    """
+    Given the cell in real space (3x3 matrix, vectors as rows, 
+    return the reciprocal-space cell where again the G vectors are 
+    rows, i.e. satisfying 
+    dot(real_space_cell, reciprocal_space_cell.T) = 2pi * I,
+    where I is the 3x3 identity matrix.
+
+    :return: the 3x3 list of reciprocal lattice vectors where each row is 
+        one vector.
+    """   
+    reciprocal_space_columns = 2. * numpy.pi * numpy.linalg.inv(real_space_cell)
+    return (reciprocal_space_columns.T).tolist()
 
 def get_path_data(case):
     """

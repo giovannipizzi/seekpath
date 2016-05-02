@@ -1,11 +1,153 @@
 import unittest
 
+class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
+    """
+    Test the warnings issued for edge cases
+    """
+    def basic_test(self, cell, positions, atomic_numbers, 
+        check_bravais_lattice, check_string=None):
+        """
+        Given a cell, the positions and the atomic numbers, checks that
+        (only one) warning is issued, of type hkot.EdgeCaseWarning,
+        that the bravais lattice is the expected one,
+        and that (optionally, if specified) the warning message contains
+        the given string 'check_string'.
+
+        :param cell: 3x3 list of lattice vectors
+        :param positions: Nx3 list of (scaled) positions
+        :param atomic_number: list of length N with the atomic numbers
+        :check_bravais_lattice: a string with the expected Bravais lattice 
+            (e.g., 'tI', 'oF', ...)
+        :check_string: if specified, this should be contained in the warning
+            message
+        """
+        import warnings
+
+        import hkot
+
+        system = (cell, positions, atomic_numbers)
+
+        ### TODO remove the following lines when ASE is not needed
+        import ase
+        asecell = ase.Atoms(cell=system[0])
+        for num in atomic_numbers:
+            asecell.append(ase.Atom(symbol=num))
+        asecell.set_scaled_positions(positions)
+        system = asecell
+        #### END TODO
+
+        with warnings.catch_warnings(record=True) as w:
+            res = hkot.get_path(system, with_time_reversal=False) 
+            # Checks
+            self.assertEquals(res['bravais_lattice'], check_bravais_lattice)
+            self.assertEquals(len(w), 1, 'Wrong number of warnings issued! '
+                '({} instead of 1)'.format(len(w)))
+            assert issubclass(w[0].category, hkot.EdgeCaseWarning)
+            if check_string is not None:
+                self.assertIn(check_string, str(w[0].message))
+
+    def test_tI(self):
+        """
+        Test the edge case for tI.
+        """
+        cell = [[4.,0.,0.],[0.,4.,0.],[0.,0.,4.]]
+        positions = [[0.,0.,0.],[0.5,0.5,0.5],[0.0,0.0,0.1],[0.5,0.5,0.6]]
+        atomic_numbers = [6,6,8,8]
+
+        self.basic_test(cell, positions, atomic_numbers,
+            check_bravais_lattice='tI')
+
+    def test_oF_first(self):
+        from math import sqrt
+
+        cell = [[sqrt(1./(1/16. + 1/25.)),0.,0.],[0.,4.,0.],[0.,0.,5.]]
+        positions = [[0.,0.,0.],[0.,0.5,0.5],[0.5,0.,0.5],[0.5,0.5,0.]]
+        atomic_numbers = [6,6,6,6]
+        self.basic_test(cell, positions, atomic_numbers,
+            check_bravais_lattice='oF', check_string = "but 1/a^2")
+
+    def test_oF_second(self):
+        from math import sqrt
+
+        cell = [[10,0,0],[0,21,0],[0,0,sqrt(1./(1/100. + 1/441.))]]
+        positions = [
+            [0.1729328200000002,  0.5632488700000001,  0.9531259500000002],
+            [0.8270671799999998,  0.4367511299999999,  0.9531259500000002],
+            [0.0770671799999998,  0.3132488700000001,  0.7031259500000002],
+            [0.9229328200000002,  0.6867511299999999,  0.7031259500000002],
+            [0.1729328200000002,  0.0632488700000001,  0.4531259500000002],
+            [0.8270671799999998,  0.9367511299999998,  0.4531259500000002],
+            [0.0770671799999998,  0.8132488700000001,  0.2031259500000002],
+            [0.9229328200000002,  0.1867511299999999,  0.2031259500000002],
+            [0.6729328200000002,  0.5632488700000001,  0.4531259500000002],
+            [0.3270671799999998,  0.4367511299999999,  0.4531259500000002],
+            [0.5770671799999998,  0.3132488700000001,  0.2031259500000002],
+            [0.4229328200000002,  0.6867511299999999,  0.2031259500000002],
+            [0.6729328200000002,  0.0632488700000001,  0.9531259500000002],
+            [0.3270671799999998,  0.9367511299999998,  0.9531259500000002],
+            [0.5770671799999998,  0.8132488700000001,  0.7031259500000002],
+            [0.4229328200000002,  0.1867511299999999,  0.7031259500000002],
+            [0.0000000000000000,  0.5000000000000000,  0.4701481000000003],
+            [0.7500000000000000,  0.7500000000000000,  0.2201481000000003],
+            [0.0000000000000000,  0.0000000000000000,  0.9701481000000002],
+            [0.7500000000000000,  0.2500000000000000,  0.7201481000000003],
+            [0.5000000000000000,  0.5000000000000000,  0.9701481000000002],
+            [0.2500000000000000,  0.7500000000000000,  0.7201481000000003],
+            [0.5000000000000000,  0.0000000000000000,  0.4701481000000003],
+            [0.2500000000000000,  0.2500000000000000,  0.2201481000000003]]
+        atomic_numbers = [6] * 16 + [8] * 8
+        self.basic_test(cell, positions, atomic_numbers,
+            check_bravais_lattice='oF', check_string = "but 1/c^2")
+
+    def test_oI_bc(self):
+
+        cell = [[4.,0.,0.],[0.,5.,0.],[0.,0.,5.]]
+        positions = [[0.,0.,0.],[0.5,0.5,0.5], [0.,0.,0.1],[0.5,0.5,0.6]]
+        atomic_numbers = [6,6,8,8]
+        self.basic_test(cell, positions, atomic_numbers,
+            check_bravais_lattice='oI', 
+            check_string = "but the two longest vectors b and c")
+
+    def test_oC(self):
+
+        cell = [[3.,0.,0.],[0.,3.,0.],[0.,0.,5.]]
+        positions = [
+            [0.5000000000000000,  0.1136209299999999,  0.7500967299999999],
+            [0.5000000000000000,  0.8863790700000000,  0.2500967299999999],
+            [0.0000000000000000,  0.6136209300000000,  0.7500967299999999],
+            [0.0000000000000000,  0.3863790700000001,  0.2500967299999999],
+            [0.0000000000000000,  0.8444605049999999,  0.7659032699999999],
+            [0.0000000000000000,  0.1555394950000001,  0.2659032699999999],
+            [0.5000000000000000,  0.3444605049999999,  0.7659032699999999],
+            [0.5000000000000000,  0.6555394950000001,  0.2659032699999999]]
+        atomic_numbers = [6,6,6,6,8,8,8,8]
+        self.basic_test(cell, positions, atomic_numbers,
+            check_bravais_lattice='oC')
+
+    def test_oA(self):
+
+        cell = [[9.,0.,0.],[0.,3.,0.],[0.,0.,3.]]
+        positions = [
+            [0.0000000000000000,  0.0000000000000000,  0.0309652399999998],
+            [0.0000000000000000,  0.5000000000000000,  0.5309652399999998],
+            [0.0000000000000000,  0.5000000000000000,  0.8489601849999999],
+            [0.5000000000000000,  0.5000000000000000,  0.1263269549999999],
+            [0.0000000000000000,  0.0000000000000000,  0.3489601849999999],
+            [0.5000000000000000,  0.0000000000000000,  0.6263269549999999]]
+        atomic_numbers = [6,6,8,8,8,8]
+        self.basic_test(cell, positions, atomic_numbers,
+            check_bravais_lattice='oA')
+
+    # For full coverage, we should also implement the tests for the warnings 
+    # in the mC cases, and for the oP warnings.
+
+
 class TestPaths3D_HKOT(unittest.TestCase):
     """
     Class to test the creation of paths for all cases using example structures
     """
     # If True, print on stdout the band paths
-    verbose_tests = True
+    verbose_tests = False
 
     def base_test(self, case, with_inv):
         """
@@ -37,6 +179,8 @@ class TestPaths3D_HKOT(unittest.TestCase):
             asecell.get_atomic_numbers())
 
         # With time reversal set to False to get the most complete path
+        ## TODO: replace asecell with system when dependency on 1.9.3 is 
+        ## enforced
         res = hkot.get_path(asecell, with_time_reversal=False) 
 
         self.assertEquals(res['bravais_lattice_case'], case)
@@ -259,12 +403,13 @@ class TestPaths3D_HKOT(unittest.TestCase):
         """
         self.base_test(case="mP1", with_inv = False)
 
-    def test_oA1Y(self):
-        """
-        Obtain the k-path for a test system with inversion symmetry and
-        lattice case oA1.
-        """
-        self.base_test(case="oA1", with_inv = True)        
+## oA1Y does not exist by symmetry
+#    def test_oA1Y(self):
+#        """
+#        Obtain the k-path for a test system with inversion symmetry and
+#        lattice case oA1.
+#        """
+#        self.base_test(case="oA1", with_inv = True)        
 
     def test_oA1N(self):
         """
@@ -273,12 +418,13 @@ class TestPaths3D_HKOT(unittest.TestCase):
         """
         self.base_test(case="oA1", with_inv = False)
 
-    def test_oA2Y(self):
-        """
-        Obtain the k-path for a test system with inversion symmetry and
-        lattice case oA2.
-        """
-        self.base_test(case="oA2", with_inv = True)        
+## oA2Y does not exist by symmetry
+#    def test_oA2Y(self):
+#        """
+#        Obtain the k-path for a test system with inversion symmetry and
+#        lattice case oA2.
+#        """
+#        self.base_test(case="oA2", with_inv = True)        
 
     def test_oA2N(self):
         """
@@ -329,7 +475,7 @@ class TestPaths3D_HKOT(unittest.TestCase):
         """
         self.base_test(case="oF1", with_inv = False)
 
-## OF2Y does not exist by symmetry
+## oF2Y does not exist by symmetry
 #    def test_oF2Y(self):
 #        """
 #        Obtain the k-path for a test system with inversion symmetry and

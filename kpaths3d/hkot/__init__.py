@@ -1,4 +1,11 @@
-def get_path(structure, with_time_reversal=True):
+class EdgeCaseWarning(RuntimeWarning):
+    """
+    A warning issued when the cell is an edge case (e.g. orthorhombic
+    symmetry, but a==b==c.
+    """
+    pass
+
+def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     """
     Return the kpoint path for band structure given a crystal structure,
     using the paths proposed in the HKOT paper: 
@@ -28,6 +35,12 @@ def get_path(structure, with_time_reversal=True):
         symmetry, additional lines are returned as described in the HKOT
         paper.
 
+    :param threshold: the threshold to use to verify if we are in 
+        and edge case (e.g., a tetragonal cell, but a==c). For instance, 
+        in the tI case, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
+        Note that depending on the bravais lattice, the meaning of the 
+        threshold is different (angle, length, ...)
+
     :return: a dictionary with the following 
       keys:
 
@@ -36,7 +49,7 @@ def get_path(structure, with_time_reversal=True):
           and ending point of each label section
         - has_inversion_symmetry: True or False, depending on whether the
           input crystal structure has inversion symmetry or not.
-        - path_with_time_reversal: if True, it means that the path was
+        - augmented_path: if True, it means that the path was
           augmented with the -k points (this happens if both 
           has_inversion_symmetry is False, and the user set 
           with_time_reversal=False in the input)
@@ -44,19 +57,20 @@ def get_path(structure, with_time_reversal=True):
         - bravais_lattice_case: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
  
-
     # I assume here structure is an ase structure, but this can be changed
     # Use probably 1.9.3 and fix the check_spglib_version
 
-    :note: (TODO) No warning is issued for edge cases (e.g. if a==b==c for
-        orthorhombic systems), but just one of the cases is picked
+    :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
+        orthorhombic systems). In this case, still one of the valid cases
+        is picked.
     """
     import copy
     from math import sqrt
+    import warnings
     
     from .tools import (
         check_spglib_version, extend_kparam, eval_expr, eval_expr_simple, 
-        get_cell_params, get_path_data)
+        get_cell_params, get_path_data, get_reciprocal_cell_rows)
     from .spg_mapping import get_spgroup_data
 
     # I check if the SPGlib version is recent enough (raises ValueError)
@@ -66,9 +80,15 @@ def get_path(structure, with_time_reversal=True):
     # Symmetry analysis by SPGlib, get standard lattice, 
     # and cell parameters for this lattice
     dataset = spglib.get_symmetry_dataset(structure)
-    std_cell = dataset['std_lattice']
-    a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(dataset['std_lattice'])
+    std_lattice = dataset['std_lattice']
+    std_positions = dataset['std_positions']
+    std_types = dataset['std_types']
+    a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(std_lattice)
     spgrp_num = dataset['number']
+    #  Lattice^{standard_bravais} = L^{original} * primitive_transf_matrix
+    primitive_transf_matrix = dataset['transformation_matrix']
+    # TODO REMOVE NEXT LINE
+    #print std_lattice, std_positions
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
     properties = get_spgroup_data()[spgrp_num]
@@ -97,16 +117,22 @@ def get_path(structure, with_time_reversal=True):
     elif bravais_lattice == "tP":
         case = "tP1"
     elif bravais_lattice == "tI":
-        if c < a:
+        if abs(c-a) < threshold:
+            warnings.warn("tI case, but a almost equal to c",
+                EdgeCaseWarning)
+        if c <= a:
             case = "tI1"
-        elif c > a:
-            case = "tI2"
         else:
-            ## TODO WARNING
-            case = "tI1"
+            case = "tI2"
     elif bravais_lattice == "oP":
         case = "oP1"
     elif bravais_lattice == "oF":
+        if abs(1./(a**2) - (1./(b**2) + 1./(c**2))) < threshold:
+            warnings.warn("oF case, but 1/a^2 almost equal to 1/b^2 + 1/c^2",
+                EdgeCaseWarning)
+        if abs(1./(c**2) - (1./(a**2) + 1./(b**2))) < threshold:
+            warnings.warn("oF case, but 1/c^2 almost equal to 1/a^2 + 1/b^2",
+                EdgeCaseWarning)
         if 1./(a**2) > 1./(b**2) + 1./(c**2):
             case = "oF1"
         elif 1./(c**2) > 1./(a**2) + 1./(b**2):
@@ -115,24 +141,29 @@ def get_path(structure, with_time_reversal=True):
             case = "oF3"
     elif bravais_lattice == "oI":
         # Sort a,b,c, first is the largest
-        sorted_vectors = sorted([(c,1),(b,3),(a,2)])[::-1]
+        sorted_vectors = sorted([(c,1,'c'),(b,3,'b'),(a,2,'a')])[::-1]
+        if abs(sorted_vectors[0][0] - sorted_vectors[1][0]) < threshold:
+            warnings.warn("oI case, but the two longest vectors {} and {} "
+                "have almost the same length".format(
+                    sorted_vectors[0][2], sorted_vectors[1][2]),
+                EdgeCaseWarning)            
         case = "{}{}".format(bravais_lattice, sorted_vectors[0][1])
     elif bravais_lattice == "oC":
-        if a < b:
+        if abs(b-a) < threshold:
+            warnings.warn("oC case, but a almost equal to b",
+                EdgeCaseWarning)
+        if a <= b:
             case = "oC1"
-        elif a > b:
+        else:
             case = "oC2"
-        else:
-            ## TODO WARNING
-            case = "oC1"
     elif bravais_lattice == "oA":
-        if b < c:
+        if abs(b-c) < threshold:
+            warnings.warn("oA case, but b almost equal to c",
+                EdgeCaseWarning)
+        if b <= c:
             case = "oA1"
-        elif b > c:
-            case = "oA2"
         else:
-            ## TODO WARNING
-            case = "oA1"
+            case = "oA2"
     elif bravais_lattice == "hP":
         if spgrp_num in [143, 144, 145, 146, 147, 148, 149, 151, 153, 157, 
             159, 160, 161, 162, 163]:
@@ -140,42 +171,64 @@ def get_path(structure, with_time_reversal=True):
         else:
             case = "hP2"
     elif bravais_lattice == "hR":
-        if sqrt(3.) * a < sqrt(2.) * c:
+        if abs(sqrt(3.) * a - sqrt(2.) * c) < threshold:
+            warnings.warn("hR case, but sqrt(3)a almost equal to sqrt(2)c",
+                EdgeCaseWarning)        
+        if sqrt(3.) * a <= sqrt(2.) * c:
             case = "hR1"
-        elif sqrt(3.) * a > sqrt(2.) * c:
-            case = "hR2"
         else:
-            # TODO WARNING
-            case = "hR1"
+            case = "hR2"
     elif bravais_lattice == "mP":
         case = "mP1"
     elif bravais_lattice == "mC":
+        if abs(b - a * sqrt(1.-cosbeta**2)) < threshold:
+            warnings.warn("mC case, but b almost equal to a*sin(beta)",
+                EdgeCaseWarning)                    
         if b < a * sqrt(1.-cosbeta**2):
             case = "mC1"
         else:
-            # TODO WARNING FOR EDGE CASE
-            if -a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 < 1.: 
+            if abs(-a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 
+                   - 1.) < threshold:
+                warnings.warn("mC case, but -a*cos(beta)/c + "
+                    "a^2*sin(beta)^2/b^2 almost equal to 1",
+                    EdgeCaseWarning)                    
+            if -a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 <= 1.: 
                 # 12-face
                 case = "mC2"
             else:
-                # TODO WARNING FOR EDGE CASE
                 case = "mC3"
     elif bravais_lattice == "aP":
-        if cosalpha <= 0. and cosbeta <= 0. and cosgamma <= 0.:
+        reciprocal_cell = get_reciprocal_cell_rows(std_lattice)
+        ka,kb,kc,coskalpha,coskbeta,coskgamma=get_cell_params(
+            reciprocal_cell)   
+
+        if abs(coskalpha) < threshold:
+            warnings.warn("aP case, but the k_alpha angle is almost equal "
+                "to 90 degrees", EdgeCaseWarning)                    
+        if abs(coskbeta) < threshold:
+            warnings.warn("aP case, but the k_beta angle is almost equal "
+                "to 90 degrees", EdgeCaseWarning)                    
+        if abs(coskgamma) < threshold:
+            warnings.warn("aP case, but the k_gamma angle is almost equal "
+                "to 90 degrees", EdgeCaseWarning)                    
+
+        if coskalpha <= 0. and coskbeta <= 0. and coskgamma <= 0.:
             # all-obtuse
-            # TODO WARNING IF AT LEAST ONE IS PRACTICALLY ZERO
             case = "aP2"
-        elif cosalpha >= 0. and cosbeta >= 0. and cosgamma >= 0.:
+        elif coskalpha >= 0. and coskbeta >= 0. and coskgamma >= 0.:
             # all-acute
-            # TODO WARNING IF AT LEAST ONE IS PRACTICALLY ZERO
             case = "aP3"
         else:
             raise ValueError("Unexpected aP triclinic case, it neither "
-                "all-obtuse nor all-acute! Sign of cosines: cosalpha{}0, "
-                "cosbeta{}0, cosgamma{}0".format(
-                    ">=" if cosalpha >= 0 else "<",
-                    ">=" if cosbeta >= 0 else "<"
-                    ">=" if cosgamma >= 0 else "<"))
+                "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
+                "cos(kbeta){}0, cos(kgamma){}0".format(
+                    ">=" if coskalpha >= 0 else "<",
+                    ">=" if coskbeta >= 0 else "<",
+                    ">=" if coskgamma >= 0 else "<"))
+
+        raise NotImplementedError("Still to implement: first, Niggli "
+            "reduction in reciprocal space, then reordering as explained in "
+            "the HKOT paper")
     else:
         raise ValueError("Unknown type '{}' for spgrp {}".format(
             bravais_lattice, dataset['number']))
@@ -208,6 +261,10 @@ def get_path(structure, with_time_reversal=True):
     # additional path
     if not has_inv and not with_time_reversal:
         augmented_path = True
+    else:
+        augmented_path = False
+
+    if augmented_path:
         for pointname, coords in list(points.iteritems()):
             if pointname == 'GAMMA':
                 continue
@@ -228,7 +285,7 @@ def get_path(structure, with_time_reversal=True):
     return {'point_coords': points,
             'path': path,
             'has_inversion_symmetry': has_inv,
-            'path_with_time_reversal': augmented_path,
+            'augmented_path': augmented_path,
             'bravais_lattice': bravais_lattice,
             'bravais_lattice_case': case
             }
