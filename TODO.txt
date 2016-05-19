@@ -1,16 +1,24 @@
-TODO add license (first remove code copypasted from spglib?)
-TODO Make tests for edge cases
+PROBLEM! std_lattice is bringing things to the stanrard CONVENTIONAL lattice, not the primitive one.
+For this, we have the matrix (std_*).
+However, the coordinates are in primitive vectors!
+One needs to change, probably (going to primitive I think can be hardcoded)
+TO UNDERSTAND! (e.g. also the volume change)
 
-TODO wait for spglib 1.9.3 to remove hardcoded spacegroups, and for Niggli reduction (also, in the test clases, use tuples instead of ASE)
 
 TODO implement aP case (niggli reduction in reciprocal space + reordering, see HKOT paper)
 
 TODO provide as output also:
-  - primitive cell (+ new atoms and types)
-  - transformation matrix
+  - primitive cell (+ new atoms and types) CP
+  - transformation matrix from user to CP (or viceversa: probably return the integer one and document what it is and how to get the opposite one) (+ determinant?)
   - used reciprocal lattice (in general, and especially for aP!]
+  - ALSO: decide what to do if we want to use a supercell - maybe allow to 'force' the recognition of the bravais_lattice_case?
+additional method:
   - [optionally?] absolute coords (in 2pi/original_units) of the k_path
     (this requires a 'density' of kpoints, take it from the KpointsData class?)
 
 ASKED how to check correctness? -> probably calculate bands?
 
+
+
+TODO add license
+TODO Make tests for edge cases (or add the missing ones, some should be already there)

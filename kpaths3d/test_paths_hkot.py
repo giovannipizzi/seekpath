@@ -1,5 +1,28 @@
 import unittest
 
+class TestPaths3D_HKOT_Supercell(unittest.TestCase):
+    """
+    Test what happens for a supercell
+    """
+    def test_supercell(self):
+        """
+        Test a supercell (BCC).
+        TODO Implement some real test
+        """
+        import hkot
+        
+        cell = [[4.,0.,0.],[0.,10.,0.],[0.,0.,4.]]
+        positions = [[0.,0.,0.],[0.5,0.25,0.5],[0.,0.5,0.],[0.5,0.75,0.5]]
+        atomic_numbers = [6,6,6,6]
+
+        system = (cell, positions, atomic_numbers)        
+        res = hkot.get_path(system, with_time_reversal=False)
+
+        import spglib
+        print spglib.standardize_cell(system)
+        print res
+
+
 class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
     """
     Test the warnings issued for edge cases
@@ -26,15 +49,6 @@ class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
         import hkot
 
         system = (cell, positions, atomic_numbers)
-
-        ### TODO remove the following lines when ASE is not needed
-        import ase
-        asecell = ase.Atoms(cell=system[0])
-        for num in atomic_numbers:
-            asecell.append(ase.Atom(symbol=num))
-        asecell.set_scaled_positions(positions)
-        system = asecell
-        #### END TODO
 
         with warnings.catch_warnings(record=True) as w:
             res = hkot.get_path(system, with_time_reversal=False) 
@@ -178,10 +192,7 @@ class TestPaths3D_HKOT(unittest.TestCase):
         system = (asecell.get_cell(), asecell.get_scaled_positions(), 
             asecell.get_atomic_numbers())
 
-        # With time reversal set to False to get the most complete path
-        ## TODO: replace asecell with system when dependency on 1.9.3 is 
-        ## enforced
-        res = hkot.get_path(asecell, with_time_reversal=False) 
+        res = hkot.get_path(system, with_time_reversal=False) 
 
         self.assertEquals(res['bravais_lattice_case'], case)
         self.assertEquals(res['has_inversion_symmetry'], with_inv)

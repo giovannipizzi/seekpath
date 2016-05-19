@@ -17,9 +17,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016).
 
     :param structure: The crystal structure for which we want to obtain
-        the suggested path. It should be a structure accepted by spglib:
-        either a ASE Atoms class (or a compatible class), or a tuple
-        (cell, positions, numbers), where (if N is the number of atoms):
+        the suggested path. It should be a tuple in the format
+        accepted by spglib: (cell, positions, numbers), where 
+        (if N is the number of atoms):
 
         - cell is a 3x3 list of floats (cell[0] is the first lattice 
           vector, ...)
@@ -57,8 +57,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         - bravais_lattice_case: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
  
-    # I assume here structure is an ase structure, but this can be changed
-    # Use probably 1.9.3 and fix the check_spglib_version
+    TODO ADD new outputs in the docs
 
     :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
         orthorhombic systems). In this case, still one of the valid cases
@@ -67,6 +66,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     import copy
     from math import sqrt
     import warnings
+
+    import numpy
     
     from .tools import (
         check_spglib_version, extend_kparam, eval_expr, eval_expr_simple, 
@@ -85,10 +86,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     std_types = dataset['std_types']
     a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(std_lattice)
     spgrp_num = dataset['number']
+    print "WARNING! we are not getting the primitive cell here..."
     #  Lattice^{standard_bravais} = L^{original} * primitive_transf_matrix
     primitive_transf_matrix = dataset['transformation_matrix']
-    # TODO REMOVE NEXT LINE
-    #print std_lattice, std_positions
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
     properties = get_spgroup_data()[spgrp_num]
@@ -199,8 +199,13 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
                 case = "mC3"
     elif bravais_lattice == "aP":
         reciprocal_cell = get_reciprocal_cell_rows(std_lattice)
+
+        # I use the default eps here, this could be changed
+        niggli_rec_cell = spglib.niggli_reduce(reciprocal_cell)
+        # TODO: get transformation matrix?
+
         ka,kb,kc,coskalpha,coskbeta,coskgamma=get_cell_params(
-            reciprocal_cell)   
+            niggli_rec_cell)   
 
         if abs(coskalpha) < threshold:
             warnings.warn("aP case, but the k_alpha angle is almost equal "
@@ -226,8 +231,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
                     ">=" if coskbeta >= 0 else "<",
                     ">=" if coskgamma >= 0 else "<"))
 
-        raise NotImplementedError("Still to implement: first, Niggli "
-            "reduction in reciprocal space, then reordering as explained in "
+        raise NotImplementedError("Still to implement: "
+            "reordering as explained in "
             "the HKOT paper")
     else:
         raise ValueError("Unknown type '{}' for spgrp {}".format(
@@ -287,6 +292,11 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'has_inversion_symmetry': has_inv,
             'augmented_path': augmented_path,
             'bravais_lattice': bravais_lattice,
-            'bravais_lattice_case': case
+            'bravais_lattice_case': case,
+            'std_lattice': std_lattice,
+            'std_positions': std_positions,
+            'std_types': std_types,
+            'transformation_matrix': primitive_transf_matrix,
+            'volume_wrt_primitive': numpy.linalg.det(primitive_transf_matrix),
             }
 

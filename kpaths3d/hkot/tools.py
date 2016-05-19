@@ -185,14 +185,14 @@ def eval_expr(expr,a,b,c,cosalpha,cosbeta,cosgamma,kparam):
 def check_spglib_version():
     """
     Check the SPGLIB version and raise a ValueError if the version is
-    older than 1.9.0.
+    older than 1.9.4.
 
     Return the spglib module.
     """
     try:
         import spglib
     except ImportError:
-        raise ValueError("spglib >= 1.9.0 is required for the creation "
+        raise ValueError("spglib >= 1.9.4 is required for the creation "
             "of the k-paths, but it could not be imported")
 
     try:
@@ -208,10 +208,10 @@ def check_spglib_version():
         raise ValueError("Unable to parse version number")
 
     if tuple(version[:2]) < (1,9):
-        raise ValueError("Invalid spglib version, need >= 1.9.0")
+        raise ValueError("Invalid spglib version, need >= 1.9.4")
 
-    #if version[:2] == (1,9) and version[2] < 3:
-    #    raise ValueError("Invalid spglib version, need >= 1.9.3")        
+    if version[:2] == (1,9) and version[2] < 4:
+        raise ValueError("Invalid spglib version, need >= 1.9.4")        
     return spglib
 
 def get_cell_params(cell):
