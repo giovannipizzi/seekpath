@@ -87,8 +87,10 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(std_lattice)
     spgrp_num = dataset['number']
     print "WARNING! we are not getting the primitive cell here..."
-    #  Lattice^{standard_bravais} = L^{original} * primitive_transf_matrix
-    primitive_transf_matrix = dataset['transformation_matrix']
+    #  Lattice^{standard_bravais} = L^{original} * transf_matrix
+    transf_matrix = dataset['transformation_matrix']
+    primitive = spglib.find_primitive(structure)
+
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
     properties = get_spgroup_data()[spgrp_num]
@@ -296,7 +298,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'std_lattice': std_lattice,
             'std_positions': std_positions,
             'std_types': std_types,
-            'transformation_matrix': primitive_transf_matrix,
-            'volume_wrt_primitive': numpy.linalg.det(primitive_transf_matrix),
+            'primitive_cell': primitive[0],
+            'transformation_matrix': transf_matrix,
+            'volume_std_wrt_original': numpy.linalg.det(transf_matrix),
             }
 
