@@ -70,12 +70,9 @@
     <option value='mC2_inv'>mC2 [with inversion]</option>
     <option value='mC3_inv'>mC3 [with inversion]</option>
     <option value='mP1_inv'>mP1 [with inversion]</option>
-    <option value='oA1_inv'>oA1 [with inversion]</option>
-    <option value='oA2_inv'>oA2 [with inversion]</option>
     <option value='oC1_inv'>oC1 [with inversion]</option>
     <option value='oC2_inv'>oC2 [with inversion]</option>
     <option value='oF1_inv'>oF1 [with inversion]</option>
-    <option value='oF2_inv'>oF2 [with inversion]</option>
     <option value='oF3_inv'>oF3 [with inversion]</option>
     <option value='oI1_inv'>oI1 [with inversion]</option>
     <option value='oI2_inv'>oI2 [with inversion]</option>
@@ -266,6 +263,12 @@
             });
             // Gamma
             label = label.replace(/GAMMA/gi,'&Gamma;');
+            // Delta
+            label = label.replace(/DELTA/gi,'&Delta;');
+            // Sigma
+            label = label.replace(/SIGMA/gi,'&Sigma;');
+            // Lambda
+            label = label.replace(/LAMBDA/gi,'&Lambda;');
 
 
             textdiv.innerHTML = label;
@@ -433,7 +436,6 @@
             scene.add(line);
         });        
 
-        camera.updateProjectionMatrix(); 
         render();
 
         }).fail(function( jqxhr, textStatus, error ) {
@@ -442,11 +444,6 @@
             document.getElementById('info').innerHTML = "Request Failed: " + err;
         });
     }
-
-$( document ).ready(function() {
-    reload_all();
-});
-
 
 function toScreenPosition(vector3D, camera)
 {
@@ -465,9 +462,15 @@ function toScreenPosition(vector3D, camera)
 
 };
 
-// render now!
+
+
+// render loop - not needed if there are no animations
+//render();
+
+
+// render function
 function render() { 
-    requestAnimationFrame( render ); 
+    //requestAnimationFrame( render );  // activate only if you want to loop and make an animation
     renderer.render( scene, camera ); 
     
 
@@ -480,8 +483,9 @@ function render() {
     });
 }
 
-// render loop - not needed if there are no animations
-//render();
+$( document ).ready(function() {
+    reload_all();
+});
 
 </script>
 </body>
