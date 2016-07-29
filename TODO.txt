@@ -1,21 +1,12 @@
 
-NOTE! I've implemented the option to go to primitive cell 'by hand' using KHOT convention, but it seems to worsen the situation... 
-Try to print both the output of find_primitive and of our get_primitive, and 
-check the difference/where it fails (e.g. the hR seem to get worse, and
-the mC do not improve much). Also, debug the get_primitive!
-
-PROBLEM! std_lattice is bringing things to the stanrard CONVENTIONAL lattice, not the primitive one.
-For this, we have the matrix (std_*).
-However, the coordinates are in primitive vectors!
-One needs to change, probably (going to primitive I think can be hardcoded)
-TO UNDERSTAND! (e.g. also the volume change)
-
+NOTE! I've implemented the option to go to primitive cell 'by hand' using KHOT convention. It seems to work, but I should double check both the cells and
+most importantly the generated atomic coords into the primitive cell.
 
 TODO implement aP case (niggli reduction in reciprocal space + reordering, see HKOT paper)
 
 TODO provide as output also:
-  - primitive cell (+ new atoms and types) CP
-  - transformation matrix from user to CP (or viceversa: probably return the integer one and document what it is and how to get the opposite one) (+ determinant?)
+  - primitive cell (+ new atoms and types) CP [TO CHECK IF THE RESULTS ARE CORRECT - my function get_primitive]
+  - transformation matrix from user to CP (or viceversa: probably return the integer one and document what it is and how to get the opposite one) (+ determinant?) [probably it's sufficient to document how to get it from the current matrices? decide if we want to return also the cell volume ratio]
   - used reciprocal lattice (in general, and especially for aP!]
   - ALSO: decide what to do if we want to use a supercell - maybe allow to 'force' the recognition of the bravais_lattice_case?
 additional method:
