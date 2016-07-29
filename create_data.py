@@ -28,7 +28,7 @@ def get_json_for_visualizer(case, with_inv):
 
     res = hkot.get_path(system, with_time_reversal=False) 
 
-    real_lattice = res['primitive_cell']
+    real_lattice = res['primitive_lattice']
     rec_lattice = np.linalg.inv(real_lattice).T
     b1, b2, b3 = rec_lattice
 

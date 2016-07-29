@@ -1,3 +1,9 @@
+
+NOTE! I've implemented the option to go to primitive cell 'by hand' using KHOT convention, but it seems to worsen the situation... 
+Try to print both the output of find_primitive and of our get_primitive, and 
+check the difference/where it fails (e.g. the hR seem to get worse, and
+the mC do not improve much). Also, debug the get_primitive!
+
 PROBLEM! std_lattice is bringing things to the stanrard CONVENTIONAL lattice, not the primitive one.
 For this, we have the matrix (std_*).
 However, the coordinates are in primitive vectors!

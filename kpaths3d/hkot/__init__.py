@@ -72,7 +72,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     from .tools import (
         check_spglib_version, extend_kparam, eval_expr, eval_expr_simple, 
         get_cell_params, get_path_data, get_reciprocal_cell_rows)
-    from .spg_mapping import get_spgroup_data
+    from .spg_mapping import (get_spgroup_data, get_primitive)
 
     # I check if the SPGlib version is recent enough (raises ValueError)
     # otherwise
@@ -86,16 +86,22 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     std_types = dataset['std_types']
     a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(std_lattice)
     spgrp_num = dataset['number']
-    print "WARNING! we are not getting the primitive cell here..."
+    # This is the transformation from the original to the standard conventional
     #  Lattice^{standard_bravais} = L^{original} * transf_matrix
     transf_matrix = dataset['transformation_matrix']
-    primitive = spglib.find_primitive(structure)
-
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
     properties = get_spgroup_data()[spgrp_num]
     bravais_lattice = "{}{}".format(properties[0], properties[1])
     has_inv = properties[2]
+
+    (prim_lattice, prim_pos, prim_types), (P, invP) = get_primitive(
+        structure = (std_lattice, std_positions, std_types), 
+        bravais_lattice = bravais_lattice)
+    ## NOTE: we cannot do this, because the find_primitive of spglib
+    ## follows a different convention for mC and oA as explained in the
+    ## HKOT paper
+    # spglib_primitive = spglib.find_primitive(structure)
 
     # Implement all different cases
     if bravais_lattice == "cP":
@@ -298,7 +304,13 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'std_lattice': std_lattice,
             'std_positions': std_positions,
             'std_types': std_types,
-            'primitive_cell': primitive[0],
+            'primitive_lattice': prim_lattice,
+            'primitive_positions': prim_pos,
+            'primitive_types': prim_types, # to std_
+            # The following: between std and primitive, see docstring of 
+            # spg_mapping.get_P_matrix
+            'inverse_primitive_transformation_matrix': invP, 
+            'primitive_transformation_matrix': P, 
             'transformation_matrix': transf_matrix,
             'volume_std_wrt_original': numpy.linalg.det(transf_matrix),
             }
