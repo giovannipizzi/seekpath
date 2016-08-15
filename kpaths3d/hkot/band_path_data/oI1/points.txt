@@ -8,6 +8,6 @@ SIGMA_0 -Z Z Z
 F_2 Z 1-Z -Z
 Y_0 H -H H
 U_0 1-H H -H
-L_0 -N N 1/2+D
-M_0 N -N 1/2-D
+L_0 -N N 1/2-D
+M_0 N -N 1/2+D
 J_0 1/2-D 1/2+D -N
