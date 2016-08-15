@@ -95,7 +95,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     bravais_lattice = "{}{}".format(properties[0], properties[1])
     has_inv = properties[2]
 
-    (prim_lattice, prim_pos, prim_types), (P, invP) = get_primitive(
+    (prim_lattice, prim_pos, prim_types), (P, invP), conv_prim_mapping = get_primitive(
         structure = (std_lattice, std_positions, std_types), 
         bravais_lattice = bravais_lattice)
     ## NOTE: we cannot do this, because the find_primitive of spglib

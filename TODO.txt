@@ -1,11 +1,9 @@
-
-NOTE! I've implemented the option to go to primitive cell 'by hand' using KHOT convention. It seems to work, but I should double check both the cells and
-most importantly the generated atomic coords into the primitive cell.
-
 TODO implement aP case (niggli reduction in reciprocal space + reordering, see HKOT paper)
 
 TODO provide as output also:
-  - primitive cell (+ new atoms and types) CP [TO CHECK IF THE RESULTS ARE CORRECT - my function get_primitive]
+  - primitive cell (+ new atoms and types) CP [probably already there]
+  - how to map the atoms from one cell to the other? [get_primitive already returns this; to be combined with
+    spglib probably]
   - transformation matrix from user to CP (or viceversa: probably return the integer one and document what it is and how to get the opposite one) (+ determinant?) [probably it's sufficient to document how to get it from the current matrices? decide if we want to return also the cell volume ratio]
   - used reciprocal lattice (in general, and especially for aP!]
   - ALSO: decide what to do if we want to use a supercell - maybe allow to 'force' the recognition of the bravais_lattice_case?
@@ -13,9 +11,7 @@ additional method:
   - [optionally?] absolute coords (in 2pi/original_units) of the k_path
     (this requires a 'density' of kpoints, take it from the KpointsData class?)
 
-ASKED how to check correctness? -> probably calculate bands?
-
-
 
 TODO add license
 TODO Make tests for edge cases (or add the missing ones, some should be already there)
+TODO Check all TODOs

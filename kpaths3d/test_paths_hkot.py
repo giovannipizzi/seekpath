@@ -21,7 +21,7 @@ class TestPaths3D_HKOT_Supercell(unittest.TestCase):
         import spglib
         print spglib.standardize_cell(system)
         print res
-
+        assert False
 
 class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
     """

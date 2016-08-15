@@ -211,9 +211,11 @@ def get_P_matrix(bravais_lattice):
 
     return P, invP
 
-def get_primitive(structure, bravais_lattice):
+def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     """
     Return the primitive cell from a standard crystallographic cell.
+
+    :note: the input structure MUST be already standardized by spglib!
 
     :param structure: should be a tuple of the form
       (lattice, positions, types) and it MUST be already a standard
@@ -222,15 +224,25 @@ def get_primitive(structure, bravais_lattice):
     :param bravais_lattice: a string with the information of the
       Bravais lattice of the input structure.
 
-    :return: two tuples: the primitive structure, also in the format
-      (lattice, positions, types), and the (P, invP) matrices as returned
-      by get_P_matrix.
+    :param wrap_to_zero_one: if True, wrap the scaled coordinates to the
+       [0,1[ interval. Otherwise, the scaled coordinates will not be
+       changed and can be outside of the [0,1[ range; the advantage is that
+       the Cartesian coordinates of each atom returned in the primitive 
+       cell will match with one of the atoms in the input structure if this
+       variable is False.
+
+    :return: a tuple of length three: the first element is the primitive 
+        structure, also in the format (lattice, positions, types); the second
+        is a tuple with the (P, invP) matrices as returned by get_P_matrix; the
+        third is an array with the mapping from the atoms in the conventional
+        cell to the atoms in the primitive cell (e.g. if the conventional cell
+        has four atoms and twice the volume than the primitive, and the first 
+        and third atoms in the conventional map to the first of the primitive,
+        while the second and the fourth map to the second of the primitive,
+        this array will be [0,1,0,1]).
     """
     import numpy as np
     from collections import Counter
-
-    print "WARNING! The function get_primitive has not been debugged yet"
-    print "cell looks reasonable - but to double check; atoms to check!"
 
     threshold = 1.e-6 # Threshold for creation of primitive cell
 
@@ -241,7 +253,7 @@ def get_primitive(structure, bravais_lattice):
 
     # (a_P, b_P, c_P) = (a,b,c) P
     # a is the first ROW of lattice => I have to transpose lattice
-    prim_lattice = np.dot(np.array(lattice.T), P).T
+    prim_lattice = np.dot(np.array(np.array(lattice).T), P).T
     # (x_P, y_P, z_P)^T = (P^-1) (x,y,z)^T
     prim_positions = np.dot(invP, np.array(positions).T).T
 
@@ -273,7 +285,7 @@ def get_primitive(structure, bravais_lattice):
     if wrong_count:
         raise ValueError("Problem creating primitive cell, I found the "
             "following group of atoms with len != {}: {}".format(
-                volume_ratio, ", ".join(str(_) for _ in wrong_count.keys())))
+                volume_ratio, ", ".join(str(_) for _ in wrong_count)))
     # These are the groups of equivalent atoms; values are the positions in
     # the list from 0 to N-1
     groups = sorted(group_count.keys())
@@ -286,15 +298,27 @@ def get_primitive(structure, bravais_lattice):
             "but they are of different type! {}".format(", ".join(
                 [str(group) for group_idx, group in enumerate(groups)
                 if group_idx in problematic_groups_idx])))
-    # All good, just return the first, wrapped to [0,1]
+    # All good, just return the first (no wrapping to [0..1[ yet)
     chosen_idx = np.array([group[0] for group in groups])
 
+    # Create the list of mapped atoms
+    conv_prim_atoms_mapping = -1 * np.ones(len(positions),dtype=int)
+    for prim_idx, group in enumerate(groups):
+        for at_idx in group:
+            conv_prim_atoms_mapping[at_idx] = prim_idx
+    if -1 in conv_prim_atoms_mapping:
+        raise ValueError("Unable to recreate correctly the atom mapping! "
+            "{}".format(conv_prim_atoms_mapping))
+
     prim_positions = prim_positions[chosen_idx]
-    prim_types = types[chosen_idx]
+    prim_types = np.array(types)[chosen_idx]
+
+    if wrap_to_zero_one:
+        prim_positions = prim_positions % 1.
 
     prim_structure = (prim_lattice, prim_positions, prim_types)
 
-    return (prim_structure, (P, invP))
+    return (prim_structure, (P, invP), conv_prim_atoms_mapping)
 
 
 
