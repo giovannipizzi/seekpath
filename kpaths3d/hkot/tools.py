@@ -246,6 +246,23 @@ def get_reciprocal_cell_rows(real_space_cell):
     reciprocal_space_columns = 2. * numpy.pi * numpy.linalg.inv(real_space_cell)
     return (reciprocal_space_columns.T).tolist()
 
+def get_real_cell_from_reciprocal_rows(reciprocal_space_rows):
+    """
+    Given the cell in reciprocal space (3x3 matrix, G vectors as rows, 
+    return the real-space cell where again the R vectors are 
+    rows, i.e. satisfying 
+    dot(real_space_cell, reciprocal_space_cell.T) = 2pi * I,
+    where I is the 3x3 identity matrix.
+
+    :note: This is actually the same as get_reciprocal_cell_rows.
+
+    :return: the 3x3 list of real lattice vectors where each row is 
+        one vector.
+    """   
+    real_space_columns = 2. * numpy.pi * numpy.linalg.inv(reciprocal_space_rows)
+    return (real_space_columns.T).tolist()
+
+
 def get_path_data(case):
     """
     Given a case among those defined in the HKOT paper, return

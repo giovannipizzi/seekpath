@@ -67,11 +67,12 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     from math import sqrt
     import warnings
 
-    import numpy
+    import numpy as np
     
     from .tools import (
         check_spglib_version, extend_kparam, eval_expr, eval_expr_simple, 
-        get_cell_params, get_path_data, get_reciprocal_cell_rows)
+        get_cell_params, get_path_data, get_reciprocal_cell_rows,
+        get_real_cell_from_reciprocal_rows)
     from .spg_mapping import (get_spgroup_data, get_primitive)
 
     # I check if the SPGlib version is recent enough (raises ValueError)
@@ -89,19 +90,12 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     # This is the transformation from the original to the standard conventional
     #  Lattice^{standard_bravais} = L^{original} * transf_matrix
     transf_matrix = dataset['transformation_matrix']
+    volume_std_wrt_original = np.linalg.det(transf_matrix)
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
     properties = get_spgroup_data()[spgrp_num]
     bravais_lattice = "{}{}".format(properties[0], properties[1])
     has_inv = properties[2]
-
-    (prim_lattice, prim_pos, prim_types), (P, invP), conv_prim_mapping = get_primitive(
-        structure = (std_lattice, std_positions, std_types), 
-        bravais_lattice = bravais_lattice)
-    ## NOTE: we cannot do this, because the find_primitive of spglib
-    ## follows a different convention for mC and oA as explained in the
-    ## HKOT paper
-    # spglib_primitive = spglib.find_primitive(structure)
 
     # Implement all different cases
     if bravais_lattice == "cP":
@@ -206,24 +200,108 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             else:
                 case = "mC3"
     elif bravais_lattice == "aP":
-        reciprocal_cell = get_reciprocal_cell_rows(std_lattice)
-
+        # First step: cell that is Niggli reduced in reciprocal space
         # I use the default eps here, this could be changed
-        niggli_rec_cell = spglib.niggli_reduce(reciprocal_cell)
+        reciprocal_cell_orig = get_reciprocal_cell_rows(std_lattice)
+        ## This is Niggli-reduced
+        reciprocal_cell2 = spglib.niggli_reduce(reciprocal_cell_orig)
+        real_cell2 = get_real_cell_from_reciprocal_rows(reciprocal_cell2)
         # TODO: get transformation matrix?
 
-        ka,kb,kc,coskalpha,coskbeta,coskgamma=get_cell_params(
-            niggli_rec_cell)   
+        ka2,kb2,kc2,coskalpha2,coskbeta2,coskgamma2=get_cell_params(
+            reciprocal_cell2)   
 
-        if abs(coskalpha) < threshold:
-            warnings.warn("aP case, but the k_alpha angle is almost equal "
+        conditions = np.array([
+            abs(kb2 * kc2 * coskalpha2), 
+            abs(kc2 * ka2 * coskbeta2), 
+            abs(ka2 * kb2 * coskgamma2)
+            ])
+        M2_matrices = [
+            np.array([
+                [0,0,1],
+                [1,0,0],
+                [0,1,0]]),
+            np.array([
+                [0,1,0],
+                [0,0,1],
+                [1,0,0]]),
+            np.array([
+                [1,0,0],
+                [0,1,0],
+                [0,0,1]])
+            ]
+        # TODO: manage edge cases
+        smallest_condition = np.argsort(conditions)[0]
+        M2 = M2_matrices[smallest_condition]
+        # First change of vectors to have |ka3 kb3 cosgamma3| smallest
+        real_cell3 = np.dot(np.array(real_cell2).T, M2).T
+        reciprocal_cell3 = get_reciprocal_cell_rows(real_cell3)
+        ka3,kb3,kc3,coskalpha3,coskbeta3,coskgamma3=get_cell_params(
+            reciprocal_cell3)   
+        if abs(coskalpha3) < threshold:
+            warnings.warn("aP case, but the k_alpha3 angle is almost equal "
                 "to 90 degrees", EdgeCaseWarning)                    
-        if abs(coskbeta) < threshold:
-            warnings.warn("aP case, but the k_beta angle is almost equal "
+        if abs(coskbeta3) < threshold:
+            warnings.warn("aP case, but the k_beta3 angle is almost equal "
                 "to 90 degrees", EdgeCaseWarning)                    
-        if abs(coskgamma) < threshold:
-            warnings.warn("aP case, but the k_gamma angle is almost equal "
+        if abs(coskgamma3) < threshold:
+            warnings.warn("aP case, but the k_gamma3 angle is almost equal "
                 "to 90 degrees", EdgeCaseWarning)                    
+        # Make them all-acute or all-obtuse with the additional conditions
+        # explained in HKOT
+        # Note: cos > 0 => angle < 90deg
+        if coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 > 0.: #1a
+            M3 = np.array([
+                [1,0,0],
+                [0,1,0],
+                [0,0,1]])
+        elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 <= 0.: #1b
+            M3 = np.array([
+                [1,0,0],
+                [0,1,0],
+                [0,0,1]])
+        elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 <= 0.: #2a
+            M3 = np.array([
+                [1,0,0],
+                [0,-1,0],
+                [0,0,-1]])
+        elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 > 0.: #2b
+            M3 = np.array([
+                [1,0,0],
+                [0,-1,0],
+                [0,0,-1]])
+        elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 <= 0.: #3a
+            M3 = np.array([
+                [-1,0,0],
+                [0,1,0],
+                [0,0,-1]])
+        elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 > 0.: #3b
+            M3 = np.array([
+                [-1,0,0],
+                [0,1,0],
+                [0,0,-1]])
+        elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 > 0.: #4a
+            M3 = np.array([
+                [-1,0,0],
+                [0,-1,0],
+                [0,0,1]])
+        elif coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 <= 0.: #4b
+            M3 = np.array([
+                [-1,0,0],
+                [0,-1,0],
+                [0,0,1]])
+        else:
+            raise ValueError("Problem identifying M3 matrix in aP case!"
+                "Sign of cosines: cos(kalpha3){}0, "
+                "cos(kbeta3){}0, cos(kgamma3){}0".format(
+                    ">=" if coskalpha3 >= 0 else "<",
+                    ">=" if coskbeta3 >= 0 else "<",
+                    ">=" if coskgamma3 >= 0 else "<"))
+
+        real_cell_final = np.dot(real_cell3.T, M3).T
+        reciprocal_cell_final = get_reciprocal_cell_rows(real_cell_final)
+        ka,kb,kc,coskalpha,coskbeta,coskgamma=get_cell_params(
+            reciprocal_cell_final)   
 
         if coskalpha <= 0. and coskbeta <= 0. and coskgamma <= 0.:
             # all-obtuse
@@ -238,13 +316,43 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
                     ">=" if coskalpha >= 0 else "<",
                     ">=" if coskbeta >= 0 else "<",
                     ">=" if coskgamma >= 0 else "<"))
+        
+        #for v in std_lattice:
+        #    print v
+        #print 'fin--'
+        #for v in real_cell2:
+        #    print v
+        #print '=='
 
-        raise NotImplementedError("Still to implement: "
-            "reordering as explained in "
-            "the HKOT paper")
+        # Get absolute positions
+        std_pos_abs = np.dot(std_positions, std_lattice)
+        # Replace std_lattice with the new std_lattice
+        std_lattice = np.array(real_cell_final)
+        # Store the relative coords with respect to the new vectors
+        std_positions = np.dot(std_pos_abs, np.linalg.inv(std_lattice))
+        # TODO: implement the correct one (probably we need the matrix
+        # out from niggli, and then we can combine it with M2 and M3??)
+        # We set it to None for the time being to avoid confusion
+        transformation_matrix = None
+
+        print "Things to check with aP:"
+        print "- are we still getting the correct atomic positions?"
+        print "- decide if we want to do %1. for the atomic positions"
+        print "- get the matrix out of Niggli and then combine it properly"
+        print "  and set correctly transformation_matrix"
+        print "ALSO more generally check if the results are correct!"
+
     else:
-        raise ValueError("Unknown type '{}' for spgrp {}".format(
+        raise ValueError("Unknown type '{}' for spacegroup {}".format(
             bravais_lattice, dataset['number']))
+
+    ## NOTE: we simply use spglib.find_primitive, because the 
+    ## find_primitive of spglib follows a different convention for mC 
+    ## and oA as explained in the HKOT paper
+    (prim_lattice, prim_pos, prim_types), (P, invP), conv_prim_mapping = \
+        get_primitive(
+            structure = (std_lattice, std_positions, std_types), 
+            bravais_lattice = bravais_lattice)
 
     # Get the path data (k-parameters definitions, defition of the points,
     # suggested path)
@@ -312,6 +420,6 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'inverse_primitive_transformation_matrix': invP, 
             'primitive_transformation_matrix': P, 
             'transformation_matrix': transf_matrix,
-            'volume_std_wrt_original': numpy.linalg.det(transf_matrix),
+            'volume_std_wrt_original': volume_std_wrt_original,
             }
 

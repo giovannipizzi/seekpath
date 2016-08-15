@@ -206,6 +206,16 @@ def get_P_matrix(bravais_lattice):
             [ 1,1,0],
             [-1,1,0],
             [ 0,0,1]])
+    elif bravais_lattice == "aP":
+        # For aP, I should have already obtained the primitive cell
+        P = np.array([
+            [1,0,0],
+            [0,1,0],
+            [0,0,1]])
+        invP = np.array([
+            [1,0,0],
+            [0,1,0],
+            [0,0,1]])
     else:        
         raise ValueError("Invalid bravais_lattice {}".format(bravais_lattice))
 

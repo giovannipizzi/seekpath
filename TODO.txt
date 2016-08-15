@@ -1,7 +1,12 @@
-TODO implement aP case (niggli reduction in reciprocal space + reordering, see HKOT paper)
+TODO:
+1. check if aP implementation is correct (see output of the command)
+2. If possible, it would be nice to have the transformation matrix. 
+   a. for non-aP cases, this should be already possible. Check if it is sufficient to combine the 
+      transf_matrix with the P matrix (see also point below)
+   b. for aP cases, we should probably check if we can get the matrix out of Niggli-reduce (the order is
+      not preserved... but the algorithm itself has internally the matrix, for what I can understand).
 
 TODO provide as output also:
-  - primitive cell (+ new atoms and types) CP [probably already there]
   - how to map the atoms from one cell to the other? [get_primitive already returns this; to be combined with
     spglib probably]
   - transformation matrix from user to CP (or viceversa: probably return the integer one and document what it is and how to get the opposite one) (+ determinant?) [probably it's sufficient to document how to get it from the current matrices? decide if we want to return also the cell volume ratio]
@@ -10,6 +15,13 @@ TODO provide as output also:
 additional method:
   - [optionally?] absolute coords (in 2pi/original_units) of the k_path
     (this requires a 'density' of kpoints, take it from the KpointsData class?)
+
+
+Write to Yoyo about oI1 typo:
+-L_0 -N N 1/2+D
+-M_0 N -N 1/2-D
++L_0 -N N 1/2-D
++M_0 N -N 1/2+D
 
 
 TODO add license

@@ -62,9 +62,9 @@ if __name__ == "__main__":
         this_folder = os.path.split(os.path.abspath(hkot.__file__))[0]
         parent_folder =os.path.join(this_folder,"band_path_data")
         for case in os.listdir(parent_folder):
-            if case.startswith('aP'):
-                print >> sys.stderr, "Warning: skipping aP cases!"
-                continue
+            #if case.startswith('aP'):
+            #    print >> sys.stderr, "Warning: skipping aP cases!"
+            #    continue
             poscar_with_inv = os.path.join(
                 parent_folder,case,'POSCAR_inversion')
             poscar_no_inv = os.path.join(
