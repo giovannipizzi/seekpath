@@ -338,13 +338,6 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
                     ">=" if coskalpha >= 0 else "<",
                     ">=" if coskbeta >= 0 else "<",
                     ">=" if coskgamma >= 0 else "<"))
-        
-        #for v in std_lattice:
-        #    print v
-        #print 'fin--'
-        #for v in real_cell2:
-        #    print v
-        #print '=='
 
         # Get absolute positions
         std_pos_abs = np.dot(std_positions, std_lattice)
