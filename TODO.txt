@@ -1,3 +1,7 @@
+TODO add license
+TODO probably rename names in output dict of get_explicit_k_path? (e.g. something with prefix kpath_?)
+
+
 - If possible, it would be nice to have the transformation matrix. 
    a. for non-aP cases, this should be already possible. Check if it is sufficient to combine the 
       transf_matrix with the P matrix 
@@ -7,9 +11,3 @@
   - the transformation matrix from user to standard, and from standard to primitive (and the combination)
   - a warning/flag to say if the cell has changed in the process (probably it will almost always change?)
 
-
-- Add function to produce a path with given density
-  - [optionally?] absolute coords (in 2pi/original_units) of the k_path
-    (this requires a 'density' of kpoints, take it from the KpointsData class?)
-
-TODO add license

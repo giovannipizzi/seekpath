@@ -114,6 +114,7 @@
 
   <script>
   var show_axes = true;
+  var show_pathpoints = false; // If you want to show the points of the explicit path
 
   var canvas3d = document.getElementById('canvas3d');
     // document.body.appendChild( canvas3d );
@@ -171,6 +172,14 @@
         opacity: 1.,
         transparent: false,
     });
+
+    var pointpath_material = new THREE.MeshBasicMaterial(
+    {
+        color: 0x883232,
+        opacity: 1.,
+        transparent: false,
+    });
+
 
     var reload_all = function() {
         combovalue = document.getElementById('combobox').value;
@@ -435,6 +444,24 @@
             line.material.linewidth = 4;
             scene.add(line);
         });        
+
+
+        if (show_pathpoints) {
+            kpoints_abs = jsondata['explicit_kpoints_abs'];
+            for (var idx in kpoints_abs) {
+                pos = kpoints_abs[idx];
+                radius = 0.005 * max_b_length;
+
+                var sphere_geometry = new THREE.SphereGeometry(
+                    radius, 16, 16 );
+                var sphere = new THREE.Mesh(
+                    sphere_geometry, pointpath_material );
+                sphere.translateX(pos[0]);
+                sphere.translateY(pos[1]);
+                sphere.translateZ(pos[2]);
+                scene.add(sphere);
+            }
+        }
 
         render();
 

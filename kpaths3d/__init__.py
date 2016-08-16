@@ -159,7 +159,6 @@ def get_explicit_k_path(structure, with_time_reversal=True,
             segment_end = len(kpoints_labels)
             segments.append((segment_start, segment_end))
 
-
         retdict['kpoints_rel'] = np.array(kpoints_rel)
         retdict['kpoints_linearcoord'] = np.array(kpoints_linearcoord)
         retdict['kpoints_labels'] = kpoints_labels
