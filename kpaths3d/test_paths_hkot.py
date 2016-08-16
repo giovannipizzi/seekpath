@@ -7,7 +7,7 @@ class TestPaths3D_HKOT_Supercell(unittest.TestCase):
     def test_supercell(self):
         """
         Test a supercell (BCC).
-        TODO Implement some real test
+        This is just a very basic test.
         """
         import hkot
         
@@ -18,10 +18,9 @@ class TestPaths3D_HKOT_Supercell(unittest.TestCase):
         system = (cell, positions, atomic_numbers)        
         res = hkot.get_path(system, with_time_reversal=False)
 
-        import spglib
-        print spglib.standardize_cell(system)
-        print res
-        assert False
+        # Just some basic checks...
+        self.assertEquals(res['volume_original_wrt_std'], 2)
+        self.assertEquals(res['volume_original_wrt_prim'], 4)
 
 class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
     """

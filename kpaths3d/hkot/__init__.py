@@ -56,8 +56,30 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
         - bravais_lattice_case: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
- 
-    TODO ADD new outputs in the docs
+        - std_lattice: three real-space vectors for the standard conventional 
+          cell (std_lattice[0,:] is the first vector)
+        - std_positions: fractional coordinates of atoms in the standard 
+          conventional cell 
+        - std_types: list of integer types of the atoms in the standard 
+          conventional cell (typically, the atomic numbers)
+        - primitive_lattice: three real-space vectors for the standard primitive
+          cell (primitive_lattice[0,:] is the first vector)
+        - primitive_positions: fractional coordinates of atoms in the standard 
+          primiitive cell 
+        - primitive_types: list of integer types of the atoms in the standard 
+          conventional cell (typically, the atomic numbers)
+        - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
+          primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
+          is the first vector)
+        - primitive_transformation_matrix: the transformation matrix P between
+          the conventional and the primitive cell 
+        - inverse_primitive_transformation_matrix: the inverse of the matrix P
+          (the determinant is integer and gives the ratio in volume between
+          the conventional and primitive cells)
+        - volume_original_wrt_std: volume ratio of the user-provided cell
+          with respect to the the standard conventional cell 
+        - volume_original_wrt_prim: volume ratio of the user-provided cell
+          with respect to the the standard primitive cell 
 
     :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
         orthorhombic systems). In this case, still one of the valid cases
@@ -329,18 +351,12 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         # Replace std_lattice with the new std_lattice
         std_lattice = np.array(real_cell_final)
         # Store the relative coords with respect to the new vectors
+        # TODO: decide if we want to do %1. for the fractional coordinates
         std_positions = np.dot(std_pos_abs, np.linalg.inv(std_lattice))
         # TODO: implement the correct one (probably we need the matrix
         # out from niggli, and then we can combine it with M2 and M3??)
         # We set it to None for the time being to avoid confusion
         transformation_matrix = None
-
-        print "Things to check with aP:"
-        print "- are we still getting the correct atomic positions?"
-        print "- decide if we want to do %1. for the atomic positions"
-        print "- get the matrix out of Niggli and then combine it properly"
-        print "  and set correctly transformation_matrix"
-        print "ALSO more generally check if the results are correct!"
 
     else:
         raise ValueError("Unknown type '{}' for spacegroup {}".format(
@@ -415,11 +431,17 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'primitive_lattice': prim_lattice,
             'primitive_positions': prim_pos,
             'primitive_types': prim_types, # to std_
+            'reciprocal_primitive_lattice': get_reciprocal_cell_rows(
+                prim_lattice),
             # The following: between std and primitive, see docstring of 
             # spg_mapping.get_P_matrix
             'inverse_primitive_transformation_matrix': invP, 
             'primitive_transformation_matrix': P, 
-            'transformation_matrix': transf_matrix,
-            'volume_std_wrt_original': volume_std_wrt_original,
+            # For the time being disabled, not valid for aP cases
+            # (for which we would need the transformation matrix from niggli)
+            #'transformation_matrix': transf_matrix,
+            'volume_original_wrt_std': volume_std_wrt_original,
+            'volume_original_wrt_prim': \
+                volume_std_wrt_original * np.linalg.det(invP),
             }
 
