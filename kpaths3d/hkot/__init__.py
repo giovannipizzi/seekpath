@@ -101,9 +101,11 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     # otherwise
     spglib = check_spglib_version()
 
+    structure_internal = (np.array(structure[0]), np.array(structure[1]), np.array(structure[2]))
+
     # Symmetry analysis by SPGlib, get standard lattice, 
     # and cell parameters for this lattice
-    dataset = spglib.get_symmetry_dataset(structure)
+    dataset = spglib.get_symmetry_dataset(structure_internal)
     std_lattice = dataset['std_lattice']
     std_positions = dataset['std_positions']
     std_types = dataset['std_types']
