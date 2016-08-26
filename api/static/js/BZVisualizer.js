@@ -128,9 +128,10 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     //document.body.appendChild( renderer.domElement );
     canvas3d.appendChild( renderer.domElement );
 
-    var doc = canvas3d.ownerDocument;
-    var win = doc.defaultView || doc.parentWindow;
-    win.addEventListener("resize", resize_renderer);
+    // Now is commented, needs to be called by hand
+    // var doc = canvas3d.ownerDocument;
+    // var win = doc.defaultView || doc.parentWindow;
+    // win.addEventListener("resize", resize_renderer);
 
     controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)

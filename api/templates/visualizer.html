@@ -20,20 +20,36 @@
         load_BZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
     });
 
+    // global variable
+    var structureviewer = null;
+
+
+    var resize_canvases = function () {
+        resize_renderer(); // BZ visualizer
+        // resize structure viewer
+        if (structureviewer) {
+            parentcanvas = document.getElementById('structure');
+            the_width = parentcanvas.offsetWidth;
+            the_height = parentcanvas.offsetHeight;
+            structureviewer.resize(the_width, the_height);
+        }
+    }
     </script>
 </head>
-<body>
-  <div id='canvas3dtitle'><h3>Brillouin zone visualizer</h3></div>
+<body onresize='resize_canvases()'>
+  <div id='maintitle'><h1>K-path finder and visualizer</h1></div>
+  <div id='canvas3dtitle'><h3>Brillouin zone</h3></div>
   <div id='structuretitle'><h3>Structure</h3></div>
   <div id='structure'><script>
     parentcanvas = document.getElementById('structure');
     the_width = parentcanvas.offsetWidth;
     the_height = parentcanvas.offsetHeight;
 
-    var structureviewer = new ChemDoodle.TransformCanvas3D('structureviewer', 
+    structureviewer = new ChemDoodle.TransformCanvas3D('structureviewer', 
       the_width, the_height);
     structureviewer.emptyMessage = 'Loading data...';
     structureviewer.specs.set3DRepresentation('Ball and Stick');
+    structureviewer.specs.projectionPerspective_3D = false;
     structureviewer.specs.backgroundColor = 'white';
     structureviewer.specs.atoms_displayLabels_3D = true;
     structureviewer.specs.shapes_color = '#111';
@@ -168,13 +184,28 @@
 
     </div>
 
+    <div id='citations'>
+        <h2>How to cite</h2>
+        <p>If you use this tool, please cite the following work:
+        <ul>
+        <li><span style="font-style: italic">For the derivation of the paths:</span> Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
+    paths based on crystallography, arXiv:1602.06402 (2016).
+        </li>
+        <li><span style="font-style: italic">For the implementation in this tool:</span> G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016).
+        </li>
+        </ul>
+        </p>
+    </div>
+
+
     <div id='rawcode'>
-        <h2>Raw code</h2>
+        <h2>Raw data (JSON)</h2>
         <p><code>{{ raw_code|safe }}</code></p>
     </div>
 
-    </div>
 
+    </div>
+    
 
 </body>
 </html>

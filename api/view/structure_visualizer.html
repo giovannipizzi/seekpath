@@ -7,15 +7,15 @@
 
 <body>
 <div>
-<p>Upload a structure to get the band path of its primitive cell</p>
     <form action="/process_structure/" enctype="multipart/form-data" method="post">
-    <input type="file" name="structurefile" size="100">
-    <p> File format:
+    <p>Upload a structure to get the band path of its primitive cell: 
+ <input type="file" name="structurefile" size="100"></p>
+    <p> Select here the file format:
         <select name="fileformat">
           <option value="vasp">VASP POSCAR</option>
         </select>
     </p>
-    <input type="submit" value="Submit">
+    <input type="submit" value="Calculate">
     </form>
 </div>
 
