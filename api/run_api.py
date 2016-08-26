@@ -260,40 +260,36 @@ def process_structure():
 
         primitive_lattice = path_results['primitive_lattice']
         # Json structure in ChemDoodle format
+        # It in necessary to recenter!!!
+        center = (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2])/2.
         cell_json = {
                 "t": "UnitCell",
                 "i": "s0",
-                "o": [0.,0.,0.],
-                "x": primitive_lattice[0].tolist(),
-                "y": primitive_lattice[1].tolist(),
-                "z": primitive_lattice[2].tolist(),
-                "xy": (primitive_lattice[0] + primitive_lattice[1]).tolist(),
-                "xz": (primitive_lattice[0] + primitive_lattice[2]).tolist(),
-                "yz": (primitive_lattice[1] + primitive_lattice[2]).tolist(),
-                "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2]).tolist(),
+                "o": (-center).tolist(),
+                "x": (primitive_lattice[0]-center).tolist(),
+                "y": (primitive_lattice[1]-center).tolist(),
+                "z": (primitive_lattice[2]-center).tolist(),
+                "xy": (primitive_lattice[0] + primitive_lattice[1]-center).tolist(),
+                "xz": (primitive_lattice[0] + primitive_lattice[2]-center).tolist(),
+                "yz": (primitive_lattice[1] + primitive_lattice[2]-center).tolist(),
+                "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2]-center).tolist(),
             }
-        #"a": [ 
-        #            {"l": label,
-        #            "x": pos[0],
-        #            "y": pos[1],
-        #            "z": pos[2]} 
-        #            for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
-        #            ]
-        #        }
-        xyz_content = "{}\n{}\n".format(
-            len(primitive_symbols), len(primitive_symbols)) + "\n".join(
-            "{} {} {} {}".format(label, pos[0], pos[1], pos[2])
-            for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
-            )
+        atoms_json = [ 
+                    {"l": label,
+                    "x": pos[0],
+                    "y": pos[1],
+                    "z": pos[2]} 
+                    for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
+                    ]
 
-        #   We have a problem with the visualizer, everything is shifted??
-        #xyz_content = "4\n4\nH 0. 0. 0.\nC 6.0025824000 0. 0\nC 0. 6.0025824000 0\nC 0. 0. 6.0025824000\n"
-
+        json_content = {"s": [cell_json], 
+                        "m": [{"a": atoms_json}]
+                        }
+                
         return flask.render_template(
             'visualizer.html', 
             jsondata=json.dumps(out_json_data),
-            cell_json=json.dumps(cell_json),
-            xyz_content=json.dumps(xyz_content),
+            json_content=json.dumps(json_content),
             raw_code=raw_code,
             kpoints=kpoints,
             direct_vectors=direct_vectors,
@@ -301,7 +297,7 @@ def process_structure():
             atoms_cartesian=atoms_cartesian,
             reciprocal_primitive_vectors=reciprocal_primitive_vectors,
             suggested_path=suggested_path)
-    else: # GET Request, unexpected
+    else: # GET Request
         return flask.redirect('/structure_visualizer')
 
 

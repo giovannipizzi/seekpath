@@ -14,9 +14,7 @@
 
     <script>
     var jsondata = {{ jsondata|safe }};
-
-    var cell_json = {{ cell_json|safe }};
-    var xyz_content = {{ xyz_content|safe }};
+    var json_content = {{ json_content|safe }};
 
     $( document ).ready(function() {
         load_BZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
@@ -32,18 +30,15 @@
     the_width = parentcanvas.offsetWidth;
     the_height = parentcanvas.offsetHeight;
 
-    var structureviewer = new ChemDoodle.MolGrabberCanvas3D('structureviewer', 
+    var structureviewer = new ChemDoodle.TransformCanvas3D('structureviewer', 
       the_width, the_height);
     structureviewer.emptyMessage = 'Loading data...';
     structureviewer.specs.set3DRepresentation('Ball and Stick');
     structureviewer.specs.backgroundColor = 'white';
     structureviewer.specs.atoms_displayLabels_3D = true;
     structureviewer.specs.shapes_color = '#111';
-    console.log(xyz_content);
-    var chemstructure = new ChemDoodle.io.XYZInterpreter().read(xyz_content);
-    var unitCell = new ChemDoodle.structures.d3.UnitCell(cell_json);
-    structureviewer.loadMolecule(chemstructure);
-    structureviewer.loadContent([chemstructure], [unitCell]);
+    chemstructure = new ChemDoodle.io.JSONInterpreter().contentFrom(json_content);
+    structureviewer.loadContent(chemstructure['molecules'], chemstructure['shapes']);
   </script></div>
 
   <div id='canvas3dcontainer'>

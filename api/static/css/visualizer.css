@@ -103,10 +103,10 @@ height: 100%
     border: 1px solid black;
     margin: 0px;
     padding: 0px;
-    position: absolute; 
+    position: relative; 
     top: 30px;
     left: 52.5%;
-    overflow: scroll;
+    overflow: hidden;
 } 
 
 #below {
