@@ -7,7 +7,6 @@ import sys, os
 
 sys.path.append(os.path.realpath(os.path.join(
     os.path.split(os.path.realpath(__file__))[0], os.pardir)))
-from kpaths3d import hkot
 
 import ase, ase.io
 import json
@@ -95,6 +94,7 @@ def get_atomic_numbers(symbols):
 
 def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     import numpy as np
+    from kpaths3d import hkot
     from brillouinzone import brillouinzone
     from kpaths3d import get_explicit_k_path
 
@@ -136,10 +136,15 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
 
     return response
 
-@app.route('/js/<path:path>')
+@app.route('/static/js/<path:path>')
 def send_js(path):
     print path
     return flask.send_from_directory('static/js', path)
+
+@app.route('/static/css/<path:path>')
+def send_css(path):
+    print path
+    return flask.send_from_directory('static/css', path)
 
 
 @app.route('/process_structure/', methods=['GET', 'POST'])
