@@ -8,23 +8,178 @@
     <script src="/static/js/OrbitControls.js"></script>
     <script src="/static/js/jquery-3.1.0.min.js"></script>        
     <script src="/static/js/BZVisualizer.js"></script>        
+
+    <link rel="stylesheet" href="/static/css/ChemDoodleWeb.css" type="text/css">
+    <script type="text/javascript" src="/static/js/ChemDoodleWeb.js"></script>
+
     <script>
-    jsondata = {{ jsondata|safe }};
-    </script>
-</head>
-<body>
-<p>
-    <div id='canvas3d'></div><div id='info'></div>
-</p>
+    var jsondata = {{ jsondata|safe }};
 
-<h2>Raw code</h2>
-<p><code>{{ raw_code|safe }}</code></p>
+    var cell_json = {{ cell_json|safe }};
+    var xyz_content = {{ xyz_content|safe }};
 
-<script>
     $( document ).ready(function() {
         load_BZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
     });
-</script>
+
+    </script>
+</head>
+<body>
+  <div id='canvas3dtitle'><h3>Brillouin zone visualizer</h3></div>
+  <div id='structuretitle'><h3>Structure</h3></div>
+  <div id='structure'><script>
+    parentcanvas = document.getElementById('structure');
+    the_width = parentcanvas.offsetWidth;
+    the_height = parentcanvas.offsetHeight;
+
+    var structureviewer = new ChemDoodle.MolGrabberCanvas3D('structureviewer', 
+      the_width, the_height);
+    structureviewer.emptyMessage = 'Loading data...';
+    structureviewer.specs.set3DRepresentation('Ball and Stick');
+    structureviewer.specs.backgroundColor = 'white';
+    structureviewer.specs.atoms_displayLabels_3D = true;
+    structureviewer.specs.shapes_color = '#111';
+    console.log(xyz_content);
+    var chemstructure = new ChemDoodle.io.XYZInterpreter().read(xyz_content);
+    var unitCell = new ChemDoodle.structures.d3.UnitCell(cell_json);
+    structureviewer.loadMolecule(chemstructure);
+    structureviewer.loadContent([chemstructure], [unitCell]);
+  </script></div>
+
+  <div id='canvas3dcontainer'>
+      <div id='canvas3d'></div><div id='info'></div>
+  </div>
+    
+  <div id='below'>  
+  <div id='groupbelow'>
+      <div id='tablekpoints'>
+        <h2>Reciprocal space information</h2>
+
+        <h3>Reciprocal cell vectors (1/&#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">b</th>
+            <th style="text-align: center">x</th>
+            <th style="text-align: center">y</th>
+            <th style="text-align: center">z</th>
+          </thead>
+          <tbody>      
+            {% for b in reciprocal_primitive_vectors %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">b<sub>{{ b[0] }}</sub></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+
+        <h3>High-symmetry points (scaled units)</h3>
+        <table class="center">
+          <thead>
+            <th style="text-align: center">Label</th>
+            <th style="text-align: center">k<sub>1</sub></th>
+            <th style="text-align: center">k<sub>2</sub></th>
+            <th style="text-align: center">k<sub>3</sub></th>
+          </thead>
+
+          <tbody>      
+
+            {% for k in kpoints %}
+            <tr>
+              <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+
+
+          </tbody>
+        </table> 
+
+        <h3>Suggested path</h3>
+        <p>
+        {% for lab in suggested_path %}<script>document.write(prettify_label("{{ lab }}"));</script>{% endfor %}
+        </p>
+
+
+      </div>
+      <div id='structureinfo'>
+        <h2>Primitive structure information</h2>
+
+        <h3>Real cell vectors (&#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">v</th>
+            <th style="text-align: center">x</th>
+            <th style="text-align: center">y</th>
+            <th style="text-align: center">z</th>
+          </thead>
+          <tbody>      
+            {% for v in direct_vectors %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">v<sub>{{ v[0] }}</sub></td>
+              <td style="text-align: right"><code>{{ "%.10f" % v[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % v[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % v[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+ 
+        <h3>Atom coordinates (scaled)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">Element</th>
+            <th style="text-align: center">r<sub>1</sub></th>
+            <th style="text-align: center">r<sub>2</sub></th>
+            <th style="text-align: center">r<sub>3</sub></th>
+          </thead>
+          <tbody>      
+            {% for b in atoms_scaled %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+
+        <h3>Atom coordinates (Cartesian, &#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">Element</th>
+            <th style="text-align: center">r<sub>1</sub></th>
+            <th style="text-align: center">r<sub>2</sub></th>
+            <th style="text-align: center">r<sub>3</sub></th>
+          </thead>
+          <tbody>      
+            {% for b in atoms_cartesian %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+
+      </div>
+
+    </div>
+
+    <div id='rawcode'>
+        <h2>Raw code</h2>
+        <p><code>{{ raw_code|safe }}</code></p>
+    </div>
+
+    </div>
+
 
 </body>
 </html>

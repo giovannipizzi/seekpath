@@ -1,40 +1,188 @@
-    body {
-        margin: 0; 
-        -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none;   /* Chrome/Safari/Opera */
-        -khtml-user-select: none;    /* Konqueror */
-        -moz-user-select: none;      /* Firefox */
-        -ms-user-select: none;       /* Internet Explorer/Edge */
-        user-select: none;           /* Non-prefixed version, currently
-                                        not supported by any browser */
-    }
-    html {
-//      overflow: hidden;
-      background-color: #fff;
-  }
-  canvas { /* For ThreeJS */
-    width: 100%; 
-    height: 100% 
-  }
-  #canvas3d {
+body {
+    margin: 0; 
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 20px;
+
+}
+
+html {
+  background-color: #fff;
+}
+
+canvas { /* For ThreeJS */
+width: 100%; 
+height: 100% 
+}
+
+#canvas3dcontainer {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;           /* Non-prefixed version, currently
+                                    not supported by any browser */
     background-color: #fff;
-    width: 350px;
-    height: 350px;
+    width: 45%;
+    height: 300px;
+    margin: 0px;
+    padding: 0px;
+    position: absolute; 
+    top: 30px;
+    left: 2.5%;
+    overflow: visible;
+}
+
+#canvas3d {
+    background-color: #fff;
+    width: 100%;
+    height: 100%;
     border: 1px solid black;
     margin: 0px;
     padding: 0px;
     position: relative; /* Must be relative for clipping */
-    top: 50px;
-    left: 20px;
+    top: 0px;
+    left: 0px;
     overflow: hidden;
 }
-#combobox {
-    top: 10px;
-    left: 20px;
-    position: fixed;
+
+#canvas3dtitle {
+    background-color: #fff;
+    width: 45%;
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    top: 0px;
+    left: 2.5%;
+    text-align: center;
 }
+
+#tablekpoints {
+    background-color: #fff;
+    width: 45%;
+    margin: 0px;
+    padding: 0px;
+    border: 1px solid black; 
+    top: 0px;
+    margin-left: 2.5%;
+    text-align: center;
+    float: left;
+}
+
+#structureinfo {
+    background-color: #fff;
+    width: 45%;
+    margin: 0px;
+    border: 1px solid black; 
+    padding: 0px;    
+    top: 0px;
+    margin-right: 2.5%;
+    text-align: center;
+    float:right;
+}
+
+#structuretitle {
+    background-color: #fff;
+    width: 45%;
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    top: 0px;
+    left: 52.5%;
+    text-align: center;
+} 
+
+#structure {
+    background-color: #fff;
+    width: 45%;
+    height: 300px;
+    border: 1px solid black;
+    margin: 0px;
+    padding: 0px;
+    position: absolute; 
+    top: 30px;
+    left: 52.5%;
+    overflow: scroll;
+} 
+
+#below {
+    top: 360px;
+    position: absolute;
+    width: 100%;
+}
+
+#groupbelow {
+}
+
+#rawcode {
+    clear: both;
+    padding-top: 20px;
+    margin-left: 2.5%;
+    margin-right: 2.5%;
+} 
+
 #info {
-    top: 10px;
-    left: 300px;
+    top: 35px;
+    left: 2.5%;
     position: fixed;
+    z-index: -1;
 }
+
+h1 {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 100;
+    line-height: 26px;
+}
+h2 {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 15px;
+}
+h3 {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 15px;
+}
+p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 20px;
+}
+blockquote {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 21px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 30px;
+}
+pre {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+table.center {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+

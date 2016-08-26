@@ -4,11 +4,14 @@ app = flask.Flask(__name__)
 import tempfile
 
 import sys, os
+import copy
+import numpy as np
 
 sys.path.append(os.path.realpath(os.path.join(
     os.path.split(os.path.realpath(__file__))[0], os.pardir)))
 
-import ase, ase.io
+import ase, ase.io, ase.data
+from ase.data import chemical_symbols, atomic_numbers
 import json
 try:
     import cStringIO as StringIO
@@ -81,8 +84,6 @@ def get_structure_tuple(fileobject, fileformat):
         asestructure.get_chemical_symbols())
 
 def get_atomic_numbers(symbols):
-    from ase.data import atomic_numbers
-
     retlist = []
     for s in symbols:
         try:
@@ -134,7 +135,8 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
         np.array(res['reciprocal_primitive_lattice']))) > 1.e-7:
         raise AssertionError("Got different reciprocal cells...")
 
-    return response
+    # Response for JS, and path_results
+    return response, res
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
@@ -179,13 +181,37 @@ def process_structure():
             'atomic_numbers': atomic_numbers
         }
 
-        out_json_data = get_json_for_visualizer(in_json_data['cell'], 
+        out_json_data, path_results = get_json_for_visualizer(
+            in_json_data['cell'], 
             in_json_data['scaled_coords'],
             in_json_data['atomic_numbers'])
-        ## 2. get kpath data
-        ## 3. visualize it
 
-        raw_code = json.dumps(out_json_data, indent=2)
+        raw_code_dict = copy.copy(out_json_data)
+        for k in list(raw_code_dict.keys()):
+            if k.startswith('explicit_'):
+                raw_code_dict.pop(k)
+        raw_code_dict.pop('faces_data')
+        raw_code_dict['primitive_lattice'] = path_results['primitive_lattice'].tolist()
+        raw_code_dict['primitive_positions'] = path_results['primitive_positions'].tolist()
+        primitive_positions_cartesian = np.dot(
+            np.array(path_results['primitive_positions']),
+            np.array(path_results['primitive_lattice']),
+            ).tolist()
+        primitive_positions_cartesian_refolded = np.dot(
+            np.array(path_results['primitive_positions'])%1.,
+            np.array(path_results['primitive_lattice']),
+            ).tolist()
+        raw_code_dict['primitive_positions_cartesian'] = primitive_positions_cartesian
+
+        print(np.array(path_results['primitive_positions'])%1.)
+        print primitive_positions_cartesian_refolded
+
+        # raw_code['primitive_types'] = path_results['primitive_types']
+        primitive_symbols = [chemical_symbols[num] for num 
+            in path_results['primitive_types']]
+        raw_code_dict['primitive_symbols'] = primitive_symbols
+
+        raw_code = json.dumps(raw_code_dict, indent=2)
         ## I manually escape it to then add <br> and pass it to a filter with
         ## |safe. I have to 'unicode' it otherwise it keeps escaping also the
         ## next replaces
@@ -194,9 +220,87 @@ def process_structure():
         #content = content.replace('\n', '<br>').replace(' ', '&nbsp;')
         #content = "<code>{}</code>".format(content)
 
-        return flask.render_template('visualizer.html', 
-                                     jsondata=json.dumps(out_json_data),
-                                     raw_code=raw_code)
+        kpoints = [[k, out_json_data['kpoints'][k][0], 
+            out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
+            for k in sorted(out_json_data['kpoints'])]
+
+        # print path_results
+
+        direct_vectors = [[idx, coords[0], coords[1], coords[2]]
+            for idx, coords in 
+            enumerate(path_results['primitive_lattice'], start=1)
+        ]
+
+        reciprocal_primitive_vectors = [[idx, coords[0], coords[1], coords[2]]
+            for idx, coords in 
+            enumerate(path_results['reciprocal_primitive_lattice'], start=1)
+        ]
+
+        atoms_scaled = [[label, coords[0], coords[1], coords[2]]
+            for label, coords in 
+            zip(primitive_symbols, 
+                path_results['primitive_positions'])]
+
+        atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
+            for label, coords in 
+            zip(primitive_symbols, 
+                primitive_positions_cartesian)]
+
+        suggested_path = []
+        if path_results['path']:
+            last = path_results['path'][0][0]
+            suggested_path.append(last)
+        for p1, p2 in path_results['path'][1:]:
+            suggested_path.append('-')
+            if p1 != last:
+                suggested_path.append(p1)
+                suggested_path.append('|')
+            suggested_path.append(p2)
+            last = p2
+
+        primitive_lattice = path_results['primitive_lattice']
+        # Json structure in ChemDoodle format
+        cell_json = {
+                "t": "UnitCell",
+                "i": "s0",
+                "o": [0.,0.,0.],
+                "x": primitive_lattice[0].tolist(),
+                "y": primitive_lattice[1].tolist(),
+                "z": primitive_lattice[2].tolist(),
+                "xy": (primitive_lattice[0] + primitive_lattice[1]).tolist(),
+                "xz": (primitive_lattice[0] + primitive_lattice[2]).tolist(),
+                "yz": (primitive_lattice[1] + primitive_lattice[2]).tolist(),
+                "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2]).tolist(),
+            }
+        #"a": [ 
+        #            {"l": label,
+        #            "x": pos[0],
+        #            "y": pos[1],
+        #            "z": pos[2]} 
+        #            for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
+        #            ]
+        #        }
+        xyz_content = "{}\n{}\n".format(
+            len(primitive_symbols), len(primitive_symbols)) + "\n".join(
+            "{} {} {} {}".format(label, pos[0], pos[1], pos[2])
+            for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
+            )
+
+        #   We have a problem with the visualizer, everything is shifted??
+        #xyz_content = "4\n4\nH 0. 0. 0.\nC 6.0025824000 0. 0\nC 0. 6.0025824000 0\nC 0. 0. 6.0025824000\n"
+
+        return flask.render_template(
+            'visualizer.html', 
+            jsondata=json.dumps(out_json_data),
+            cell_json=json.dumps(cell_json),
+            xyz_content=json.dumps(xyz_content),
+            raw_code=raw_code,
+            kpoints=kpoints,
+            direct_vectors=direct_vectors,
+            atoms_scaled=atoms_scaled,
+            atoms_cartesian=atoms_cartesian,
+            reciprocal_primitive_vectors=reciprocal_primitive_vectors,
+            suggested_path=suggested_path)
     else: # GET Request, unexpected
         return flask.redirect('/structure_visualizer')
 

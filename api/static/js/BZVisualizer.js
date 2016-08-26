@@ -45,6 +45,7 @@ var pointpath_material = new THREE.MeshBasicMaterial(
 var scene = null;
 var camera = null;
 var renderer = null;
+var current_canvas_id = null;
 
 var load_BZ_ajax = function(url, canvasID, infoID) {
     document.getElementById(infoID).innerHTML = "Loading..."
@@ -57,14 +58,45 @@ var load_BZ_ajax = function(url, canvasID, infoID) {
     });
 }
 
-var load_BZ = function(canvasID, infoID, jsondata) {
+var prettify_label = function(label) {
+        // Underscores
+        label = label.replace(/_(.)/gi,function (match, p1, offset, string) {
+            return '<sub>'+p1+'</sub>';
+        });
+        // Gamma
+        label = label.replace(/GAMMA/gi,'&Gamma;');
+        // Delta
+        label = label.replace(/DELTA/gi,'&Delta;');
+        // Sigma
+        label = label.replace(/SIGMA/gi,'&Sigma;');
+        // Lambda
+        label = label.replace(/LAMBDA/gi,'&Lambda;');
+        label = label.replace(/\-/gi, '&mdash;')
+        return label;
+}
 
+var resize_renderer = function() {
+    if (current_canvas_id) {
+        var canvas3d = document.getElementById(current_canvas_id);
+
+        canvas3d_width = canvas3d.offsetWidth;
+        canvas3d_height = canvas3d.offsetHeight;
+
+        if (renderer) {
+            camera.aspect = canvas3d_width / canvas3d_height;
+            camera.updateProjectionMatrix();
+            renderer.setSize( canvas3d_width, canvas3d_height );
+        }
+        render();        
+    }
+}
+
+var load_BZ = function(canvasID, infoID, jsondata) {
+    // to be used by resize_renderer
+    current_canvas_id = canvasID;
     var canvas3d = document.getElementById(canvasID);
 
     document.getElementById(infoID).innerHTML = ""
-
-    console.log(jsondata);
-    console.log();
 
     // Remove the renderer (and anything else)
     while (canvas3d.firstChild) {
@@ -95,6 +127,10 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     renderer.setSize( canvas3d_width, canvas3d_height );
     //document.body.appendChild( renderer.domElement );
     canvas3d.appendChild( renderer.domElement );
+
+    var doc = canvas3d.ownerDocument;
+    var win = doc.defaultView || doc.parentWindow;
+    win.addEventListener("resize", resize_renderer);
 
     controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
@@ -141,21 +177,12 @@ var load_BZ = function(canvasID, infoID, jsondata) {
         textdiv.style.backgroundColor = "transparent";
 
         // prettify label
-        // Underscores
-        label = label.replace(/_(.)/gi,function (match, p1, offset, string) {
-            return '<sub>'+p1+'</sub>';
-        });
-        // Gamma
-        label = label.replace(/GAMMA/gi,'&Gamma;');
-        // Delta
-        label = label.replace(/DELTA/gi,'&Delta;');
-        // Sigma
-        label = label.replace(/SIGMA/gi,'&Sigma;');
-        // Lambda
-        label = label.replace(/LAMBDA/gi,'&Lambda;');
-
+        label = prettify_label(label);
 
         textdiv.innerHTML = label;
+        // disallow scrolling etc. so that it goes to the parent div
+        textdiv.style.pointerEvents = "none"; 
+        // next are to disallow selection
         textdiv.style.userSelect = "none";
         textdiv.style.userSelect = "none";
         textdiv.style.webkitUserSelect = "none";
@@ -213,6 +240,8 @@ var load_BZ = function(canvasID, infoID, jsondata) {
                 textdiv.style.webkitUserSelect = "none";
                 textdiv.style.MozUserSelect = "none";
                 textdiv.setAttribute("unselectable", "on");
+                textdiv.style.pointerEvents = "none"; 
+
 
                 canvas3d.appendChild(textdiv);
 
@@ -272,6 +301,7 @@ var load_BZ = function(canvasID, infoID, jsondata) {
             textdiv.style.webkitUserSelect = "none";
             textdiv.style.MozUserSelect = "none";
             textdiv.setAttribute("unselectable", "on");
+            textdiv.style.pointerEvents = "none"; 
             canvas3d.appendChild(textdiv);
 
             pos = dir.clone();
