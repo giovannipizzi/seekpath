@@ -14,7 +14,18 @@ import tempfile
 import sys, os
 import copy
 import numpy as np
-import time
+import time, datetime
+
+import logging, logging.handlers
+logger = logging.getLogger("kpath_server")
+
+logHandler = logging.handlers.RotatingFileHandler('requests.log', maxBytes=1000000, backupCount=1) 
+formatter = logging.Formatter('[%(asctime)s] {%(pathname)s - %(levelname)s - %(filename)s - %(module)s - %(funcName)s - %(message)s') 
+logHandler.setFormatter(formatter) 
+logger.addHandler(logHandler) 
+logger.setLevel(logging.DEBUG) 
+
+logger.debug("Start")
 
 sys.path.append(os.path.realpath(os.path.join(
     os.path.split(os.path.realpath(__file__))[0], os.pardir)))
@@ -36,7 +47,7 @@ class UnknownFormatError(ValueError):
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
 ## Add @nocache right between @app.route and the 'def' line
 from functools import wraps, update_wrapper
-import datetime
+
 def nocache(view):
     @wraps(view)
     def no_cache(*args, **kwargs):
@@ -48,11 +59,7 @@ def nocache(view):
         return response
     return update_wrapper(no_cache, view) 
 
-def get_structure_tuple(fileobject, fileformat):
-    #with tempfile.NamedTemporaryFile() as f:
-    #    structurefile.save(f.name)
-    #    print f.name
-        
+def get_structure_tuple(fileobject, fileformat):        
     if fileformat == 'vasp':
         import ase.io.vasp
         asestructure = ase.io.vasp.read_vasp(fileobject)
@@ -130,21 +137,22 @@ def index():
 def send_view_index():
     return flask.send_from_directory('view', 'index.html')
 
-@app.route('/structure_visualizer/')
-def structure_visualizer():
+@app.route('/kpath_visualizer/')
+def kpath_visualizer():
     #return flask.send_from_directory('view', 'structure_visualizer.html')
-    return flask.render_template('structure_visualizer.html')
+    return flask.render_template('visualizer_select.html')
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
-    print path
     return flask.send_from_directory('static/js', path)
 
 @app.route('/static/css/<path:path>')
 def send_css(path):
-    print path
     return flask.send_from_directory('static/css', path)
 
+@app.route('/static/fonts/<path:path>')
+def send_fonts(path):
+    return flask.send_from_directory('static/fonts', path)
 
 @app.route('/process_structure/', methods=['GET', 'POST'])
 def process_structure():
@@ -152,8 +160,7 @@ def process_structure():
     if flask.request.method == 'POST':
         # check if the post request has the file part
         if 'structurefile' not in flask.request.files:
-            #flash('No file part')
-            return flask.redirect('/structure_visualizer')
+            return flask.redirect('/kpath_visualizer')
         structurefile = flask.request.files['structurefile']
         fileformat = flask.request.form.get('fileformat', 'unknown')
         fileobject = StringIO.StringIO(structurefile.read())
@@ -161,23 +168,47 @@ def process_structure():
         try:
             structure_tuple = get_structure_tuple(fileobject, fileformat)
         except UnknownFormatError:
-            # Return immediately (TODO: change page)
-            return flask.render_template(
-                'structure_visualizer.html', 
-                content="Unknown format '{}'".format(fileformat))
-        except Exception:
-            return flask.render_template(
-                'structure_visualizer.html', 
-                content="I tried my best, but I wasn't able to load your "
+            fileobject.seek(0)
+            data = {'filecontent': fileobject.read(), fileformat: fileformat}
+            logger.debug(json.dumps({'data': data, 'reason': 'unknownformat',
+                'request': str(flask.request.headers),
+                'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
+                'time': datetime.datetime.now().isoformat()}))
+            # Message passed to the next page
+            flask.flash("Unknown format '{}'".format(fileformat))
+            return flask.redirect('/kpath_visualizer')
+        except Exception as e:
+            import traceback
+            fileobject.seek(0)
+            data = {'filecontent': fileobject.read(), fileformat: fileformat}
+            logger.debug(json.dumps({'data': data, 'reason': 'exception', 
+                'traceback': traceback.format_exc(),
+                'request': str(flask.request.headers),
+                'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
+                'time': datetime.datetime.now().isoformat()}))
+            flask.flash("I tried my best, but I wasn't able to load your "
                     "file in format '{}'...".format(fileformat))
+            return flask.redirect('/kpath_visualizer')
 
         if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
-            return flask.render_template(
-                'structure_visualizer.html', 
-                content="Sorry, this online visualizer is limited to {} atoms "
+            fileobject.seek(0)
+            data = {'filecontent': fileobject.read(), fileformat: fileformat}
+            logger.debug(json.dumps({'data': data, 'reason': 'toolarge', 
+                'number_of_atoms': len(structure_tuple[1]),
+                'request': str(flask.request.headers), 
+                'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
+                'time': datetime.datetime.now().isoformat()}))
+            flask.flash("Sorry, this online visualizer is limited to {} atoms "
                 "in the input cell, while your structure has {} atoms."
                 "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
+            return flask.redirect('/kpath_visualizer')
             
+        fileobject.seek(0)
+        data = {'filecontent': fileobject.read(), fileformat: fileformat}
+        logger.debug(json.dumps({'data': data, 'reason': 'OK',
+            'request': str(flask.request.headers),
+            'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
+            'time': datetime.datetime.now().isoformat()}))
 
         atomic_numbers = get_atomic_numbers(structure_tuple[2])
         in_json_data = {
@@ -187,12 +218,10 @@ def process_structure():
             'atomic_numbers': atomic_numbers
         }
 
-        print 'b'
         out_json_data, path_results = get_json_for_visualizer(
             in_json_data['cell'], 
             in_json_data['scaled_coords'],
             in_json_data['atomic_numbers'])
-        print 'a'
 
         raw_code_dict = copy.copy(out_json_data)
         for k in list(raw_code_dict.keys()):
@@ -229,8 +258,6 @@ def process_structure():
             out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
             for k in sorted(out_json_data['kpoints'])]
 
-        # print path_results
-
         direct_vectors = [[idx, coords[0], coords[1], coords[2]]
             for idx, coords in 
             enumerate(path_results['primitive_lattice'], start=1)
@@ -251,7 +278,6 @@ def process_structure():
             zip(primitive_symbols, 
                 primitive_positions_cartesian)]
 
-        print path_results['path']
         # Create extetically-nice looking path, with dashes and pipes
         suggested_path = []
         if path_results['path']:
@@ -316,7 +342,8 @@ def process_structure():
             time_reversal_note=time_reversal_note if path_results['augmented_path'] else ""
             )
     else: # GET Request
-        return flask.redirect('/structure_visualizer')
+        return flask.redirect('/kpath_visualizer')
 
 if __name__ == "__main__":
+    app.secret_key = 'sdfds789sdf923J&T*&Gy#SD'
     app.run(debug=True)
