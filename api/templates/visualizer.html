@@ -126,10 +126,22 @@
         {% for lab in suggested_path %}<script>document.write(prettify_label("{{ lab }}"));</script>{% endfor %}
         </p>
 
+        {% if time_reversal_note %}
+        <p>
+        <span style="font-style: italic">Note on time reversal</span>: {{ time_reversal_note }}
+        </p>
+        {% endif %}
+
 
       </div>
       <div id='structureinfo'>
         <h2>Primitive structure information</h2>
+
+        <h3>Lattice type</h3>
+        <p>{{ bravais_lattice }} (case: {{ bravais_lattice_case }}), {{ with_without_time_reversal }} inversion symmetry</p>
+
+        <h3>Volume ratio between input structure and primitive structure</h3>
+        <p>The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>
 
         <h3>Real cell vectors (&#8491;)</h3>
         <table class="center">
@@ -199,10 +211,10 @@
         <h2>How to cite</h2>
         <p>If you use this tool, please cite the following work:
         <ul>
-        <li><span style="font-style: italic">For the derivation of the paths:</span> Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-    paths based on crystallography, arXiv:1602.06402 (2016).
+        <li><span style="font-style: italic">For the derivation of the paths:</span> <a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
+    paths based on crystallography, arXiv:1602.06402 (2016)</a>.
         </li>
-        <li><span style="font-style: italic">For the implementation in this tool:</span> G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016).
+        <li><span style="font-style: italic">For the implementation in this tool:</span> <a href="http://dx.doi.org/10.1016/j.commatsci.2015.09.013">G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016)</a>.
         </li>
         </ul>
         </p>
@@ -214,6 +226,11 @@
         <p><code>{{ raw_code|safe }}</code></p>
     </div>
 
+
+    <div id='finalinfo'>
+        <h2>Technical info</h2>
+        <p>Time spent to compute quantities: {{ compute_time }} s</p>
+    </div>
 
     </div>
     

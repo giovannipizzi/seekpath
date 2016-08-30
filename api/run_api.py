@@ -6,6 +6,7 @@ import tempfile
 import sys, os
 import copy
 import numpy as np
+import time
 
 sys.path.append(os.path.realpath(os.path.join(
     os.path.split(os.path.realpath(__file__))[0], os.pardir)))
@@ -17,6 +18,8 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
+
+time_reversal_note = "The second half of the path is required only if the system does not have time-reversal symmetry"
 
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
 from functools import wraps, update_wrapper
@@ -151,6 +154,7 @@ def send_css(path):
 
 @app.route('/process_structure/', methods=['GET', 'POST'])
 def process_structure():
+    start_time = time.time()
     if flask.request.method == 'POST':
         # check if the post request has the file part
         if 'structurefile' not in flask.request.files:
@@ -243,15 +247,19 @@ def process_structure():
             zip(primitive_symbols, 
                 primitive_positions_cartesian)]
 
+        print path_results['path']
+        # Create extetically-nice looking path, with dashes and pipes
         suggested_path = []
         if path_results['path']:
-            last = path_results['path'][0][0]
-            suggested_path.append(last)
-        for p1, p2 in path_results['path'][1:]:
+            suggested_path.append(path_results['path'][0][0])
             suggested_path.append('-')
+            suggested_path.append(path_results['path'][0][1])
+            last = path_results['path'][0][1]
+        for p1, p2 in path_results['path'][1:]:
             if p1 != last:
-                suggested_path.append(p1)
                 suggested_path.append('|')
+                suggested_path.append(p1)
+            suggested_path.append('-')
             suggested_path.append(p2)
             last = p2
 
@@ -277,21 +285,30 @@ def process_structure():
                     "z": pos[2]-center[2]} 
                     for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
                     ]
+        # These will be passed to ChemDoodle
         json_content = {"s": [cell_json], 
                         "m": [{"a": atoms_json}]
                         }
-                
+        
+        compute_time = time.time() - start_time        
         return flask.render_template(
             'visualizer.html', 
             jsondata=json.dumps(out_json_data),
             json_content=json.dumps(json_content),
+            volume_ratio_prim=int(path_results['volume_original_wrt_prim']),
             raw_code=raw_code,
             kpoints=kpoints,
+            bravais_lattice=path_results['bravais_lattice'],
+            bravais_lattice_case=path_results['bravais_lattice_case'],
             direct_vectors=direct_vectors,
             atoms_scaled=atoms_scaled,
+            with_without_time_reversal="with" if path_results['has_inversion_symmetry'] else "without",
             atoms_cartesian=atoms_cartesian,
             reciprocal_primitive_vectors=reciprocal_primitive_vectors,
-            suggested_path=suggested_path)
+            suggested_path=suggested_path,
+            compute_time=compute_time,
+            time_reversal_note=time_reversal_note if path_results['augmented_path'] else ""
+            )
     else: # GET Request
         return flask.redirect('/structure_visualizer')
 
