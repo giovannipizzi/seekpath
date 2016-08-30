@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+"""
+Main Flask python function that manages the server backend
+
+# TODO: TO IMPROVE FOR SECURITY (EXPOSE ONLY SPECIFIC FILES? MOVE CSS ETC
+# UNDER /static? http://flask.pocoo.org/docs/0.10/quickstart/
+# If there are overlapping atoms, the code crashes (probably spglib)
+# Check what happens when on apache.
+"""
 import flask
 app = flask.Flask(__name__)
 import tempfile
@@ -19,9 +27,14 @@ try:
 except ImportError:
     import StringIO
 
+MAX_NUMBER_OF_ATOMS = 256
 time_reversal_note = "The second half of the path is required only if the system does not have time-reversal symmetry"
 
+class UnknownFormatError(ValueError):
+    pass
+
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
+## Add @nocache right between @app.route and the 'def' line
 from functools import wraps, update_wrapper
 import datetime
 def nocache(view):
@@ -35,41 +48,6 @@ def nocache(view):
         return response
     return update_wrapper(no_cache, view) 
 
-# @app.route("/api/v1/graph/<int:calc_pk>/")
-# @nocache
-# def return_graph(calc_pk):
-#     
-#     # To be used, possibly
-#     if flask.request.method == 'GET':
-#         get_params = flask.request.args
-#     else:
-#         get_params = {}
-# 
-#     raw_nodes, raw_links = get_graph(calc_pk)
-# 
-#     ...
-# 
-#     return flask.jsonify({"nodes": nodes, "links": links})
-
-
-
-# TO IMPROVE FOR SECURITY (EXPOSE ONLY SPECIFIC FILES? MOVE CSS ETC
-# UNDER /static? http://flask.pocoo.org/docs/0.10/quickstart/
-@app.route('/index.html')
-def send_view_index():
-    return flask.send_from_directory('view', 'index.html')
-
-@app.route('/')
-def index():
-    return flask.redirect('/index.html')
-
-@app.route('/structure_visualizer/')
-def structure_visualizer():
-    return flask.send_from_directory('view', 'structure_visualizer.html')
-
-class UnknownFormatError(ValueError):
-    pass
-
 def get_structure_tuple(fileobject, fileformat):
     #with tempfile.NamedTemporaryFile() as f:
     #    structurefile.save(f.name)
@@ -78,6 +56,9 @@ def get_structure_tuple(fileobject, fileformat):
     if fileformat == 'vasp':
         import ase.io.vasp
         asestructure = ase.io.vasp.read_vasp(fileobject)
+    elif fileformat == 'xsf':
+        import ase.io.xsf
+        asestructure = ase.io.xsf.read_xsf(fileobject)
     else:
         raise UnknownFormatError(fileformat)
 
@@ -141,6 +122,19 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     # Response for JS, and path_results
     return response, res
 
+@app.route('/')
+def index():
+    return flask.redirect('/index.html')
+
+@app.route('/index.html')
+def send_view_index():
+    return flask.send_from_directory('view', 'index.html')
+
+@app.route('/structure_visualizer/')
+def structure_visualizer():
+    #return flask.send_from_directory('view', 'structure_visualizer.html')
+    return flask.render_template('structure_visualizer.html')
+
 @app.route('/static/js/<path:path>')
 def send_js(path):
     print path
@@ -169,13 +163,21 @@ def process_structure():
         except UnknownFormatError:
             # Return immediately (TODO: change page)
             return flask.render_template(
-                'basic_visualizer.html', 
+                'structure_visualizer.html', 
                 content="Unknown format '{}'".format(fileformat))
         except Exception:
             return flask.render_template(
-                'basic_visualizer.html', 
+                'structure_visualizer.html', 
                 content="I tried my best, but I wasn't able to load your "
                     "file in format '{}'...".format(fileformat))
+
+        if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
+            return flask.render_template(
+                'structure_visualizer.html', 
+                content="Sorry, this online visualizer is limited to {} atoms "
+                "in the input cell, while your structure has {} atoms."
+                "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
+            
 
         atomic_numbers = get_atomic_numbers(structure_tuple[2])
         in_json_data = {
@@ -185,10 +187,12 @@ def process_structure():
             'atomic_numbers': atomic_numbers
         }
 
+        print 'b'
         out_json_data, path_results = get_json_for_visualizer(
             in_json_data['cell'], 
             in_json_data['scaled_coords'],
             in_json_data['atomic_numbers'])
+        print 'a'
 
         raw_code_dict = copy.copy(out_json_data)
         for k in list(raw_code_dict.keys()):
@@ -300,6 +304,8 @@ def process_structure():
             kpoints=kpoints,
             bravais_lattice=path_results['bravais_lattice'],
             bravais_lattice_case=path_results['bravais_lattice_case'],
+            spacegroup_number=path_results['spacegroup_number'],
+            spacegroup_international=path_results['spacegroup_international'],
             direct_vectors=direct_vectors,
             atoms_scaled=atoms_scaled,
             with_without_time_reversal="with" if path_results['has_inversion_symmetry'] else "without",
@@ -311,7 +317,6 @@ def process_structure():
             )
     else: # GET Request
         return flask.redirect('/structure_visualizer')
-
 
 if __name__ == "__main__":
     app.run(debug=True)

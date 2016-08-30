@@ -80,6 +80,10 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
           with respect to the the standard conventional cell 
         - volume_original_wrt_prim: volume ratio of the user-provided cell
           with respect to the the standard primitive cell 
+        - spacegroup_number: Number from 1 to 230 of the spacegroup of the 
+          crystal
+        - spacegroup_international: International name of the spacegroup 
+          of the crystal
 
     :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
         orthorhombic systems). In this case, still one of the valid cases
@@ -438,5 +442,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'volume_original_wrt_std': volume_std_wrt_original,
             'volume_original_wrt_prim': \
                 volume_std_wrt_original * np.linalg.det(invP),
+            'spacegroup_number': dataset['number'],
+            'spacegroup_international': dataset['international'],
             }
 

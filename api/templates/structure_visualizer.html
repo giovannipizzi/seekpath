@@ -6,6 +6,9 @@
 </head>
 
 <body>
+{% if content %}
+<p style="color: #ff4444;"><strong>Message:</strong> {{ content }}</p>
+{% endif %}
 <div>
     <form action="/process_structure/" enctype="multipart/form-data" method="post">
     <p>Upload a structure to get the band path of its primitive cell: 
@@ -13,6 +16,7 @@
     <p> Select here the file format:
         <select name="fileformat">
           <option value="vasp">VASP POSCAR</option>
+          <option value="xsf">XCrySDen (XSF)</option>
         </select>
     </p>
     <input type="submit" value="Calculate">

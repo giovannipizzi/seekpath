@@ -137,8 +137,9 @@
       <div id='structureinfo'>
         <h2>Primitive structure information</h2>
 
-        <h3>Lattice type</h3>
-        <p>{{ bravais_lattice }} (case: {{ bravais_lattice_case }}), {{ with_without_time_reversal }} inversion symmetry</p>
+        <h3>Crystal structure information</h3>
+        <p><span style="font-style: italic">Lattice type</span>: {{ bravais_lattice }} (case: {{ bravais_lattice_case }}), {{ with_without_time_reversal }} inversion symmetry</p>
+        <p><span style="font-style: italic">Spacegroup</span>: {{ spacegroup_international }} (number {{ spacegroup_number }})</p>
 
         <h3>Volume ratio between input structure and primitive structure</h3>
         <p>The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>
