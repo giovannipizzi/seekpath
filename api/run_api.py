@@ -203,9 +203,6 @@ def process_structure():
             ).tolist()
         raw_code_dict['primitive_positions_cartesian'] = primitive_positions_cartesian
 
-        print(np.array(path_results['primitive_positions'])%1.)
-        print primitive_positions_cartesian_refolded
-
         # raw_code['primitive_types'] = path_results['primitive_types']
         primitive_symbols = [chemical_symbols[num] for num 
             in path_results['primitive_types']]
@@ -259,8 +256,7 @@ def process_structure():
             last = p2
 
         primitive_lattice = path_results['primitive_lattice']
-        # Json structure in ChemDoodle format
-        # It in necessary to recenter!!!
+        # Manual recenter of the structure
         center = (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2])/2.
         cell_json = {
                 "t": "UnitCell",
@@ -269,19 +265,18 @@ def process_structure():
                 "x": (primitive_lattice[0]-center).tolist(),
                 "y": (primitive_lattice[1]-center).tolist(),
                 "z": (primitive_lattice[2]-center).tolist(),
-                "xy": (primitive_lattice[0] + primitive_lattice[1]-center).tolist(),
-                "xz": (primitive_lattice[0] + primitive_lattice[2]-center).tolist(),
-                "yz": (primitive_lattice[1] + primitive_lattice[2]-center).tolist(),
-                "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2]-center).tolist(),
+                "xy": (primitive_lattice[0] + primitive_lattice[1] - center).tolist(),
+                "xz": (primitive_lattice[0] + primitive_lattice[2] - center).tolist(),
+                "yz": (primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
+                "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
             }
         atoms_json = [ 
                     {"l": label,
-                    "x": pos[0],
-                    "y": pos[1],
-                    "z": pos[2]} 
+                    "x": pos[0]-center[0],
+                    "y": pos[1]-center[1],
+                    "z": pos[2]-center[2]} 
                     for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
                     ]
-
         json_content = {"s": [cell_json], 
                         "m": [{"a": atoms_json}]
                         }
