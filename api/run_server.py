@@ -19,7 +19,10 @@ import time, datetime
 import logging, logging.handlers
 logger = logging.getLogger("kpath_server")
 
-logHandler = logging.handlers.RotatingFileHandler('requests.log', maxBytes=1000000, backupCount=1) 
+logHandler = logging.handlers.RotatingFileHandler(
+    os.path.join(
+        os.path.split(os.path.realpath(__file__))[0],
+        'requests.log'), maxBytes=1000000, backupCount=1)
 formatter = logging.Formatter('[%(asctime)s] {%(pathname)s - %(levelname)s - %(filename)s - %(module)s - %(funcName)s - %(message)s') 
 logHandler.setFormatter(formatter) 
 logger.addHandler(logHandler) 
@@ -27,8 +30,8 @@ logger.setLevel(logging.DEBUG)
 
 logger.debug("Start")
 
-sys.path.append(os.path.realpath(os.path.join(
-    os.path.split(os.path.realpath(__file__))[0], os.pardir)))
+#sys.path.append(os.path.realpath(os.path.join(
+#    os.path.split(os.path.realpath(__file__))[0], os.pardir)))
 
 import ase, ase.io, ase.data
 from ase.data import chemical_symbols, atomic_numbers
@@ -37,6 +40,11 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
+
+import numpy as np
+from kpaths3d import hkot
+from brillouinzone import brillouinzone
+from kpaths3d import get_explicit_k_path
 
 MAX_NUMBER_OF_ATOMS = 256
 time_reversal_note = "The second half of the path is required only if the system does not have time-reversal symmetry"
@@ -85,11 +93,6 @@ def get_atomic_numbers(symbols):
 
 
 def get_json_for_visualizer(cell, relcoords, atomic_numbers):
-    import numpy as np
-    from kpaths3d import hkot
-    from brillouinzone import brillouinzone
-    from kpaths3d import get_explicit_k_path
-
     system = (np.array(cell), np.array(relcoords), np.array(atomic_numbers))
     res = hkot.get_path(system, with_time_reversal=False) 
 
