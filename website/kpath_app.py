@@ -160,7 +160,6 @@ def kpath_visualizer():
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
-    logger.warning('js {}'.format(path))
     return flask.send_from_directory(os.path.join(static_folder, 'js'), path)
 
 @app.route('/static/css/<path:path>')
