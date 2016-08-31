@@ -1,2 +1,5 @@
 requests.log
 SECRET_KEY
+kpath_app.wsgi
+kpath_visualizer_site
+
