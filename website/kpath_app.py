@@ -362,4 +362,5 @@ def process_structure():
         return flask.redirect(flask.url_for('kpath_visualizer'))
 
 if __name__ == "__main__":
+    app.use_x_sendfile=False # Cannot use x-sendfile when testing it!
     app.run(debug=True)
