@@ -67,6 +67,9 @@ site_template = string.Template("""
     WSGIDaemonProcess $appname user=$user group=$group threads=$numthreads
     WSGIScriptAlias $urlpath $wsgipath
 
+    XSendFile On
+    XSendFilePath $wsgifolder/static/
+
     <Directory $wsgifolder>
         WSGIProcessGroup $appname
         WSGIApplicationGroup %{GLOBAL}

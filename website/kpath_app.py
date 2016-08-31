@@ -22,12 +22,10 @@ logHandler = logging.handlers.RotatingFileHandler(
     os.path.join(
         os.path.split(os.path.realpath(__file__))[0],
         'requests.log'), maxBytes=1000000, backupCount=1)
-formatter = logging.Formatter('[%(asctime)s] {%(pathname)s - %(levelname)s - %(filename)s - %(module)s - %(funcName)s - %(message)s') 
+formatter = logging.Formatter('[%(asctime)s]%(levelname)s-%(funcName)s ^ %(message)s') 
 logHandler.setFormatter(formatter) 
 logger.addHandler(logHandler) 
 logger.setLevel(logging.DEBUG) 
-
-# logger.debug("Start")
 
 import ase, ase.io, ase.data
 from ase.data import chemical_symbols, atomic_numbers
@@ -51,7 +49,10 @@ class UnknownFormatError(ValueError):
 class ConfigurationError(Exception):
     pass
 
-app = flask.Flask(__name__)
+static_folder = os.path.join(os.path.split(os.path.realpath(__file__))[0],
+        'static')
+app = flask.Flask(__name__, static_folder=static_folder)
+app.use_x_sendfile=True
 try:
     with open(os.path.join(
         os.path.split(os.path.realpath(__file__))[0],
@@ -61,6 +62,8 @@ try:
             raise ValueError
 except Exception:
     raise ConfigurationError("Please create a SECRET_KEY file with a random string of at least 16 characters")
+
+logger.debug("Start")
 
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
 ## Add @nocache right between @app.route and the 'def' line
@@ -144,11 +147,11 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
 
 @app.route('/')
 def index():
-    return flask.redirect('/index.html')
+    return flask.redirect(flask.url_for('kpath_visualizer'))
 
-@app.route('/index.html')
-def send_view_index():
-    return flask.send_from_directory('view', 'index.html')
+#@app.route('/index.html')
+#def send_view_index():
+#    return flask.send_from_directory('view', 'index.html')
 
 @app.route('/kpath_visualizer/')
 def kpath_visualizer():
@@ -157,15 +160,16 @@ def kpath_visualizer():
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
-    return flask.send_from_directory('static/js', path)
+    logger.warning('js {}'.format(path))
+    return flask.send_from_directory(os.path.join(static_folder, 'js'), path)
 
 @app.route('/static/css/<path:path>')
 def send_css(path):
-    return flask.send_from_directory('static/css', path)
+    return flask.send_from_directory(os.path.join(static_folder, 'css'), path)
 
 @app.route('/static/fonts/<path:path>')
 def send_fonts(path):
-    return flask.send_from_directory('static/fonts', path)
+    return flask.send_from_directory(os.path.join(static_folder, 'fonts'), path)
 
 @app.route('/process_structure/', methods=['GET', 'POST'])
 def process_structure():
@@ -173,7 +177,7 @@ def process_structure():
     if flask.request.method == 'POST':
         # check if the post request has the file part
         if 'structurefile' not in flask.request.files:
-            return flask.redirect('/kpath_visualizer')
+            return flask.redirect(flask.url_for('kpath_visualizer'))
         structurefile = flask.request.files['structurefile']
         fileformat = flask.request.form.get('fileformat', 'unknown')
         fileobject = StringIO.StringIO(structurefile.read())
@@ -189,7 +193,7 @@ def process_structure():
                 'time': datetime.datetime.now().isoformat()}))
             # Message passed to the next page
             flask.flash("Unknown format '{}'".format(fileformat))
-            return flask.redirect('/kpath_visualizer')
+            return flask.redirect(flask.url_for('kpath_visualizer'))
         except Exception as e:
             import traceback
             fileobject.seek(0)
@@ -201,7 +205,7 @@ def process_structure():
                 'time': datetime.datetime.now().isoformat()}))
             flask.flash("I tried my best, but I wasn't able to load your "
                     "file in format '{}'...".format(fileformat))
-            return flask.redirect('/kpath_visualizer')
+            return flask.redirect(flask.url_for('kpath_visualizer'))
 
         if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
             fileobject.seek(0)
@@ -214,7 +218,7 @@ def process_structure():
             flask.flash("Sorry, this online visualizer is limited to {} atoms "
                 "in the input cell, while your structure has {} atoms."
                 "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
-            return flask.redirect('/kpath_visualizer')
+            return flask.redirect(flask.url_for('kpath_visualizer'))
             
         fileobject.seek(0)
         data = {'filecontent': fileobject.read(), fileformat: fileformat}
@@ -355,7 +359,7 @@ def process_structure():
             time_reversal_note=time_reversal_note if path_results['augmented_path'] else ""
             )
     else: # GET Request
-        return flask.redirect('/kpath_visualizer')
+        return flask.redirect(flask.url_for('kpath_visualizer'))
 
 if __name__ == "__main__":
     app.run(debug=True)
