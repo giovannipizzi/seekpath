@@ -8,10 +8,9 @@ Main Flask python function that manages the server backend
 # Check what happens when on apache.
 """
 import flask
-app = flask.Flask(__name__)
+import sys, os
 import tempfile
 
-import sys, os
 import copy
 import numpy as np
 import time, datetime
@@ -28,10 +27,7 @@ logHandler.setFormatter(formatter)
 logger.addHandler(logHandler) 
 logger.setLevel(logging.DEBUG) 
 
-logger.debug("Start")
-
-#sys.path.append(os.path.realpath(os.path.join(
-#    os.path.split(os.path.realpath(__file__))[0], os.pardir)))
+# logger.debug("Start")
 
 import ase, ase.io, ase.data
 from ase.data import chemical_symbols, atomic_numbers
@@ -51,6 +47,20 @@ time_reversal_note = "The second half of the path is required only if the system
 
 class UnknownFormatError(ValueError):
     pass
+
+class ConfigurationError(Exception):
+    pass
+
+app = flask.Flask(__name__)
+try:
+    with open(os.path.join(
+        os.path.split(os.path.realpath(__file__))[0],
+        'SECRET_KEY')) as f:
+        app.secret_key = f.readlines()[0].strip()
+        if len(app.secret_key) < 16:
+            raise ValueError
+except Exception:
+    raise ConfigurationError("Please create a SECRET_KEY file with a random string of at least 16 characters")
 
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
 ## Add @nocache right between @app.route and the 'def' line
@@ -348,5 +358,4 @@ def process_structure():
         return flask.redirect('/kpath_visualizer')
 
 if __name__ == "__main__":
-    app.secret_key = 'sdfds789sdf923J&T*&Gy#SD'
     app.run(debug=True)
