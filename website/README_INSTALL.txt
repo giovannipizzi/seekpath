@@ -9,3 +9,25 @@
 
 
 Note: To deploy, we follow the instructions from http://flask.pocoo.org/docs/0.11/deploying/mod_wsgi/
+
+
+
+NOTE ON FORWARDING THE TRAFFIC THROUGH A DIFFERENT MACHINE (reverse proxy, e.g.
+website on a hidden machine in the local network, proxied by a machine visible
+from the outside):
+
+1. enable mods proxy and proxy_http (more modules needed if you want to proxy https requests...)
+
+2. Add the following to your site:
+
+        ProxyRequests off
+        ProxyPreserveHost off
+
+        <Proxy *>
+                Order deny,allow
+                Allow from all
+        </Proxy>
+
+        ProxyPass /kpath_visualizer/ http://theospc7.epfl.ch/kpath_visualizer/
+        ProxyPassReverse /kpath_visualizer/ http://theospc7.epfl.ch/kpath_visualizer/
+

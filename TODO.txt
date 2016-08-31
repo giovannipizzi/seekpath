@@ -1,4 +1,4 @@
-TODO add license
+TODO add license (both to code and JS)
 TODO probably rename names in output dict of get_explicit_k_path? (e.g. something with prefix kpath_?)
 
 
