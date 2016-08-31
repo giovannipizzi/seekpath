@@ -8,7 +8,7 @@ import string
 import getpass, grp, pwd
 
 WSGI_FILENAME = 'kpath_app.wsgi'
-site_fname = "kpath_visualizer_site"
+site_fname = "kpath-visualizer-site.conf"
 
 current_user = getpass.getuser()
 current_group = grp.getgrgid(pwd.getpwnam(current_user).pw_gid).gr_name
