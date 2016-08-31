@@ -45,7 +45,7 @@ h4 {
     font-weight: 500;
     line-height: 12px;
 }
-p, li {
+p, li, label, input, select {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 14px;
     font-style: normal;

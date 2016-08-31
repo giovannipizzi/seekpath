@@ -16,12 +16,14 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.css"/>
+      <script src="../static/js/bootstrap.min.js"></script>
     <title>K-path visualizer</title>
   </head>
 
 </head>
 
 <body>
+<div style="margin-left:15px; margin-right:15px;">
 <div id='maintitle'><h1 style="text-align: center">K-path finder and visualizer</h1></div>
 
 {% with messages = get_flashed_messages() %}
@@ -37,22 +39,133 @@
   {% endif %}
 {% endwith %}
 
-<div style="margin-left: 20px">
-<form action="../process_structure/" enctype="multipart/form-data" method="post">
-  <div class='form-group'>
-    <label for="file">Upload a structure to get the band path of its primitive cell: </label>
- <input type="file" name="structurefile" size="100">
-</div>
-  <div class='form-group'>
-    <label for="fileformat">Select here the file format:</label>
-        <select name="fileformat">
-          <option value="vasp">VASP POSCAR</option>
-          <option value="xsf">XCrySDen (XSF)</option>
-        </select>
-      </div>  
-    <input type="submit" value="Calculate" class="btn btn-default"> 
-    </form>
+<p>Upload a crystal structure to:
+<ul>
+<li>find its spacegroup and the primitive cell,</li>
+<li>visualize the Brillouin zone,</li>
+<li>get the list of high-symmetry points in k space and get the suggested path in k space,</li>
+<li>and more...</li>
+</ul>
+</p>
+
+<h2>Upload you structure</h2>
+<div style="margin-left: 20px; margin-right: 20px">
+  <form action="../process_structure/" enctype="multipart/form-data" method="post">
+    <div class='alert alert-info'>
+      <div class='row'>
+	<div class='col-xs-12 col-sm-6'>
+	  <label for="file">Upload a crystal structure:</label>
+	</div>
+	<div class="col-xs-12 col-sm-6">
+	  <input type="file" name="structurefile" size="100">
+	</div>
+      </div>
+      <div class='row'>
+	<div class='col-sm-6'>
+	  <label for="fileformat">Select here the file format:</label>
+	</div> 
+	<div class='col-sm-6'>
+	  <select name="fileformat">
+            <option value="vasp">VASP POSCAR</option>
+            <option value="xsf">XCrySDen (XSF)</option>
+	  </select>
+	</div> 
+      </div>
+    <div class='row' style="text-align:center">
+      <input type="submit" value="Calculate my structure" class="btn btn-default">
+    </div>
+    </div>
+  </form>
 </div>
 
+<h2>Otherwise, pick an example</h2>
+<form action="../process_example_structure/" method="post">
+  <div style="margin-left: 20px; margin-right: 20px;">
+    <div class='alert alert-info'>
+      <div class="row">
+	<div class="col-xs-12 col-sm-6">
+	  <label for="examplestructure">Select here one example:</label>
+	</div>
+	<div class="col-xs-12 col-sm-6">
+	  <select name="examplestructure">
+	    <option value='aP2_inv'>aP2 [with inversion]</option>
+	    <option value='aP3_inv'>aP3 [with inversion]</option>
+	    <option value='cF1_inv'>cF1 [with inversion]</option>
+	    <option value='cF2_inv'>cF2 [with inversion]</option>
+	    <option value='cI1_inv'>cI1 [with inversion]</option>
+	    <option value='cP1_inv'>cP1 [with inversion]</option>
+	    <option value='cP2_inv'>cP2 [with inversion]</option>
+	    <option value='hP1_inv'>hP1 [with inversion]</option>
+	    <option value='hP2_inv'>hP2 [with inversion]</option>
+	    <option value='hR1_inv'>hR1 [with inversion]</option>
+	    <option value='hR2_inv'>hR2 [with inversion]</option>
+	    <option value='mC1_inv'>mC1 [with inversion]</option>
+	    <option value='mC2_inv'>mC2 [with inversion]</option>
+	    <option value='mC3_inv'>mC3 [with inversion]</option>
+	    <option value='mP1_inv'>mP1 [with inversion]</option>
+	    <option value='oC1_inv'>oC1 [with inversion]</option>
+	    <option value='oC2_inv'>oC2 [with inversion]</option>
+	    <option value='oF1_inv'>oF1 [with inversion]</option>
+	    <option value='oF3_inv'>oF3 [with inversion]</option>
+	    <option value='oI1_inv'>oI1 [with inversion]</option>
+	    <option value='oI2_inv'>oI2 [with inversion]</option>
+	    <option value='oI3_inv'>oI3 [with inversion]</option>
+	    <option value='oP1_inv'>oP1 [with inversion]</option>
+	    <option value='tI1_inv'>tI1 [with inversion]</option>
+	    <option value='tI2_inv'>tI2 [with inversion]</option>
+	    <option value='tP1_inv'>tP1 [with inversion]</option>
+	    <option value='aP2_noinv'>aP2 [no inversion]</option>
+	    <option value='aP3_noinv'>aP3 [no inversion]</option>
+	    <option value='cF1_noinv'>cF1 [no inversion]</option>
+	    <option value='cF2_noinv'>cF2 [no inversion]</option>
+	    <option value='cI1_noinv'>cI1 [no inversion]</option>
+	    <option value='cP1_noinv'>cP1 [no inversion]</option>
+	    <option value='cP2_noinv'>cP2 [no inversion]</option>
+	    <option value='hP1_noinv'>hP1 [no inversion]</option>
+	    <option value='hP2_noinv'>hP2 [no inversion]</option>
+	    <option value='hR1_noinv'>hR1 [no inversion]</option>
+	    <option value='hR2_noinv'>hR2 [no inversion]</option>
+	    <option value='mC1_noinv'>mC1 [no inversion]</option>
+	    <option value='mC2_noinv'>mC2 [no inversion]</option>
+	    <option value='mC3_noinv'>mC3 [no inversion]</option>
+	    <option value='mP1_noinv'>mP1 [no inversion]</option>
+	    <option value='oA1_noinv'>oA1 [no inversion]</option>
+	    <option value='oA2_noinv'>oA2 [no inversion]</option>
+	    <option value='oC1_noinv'>oC1 [no inversion]</option>
+	    <option value='oC2_noinv'>oC2 [no inversion]</option>
+	    <option value='oF1_noinv'>oF1 [no inversion]</option>
+	    <option value='oF2_noinv'>oF2 [no inversion]</option>
+	    <option value='oF3_noinv'>oF3 [no inversion]</option>
+	    <option value='oI1_noinv'>oI1 [no inversion]</option>
+	    <option value='oI2_noinv'>oI2 [no inversion]</option>
+	    <option value='oI3_noinv'>oI3 [no inversion]</option>
+	    <option value='oP1_noinv'>oP1 [no inversion]</option>
+	    <option value='tI1_noinv'>tI1 [no inversion]</option>
+	    <option value='tI2_noinv'>tI2 [no inversion]</option>
+	    <option value='tP1_noinv'>tP1 [no inversion]</option>
+	  </select>
+	</div>
+      </div>
+      <div class='row' style="text-align: center">
+	<input type="submit" value="Calculate this example" class="btn btn-default"> 
+      </div>
+    </div>
+  </div>
+</form>
+
+    <div id='citations'>
+        <h2>How to cite</h2>
+        <p>If you use this tool, please cite the following work:
+        <ul>
+        <li><span style="font-style: italic">For the derivation of the paths:</span> <a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
+    paths based on crystallography, arXiv:1602.06402 (2016)</a>.
+        </li>
+        <li><span style="font-style: italic">For the implementation in this tool:</span> <a href="http://dx.doi.org/10.1016/j.commatsci.2015.09.013">G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016)</a>; you should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> that is an essential library used in the implementation.
+        </li>
+        </ul>
+        </p>
+    </div>
+
+</div>
 </body>
 </html>
