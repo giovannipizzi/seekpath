@@ -188,13 +188,12 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
 
     # It should use the same logic, so give the same cell as above
     res_explicit = get_explicit_k_path(system, with_time_reversal=False) 
-    for k in ['kpoints_rel', 'kpoints_linearcoord', 'kpoints_labels', 
-            'kpoints_abs', 'segments']:
-        new_k = "explicit_{}".format(k)
-        if isinstance(res_explicit[k], np.ndarray):
-            response[new_k] = res_explicit[k].tolist()
-        else:
-            response[new_k] = res_explicit[k]
+    for k in res_explicit:
+        if k == 'segments' or k.startswith('explicit_'):
+            if isinstance(res_explicit[k], np.ndarray):
+                response[k] = res_explicit[k].tolist()
+            else:
+                response[k] = res_explicit[k]
 
     if np.sum(np.abs(np.array(res_explicit['reciprocal_primitive_lattice']) - 
         np.array(res['reciprocal_primitive_lattice']))) > 1.e-7:
