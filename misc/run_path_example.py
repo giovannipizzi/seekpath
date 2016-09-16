@@ -22,18 +22,18 @@ if __name__ == '__main__':
 
     res = get_explicit_k_path(system, with_time_reversal=False) 
 
-    for l, p in zip(res['kpoints_labels'], res['kpoints_abs']):
+    for l, p in zip(res['explicit_kpoints_labels'], res['explicit_kpoints_abs']):
         print "{}\t{}".format(l, p)
     
-    print res['kpoints_linearcoord']
+    print res['explicit_kpoints_linearcoord']
 
-    for l, p in zip(res['kpoints_labels'], res['kpoints_linearcoord']):
+    for l, p in zip(res['explicit_kpoints_labels'], res['explicit_kpoints_linearcoord']):
         print "{}\t{}".format(l, p)
 
-    print len(res['kpoints_labels']), len(res['kpoints_abs']), \
-        len(res['kpoints_linearcoord'])
+    print len(res['explicit_kpoints_labels']), len(res['explicit_kpoints_abs']), \
+        len(res['explicit_kpoints_linearcoord'])
 
     #for segment in res['segments']:
     #    print segment
-    #    print res['kpoints_labels'][slice(*segment)]
+    #    print res['explicit_kpoints_labels'][slice(*segment)]
 

@@ -30,7 +30,7 @@ class TestAiiDAExplicitPath(unittest.TestCase):
             [(0, 31), (30, 61), (60, 104), (103, 123), (122, 153), (152, 183),
              (182, 226), (226, 246), (246, 266)])
         ret_s = retdict['primitive_structure']
-        ret_k = retdict['kpoints']
+        ret_k = retdict['explicit_kpoints']
         self.assertEquals(
             ret_k.labels,
             [(0, 'GAMMA'), (30, 'X'), (60, 'M'), (103, 'GAMMA'), (122, 'Z'), 

@@ -55,24 +55,24 @@ def get_explicit_k_path(structure, with_time_reversal=True,
           is the first vector)
         - volume_original_wrt_prim: volume ratio of the user-provided cell
           with respect to the the standard primitive cell 
-        - kpoints: An AiiDA KPointsData object (without weights)
+        - explicit_kpoints: An AiiDA KPointsData object (without weights)
           with the kpoints and the respective labels.
           For each segment, the two endpoints are always included, 
           independently of the length.
-        - kpoints_linearcoord: array of floats, giving the coordinate at which
-          to plot the corresponding point.
+        - explicit_kpoints_linearcoord: array of floats, giving the 
+          coordinate at which to plot the corresponding point.
         - segments: a list of length-2 tuples, with the start and end index
           of each segment. **Note**! The indices are supposed to be used as 
           follows: the labels for the i-th segment are given by::
 
             segment_indices = segments[i]
-            segment_points = kpoints.get_kpoints[slice(*segment_indices)]
+            segment_points = explicit_kpoints.get_kpoints[slice(*segment_indices)]
 
           This means, in particular, that if you want the label of the start
           and end points, you should do::
 
-            start_point = kpoints.get_kpoints[segment_indices[0]]
-            stop_point = kpoints.get_kpoints[segment_indices[1]-1]
+            start_point = explicit_kpoints.get_kpoints[segment_indices[0]]
+            stop_point = explicit_kpoints.get_kpoints[segment_indices[1]-1]
 
           (note the minus one!)
 
@@ -102,9 +102,9 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     # Remove reciprocal_primitive_lattice, recalculated by kpoints class
     retdict.pop('reciprocal_primitive_lattice')
     KpointsData = DataFactory('array.kpoints')
-    kpoints_abs = retdict.pop('kpoints_abs')
-    kpoints_rel = retdict.pop('kpoints_rel')
-    kpoints_labels = retdict.pop('kpoints_labels')
+    kpoints_abs = retdict.pop('explicit_kpoints_abs')
+    kpoints_rel = retdict.pop('explicit_kpoints_rel')
+    kpoints_labels = retdict.pop('explicit_kpoints_labels')
     # Expects something of the type [[0,'X'],[34,'L'],...]
     # So I generate it, skipping empty labels
     labels = [[idx, label] for idx, label in enumerate(kpoints_labels) 
@@ -114,7 +114,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     kpoints.set_cell_from_structure(primitive_structure)
     kpoints.set_kpoints(
         kpoints_abs, cartesian=True, labels=labels)
-    retdict['kpoints'] = kpoints
+    retdict['explicit_kpoints'] = kpoints
 
     return retdict
     
