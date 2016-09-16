@@ -2,10 +2,11 @@
 """
 Main Flask python function that manages the server backend
 
-# TODO: TO IMPROVE FOR SECURITY (EXPOSE ONLY SPECIFIC FILES? MOVE CSS ETC
+TODO: TO IMPROVE FOR SECURITY (EXPOSE ONLY SPECIFIC FILES? MOVE CSS ETC
 # UNDER /static? http://flask.pocoo.org/docs/0.10/quickstart/
 # If there are overlapping atoms, the code crashes (probably spglib)
-# Check what happens when on apache.
+# Check what happens when on apache (this should be fixed in newer versions
+# of spglib)
 """
 import flask
 app = flask.Flask(__name__)
@@ -23,15 +24,14 @@ logHandler = logging.handlers.RotatingFileHandler(
     os.path.join(
         os.path.split(os.path.realpath(__file__))[0],
         'requests.log'), maxBytes=1000000, backupCount=1)
-formatter = logging.Formatter('[%(asctime)s] {%(pathname)s - %(levelname)s - %(filename)s - %(module)s - %(funcName)s - %(message)s') 
+formatter = logging.Formatter(
+    '[%(asctime)s] {%(pathname)s - %(levelname)s - %(filename)s -'
+    ' %(module)s - %(funcName)s - %(message)s') 
 logHandler.setFormatter(formatter) 
 logger.addHandler(logHandler) 
 logger.setLevel(logging.DEBUG) 
 
 logger.debug("Start")
-
-#sys.path.append(os.path.realpath(os.path.join(
-#    os.path.split(os.path.realpath(__file__))[0], os.pardir)))
 
 import ase, ase.io, ase.data
 from ase.data import chemical_symbols, atomic_numbers
@@ -47,7 +47,8 @@ from brillouinzone import brillouinzone
 from kpaths3d import get_explicit_k_path
 
 MAX_NUMBER_OF_ATOMS = 256
-time_reversal_note = "The second half of the path is required only if the system does not have time-reversal symmetry"
+time_reversal_note = ("The second half of the path is required only if the "
+    "system does not have time-reversal symmetry")
 
 class UnknownFormatError(ValueError):
     pass
@@ -57,17 +58,28 @@ class UnknownFormatError(ValueError):
 from functools import wraps, update_wrapper
 
 def nocache(view):
+    """
+    Decorator to disable page caching
+    """
     @wraps(view)
     def no_cache(*args, **kwargs):
         response = flask.make_response(view(*args, **kwargs))
         response.headers['Last-Modified'] = datetime.datetime.now()
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Cache-Control'] = (
+            'no-store, no-cache, must-revalidate, '
+            'post-check=0, pre-check=0, max-age=0')
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '-1'
         return response
     return update_wrapper(no_cache, view) 
 
-def get_structure_tuple(fileobject, fileformat):        
+def get_structure_tuple(fileobject, fileformat):  
+    """
+    Get the structure tuple from a file in a specific format
+
+    :param fileobject: a file-like object containing the file content
+    :param fileformat: a string specifying the file format      
+    """
     if fileformat == 'vasp':
         import ase.io.vasp
         asestructure = ase.io.vasp.read_vasp(fileobject)
@@ -83,6 +95,9 @@ def get_structure_tuple(fileobject, fileformat):
         asestructure.get_chemical_symbols())
 
 def get_atomic_numbers(symbols):
+    """
+    Given a list of symbols, returns the list of corresponding chemical symbols
+    """
     retlist = []
     for s in symbols:
         try:
@@ -93,6 +108,14 @@ def get_atomic_numbers(symbols):
 
 
 def get_json_for_visualizer(cell, relcoords, atomic_numbers):
+    """
+    Given a cell, the relative coordinates and the atomic numbers, return
+    the json to be sent to the visualizer (web interface)
+
+    :param cell: 3x3 list of cell direct_vectors
+    :param relcoords: list with the relative atomic coordinates
+    :param atomic_numbers: list with the atomic_numbers associated to the atoms
+    """
     system = (np.array(cell), np.array(relcoords), np.array(atomic_numbers))
     res = hkot.get_path(system, with_time_reversal=False) 
 
@@ -117,13 +140,11 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
 
     # It should use the same logic, so give the same cell as above
     res_explicit = get_explicit_k_path(system, with_time_reversal=False) 
-    for k in ['kpoints_rel', 'kpoints_linearcoord', 'kpoints_labels', 
-            'kpoints_abs', 'segments']:
-        new_k = "explicit_{}".format(k)
+    if k.startswith("explicit_"):
         if isinstance(res_explicit[k], np.ndarray):
-            response[new_k] = res_explicit[k].tolist()
+            response[k] = res_explicit[k].tolist()
         else:
-            response[new_k] = res_explicit[k]
+            response[k] = res_explicit[k]
 
     if np.sum(np.abs(np.array(res_explicit['reciprocal_primitive_lattice']) - 
         np.array(res['reciprocal_primitive_lattice']))) > 1.e-7:
@@ -134,31 +155,54 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
 
 @app.route('/')
 def index():
+    """
+    Home page
+    """
     return flask.redirect('/index.html')
 
 @app.route('/index.html')
 def send_view_index():
+    """
+    Home page
+    """
     return flask.send_from_directory('view', 'index.html')
 
 @app.route('/kpath_visualizer/')
 def kpath_visualizer():
-    #return flask.send_from_directory('view', 'structure_visualizer.html')
+    """
+    Main visualizer page (query page)
+    """
     return flask.render_template('visualizer_select.html')
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
+    """
+    Send static JS files (can be optimized... try to use at least the
+    X-Sendfile Apache option)
+    """
     return flask.send_from_directory('static/js', path)
 
 @app.route('/static/css/<path:path>')
 def send_css(path):
+    """
+    Send static CSS files (can be optimized... try to use at least the
+    X-Sendfile Apache option)
+    """
     return flask.send_from_directory('static/css', path)
 
 @app.route('/static/fonts/<path:path>')
 def send_fonts(path):
+    """
+    Send static font files (can be optimized... try to use at least the
+    X-Sendfile Apache option)
+    """
     return flask.send_from_directory('static/fonts', path)
 
 @app.route('/process_structure/', methods=['GET', 'POST'])
 def process_structure():
+    """
+    Main function to process the structure and return results
+    """
     start_time = time.time()
     if flask.request.method == 'POST':
         # check if the post request has the file part

@@ -307,38 +307,41 @@ def get_explicit_k_path(structure, with_time_reversal=True,
           is the first vector)
         - volume_original_wrt_prim: volume ratio of the user-provided cell
           with respect to the the standard primitive cell 
-        - kpoints_abs: List of the kpoints along the specific path in absolute
-          (Cartesian) coordinates. The two endpoints are always included, 
-          independently of the length.
-        - kpoints_rel: List of the kpoints along the specific path in relative
-          (fractional) coordinates (same length as kpoints_abs).
-        - kpoints_labels: list of strings with kpoints labels. It has the same
-          length as kpoints_abs and kpoints_rel. Empty if the 
-          point is not a special point.
-        - kpoints_linearcoord: array of floats, giving the coordinate at which
-          to plot the corresponding point.
-        - segments: a list of length-2 tuples, with the start and end index
-          of each segment. **Note**! The indices are supposed to be used as 
-          follows: the labels for the i-th segment are given by::
+        - explicit_kpoints_abs: List of the kpoints along the specific path in 
+          absolute (Cartesian) coordinates. The two endpoints are always 
+          included, independently of the length.
+        - explicit_kpoints_rel: List of the kpoints along the specific path in 
+          relative (fractional) coordinates (same length as 
+          explicit_kpoints_abs).
+        - explicit_kpoints_labels: list of strings with kpoints labels. It has 
+          the same length as explicit_kpoints_abs and explicit_kpoints_rel. 
+          Empty if the point is not a special point.
+        - explicit_kpoints_linearcoord: array of floats, giving the coordinate 
+          at which to plot the corresponding point.
+        - explicit_segments: a list of length-2 tuples, with the start and end 
+          index of each segment. **Note**! The indices are supposed to be 
+          used as follows: the labels for the i-th segment are given by::
 
-            segment_indices = segments[i]
-            segment_labels = kpoints_labels[slice(*segment_indices)]
+            segment_indices = explicit_segments[i]
+            segment_labels = explicit_kpoints_labels[slice(*segment_indices)]
 
           This means, in particular, that if you want the label of the start
           and end points, you should do::
 
-            start_label = kpoints_labels[segment_indices[0]]
-            stop_label = kpoints_labels[segment_indices[1]-1]
+            start_label = explicit_kpoints_labels[segment_indices[0]]
+            stop_label = explicit_kpoints_labels[segment_indices[1]-1]
 
           (note the minus one!)
 
-          Also, note that if segments[i-1][1] == segments[i][0] + 1 it means
+          Also, note that if 
+          ``explicit_segments[i-1][1] == explicit_segments[i][0] + 1`` it means
           that the point was calculated only once, and it belongs to both 
-          paths. Instead, if segments[i-1][1] == segments[i][0], then
-          this is a 'break' point in the path (e.g., segments[i-1][1] is the
-          X point, and segments[i][0] is the R point, and typically in a 
-          graphical representation they are shown at the same coordinate, 
-          with a label "R|X").
+          paths. Instead, if 
+          ``explicit_segments[i-1][1] == explicit_segments[i][0]``, then
+          this is a 'break' point in the path (e.g., ``explicit_segments[i-1][1]``
+          is the X point, and ``explicit_segments[i][0]`` is the R point, 
+          and typically in a graphical representation they are shown at the 
+          same coordinate, with a label "R|X").
     """
     import numpy as np
 
@@ -396,12 +399,12 @@ def get_explicit_k_path(structure, with_time_reversal=True,
             segment_end = len(kpoints_labels)
             segments.append((segment_start, segment_end))
 
-        retdict['kpoints_rel'] = np.array(kpoints_rel)
-        retdict['kpoints_linearcoord'] = np.array(kpoints_linearcoord)
-        retdict['kpoints_labels'] = kpoints_labels
-        retdict['kpoints_abs'] = np.dot(retdict['kpoints_rel'], 
+        retdict['explicit_kpoints_rel'] = np.array(kpoints_rel)
+        retdict['explicit_kpoints_linearcoord'] = np.array(kpoints_linearcoord)
+        retdict['explicit_kpoints_labels'] = kpoints_labels
+        retdict['explicit_kpoints_abs'] = np.dot(retdict['kpoints_rel'], 
             retdict['reciprocal_primitive_lattice'])
-        retdict['segments'] = segments
+        retdict['explicit_segments'] = segments
 
         return retdict
     else:

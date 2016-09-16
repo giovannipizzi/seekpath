@@ -1,12 +1,12 @@
 TODO add license
-TODO probably rename names in output dict of get_explicit_k_path? (e.g. something with prefix kpath_?)
-
 
 - If possible, it would be nice to have the transformation matrix. 
    a. for non-aP cases, this should be already possible. Check if it is sufficient to combine the 
       transf_matrix with the P matrix 
    b. for aP cases, we should probably check if we can get the matrix out of Niggli-reduce (the order is
       not preserved... but the algorithm itself has internally the matrix, for what I can understand).
+   NOTE! According to Togo, see emails in late Aug/early Sep, this should be easy to obtain.
+
 - Add to the output:
   - the transformation matrix from user to standard, and from standard to primitive (and the combination)
   - a warning/flag to say if the cell has changed in the process (probably it will almost always change?)

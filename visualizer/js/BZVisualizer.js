@@ -1,1 +1,0 @@
-../../api/static/js/BZVisualizer.js
