@@ -1,4 +1,4 @@
-TODO add license
+TODO add license (both code and JS)
 
 
 For the future
