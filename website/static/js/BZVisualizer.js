@@ -8,7 +8,7 @@ var to_update = [];
 var bz_material = new THREE.MeshBasicMaterial(
 {
     color: 0xd53e4f,
-    opacity: 0.7,
+    opacity: 0.5,
     transparent: true,
     //side: THREE.DoubleSide,
 });
@@ -22,7 +22,7 @@ var edge_material = new THREE.MeshBasicMaterial(
 
 var line_material = new THREE.MeshBasicMaterial(
 {
-    color: 0x045a8d,
+    color: 0x045add,
     opacity: 1.,
     transparent: false,
 });
@@ -326,7 +326,7 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     // Create BZ edges
     edges = new THREE.EdgesHelper( bz_mesh, 0x00ff00 );
     edges.material = edge_material;
-    edges.material.linewidth = 2;
+    edges.material.linewidth = 1;
     // Plot BZ and edges
     scene.add(bz_mesh);
     scene.add(edges);

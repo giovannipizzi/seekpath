@@ -1,8 +1,14 @@
 TODO add license (both code and JS)
 
+For the future - WEBSITE
+------------------------
 
-For the future
---------------
+- give option to show conventional cell
+
+
+
+For the future - CODE
+---------------------
 
 - If possible, it would be nice to have the transformation matrix. 
    a. for non-aP cases, this should be already possible. Check if it is sufficient to combine the 
