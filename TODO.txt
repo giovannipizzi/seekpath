@@ -1,6 +1,7 @@
-TODO add license (both code and JS)
-
 MINIFY JS (especially big ones)
+
+
+
 
 For the future - WEBSITE
 ------------------------
