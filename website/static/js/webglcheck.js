@@ -1,3 +1,6 @@
+/*
+  Note: this code has been adapted from get.webgl.org
+*/
     /**/
 var startWebGLCheck = function() {
     function $$(x) {

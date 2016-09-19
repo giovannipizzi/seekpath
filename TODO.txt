@@ -1,10 +1,12 @@
 TODO add license (both code and JS)
 
+MINIFY JS (especially big ones)
+
 For the future - WEBSITE
 ------------------------
 
 - give option to show conventional cell
-
+- Add more input file options
 
 
 For the future - CODE

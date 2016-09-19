@@ -1,3 +1,40 @@
+"""
+The kpath3d.hkot module contains routines to get automatically the
+path in a 3D Brillouin zone to plot band structures according to the 
+HKOT paper (see references below).
+
+Author: Giovanni Pizzi, EPFL (2016)
+
+Note: the list of point coordinates and example POSCAR files in 
+  the band_path_data subfolder have been provided by Yoyo Hinuma,
+  Kyoto University, Japan. The POSCARs have been retrieved from
+  the Materials Project.
+
+Licence: MIT License
+
+Copyright (c), 2016, ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE
+(Theory and Simulation of Materials (THEOS) and National Centre for 
+Computational Design and Discovery of Novel Materials (NCCR MARVEL)). 
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
 class EdgeCaseWarning(RuntimeWarning):
     """
     A warning issued when the cell is an edge case (e.g. orthorhombic
