@@ -2,9 +2,9 @@
 2. Install libapache2-mod-wsgi and libapache2-mod-xsendfile
 3. activate the modules (with 'sudo a2enmod wsgi' and 'sudo a2enmod xsendfile')
 4. run the script ./create_wsgi.py AS THE USER that will run, check that all modules are found.
-5. copy the kpath-visualizer-site.conf file to /etc/apache2/sites-available
-6. 'sudo a2ensite kpath-visualizer-site'
-7. check you can reach http://YOURSERVER/kpath_visualizer
+5. copy the seek-site.conf file to /etc/apache2/sites-available
+6. 'sudo a2ensite seek-site'
+7. check you can reach http://YOURSERVER/seek
 
 
 
@@ -28,6 +28,6 @@ from the outside):
                 Allow from all
         </Proxy>
 
-        ProxyPass /kpath_visualizer/ http://theospc7.epfl.ch/kpath_visualizer/
-        ProxyPassReverse /kpath_visualizer/ http://theospc7.epfl.ch/kpath_visualizer/
+        ProxyPass /seek/ http://theospc7.epfl.ch/seek/
+        ProxyPassReverse /seek/ http://theospc7.epfl.ch/seek/
 

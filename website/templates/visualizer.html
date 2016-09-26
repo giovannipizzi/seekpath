@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset=utf-8>
-    <title>K-path visualizer</title>
+    <title>SeeK: k-path visualizer</title>
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
     <script src="../static/js/three.min.js"></script>
@@ -110,7 +110,7 @@
 
 
 
-  <div id='maintitle'><h1>K-path finder and visualizer</h1></div>
+  <div id='maintitle'><h1>SeeK: k-path finder and visualizer</h1></div>
   <div id='canvas3dtitle'><h3>Brillouin zone</h3></div>
   <div id='structuretitle'><h3>Structure</h3></div>
   <div id='structure'><script>
@@ -134,11 +134,6 @@
     structureviewer.specs.projectionFrontCulling_3D = 0.01;
     structureviewer.specs.projectionBackCulling_3D = 10000;
     structureviewer.setupScene();
-
-
-    //structureviewer.addShape(chemstructure['shapes'][0]);
-    //structureviewer.addMolecule(chemstructure['molecules'][0]);
-    //structureviewer.center();
   </script></div>
 
   <div id='canvas3dcontainer'>
@@ -211,7 +206,7 @@
         <h2>Primitive structure information</h2>
 
         <h3>Crystal structure information</h3>
-        <p><span style="font-style: italic">Lattice type</span>: {{ bravais_lattice }} (case: {{ bravais_lattice_case }}), {{ with_without_time_reversal }} inversion symmetry</p>
+        <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }} (extended Bravais lattice symbol: {{ bravais_lattice_case }}), {{ with_without_time_reversal }} inversion symmetry</p>
         <p><span style="font-style: italic">Spacegroup</span>: {{ spacegroup_international }} (number {{ spacegroup_number }})</p>
 
         <h3>Volume ratio between input structure and primitive structure</h3>
@@ -285,10 +280,10 @@
         <h2>How to cite</h2>
         <p>If you use this tool, please cite the following work:
         <ul>
-        <li><span style="font-style: italic">For the derivation of the paths:</span> <a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-    paths based on crystallography, arXiv:1602.06402 (2016)</a>.
+        <li><a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, arXiv:1602.06402 (2016)</a>.
         </li>
-        <li><span style="font-style: italic">The implementation of this tool is by Giovanni Pizzi (EPFL) and has been contributed into AiiDA, so for the implementation, please cite</span> <a href="http://dx.doi.org/10.1016/j.commatsci.2015.09.013">G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016)</a>. You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> that is an essential library used in the implementation.
+        <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> 
+            that is an essential library used in the implementation.
         </li>
         </ul>
         </p>

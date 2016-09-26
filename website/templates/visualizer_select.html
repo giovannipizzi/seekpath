@@ -16,14 +16,14 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
-    <title>K-path visualizer</title>
+    <title>SeeK: k-path visualizer</title>
   </head>
 
 </head>
 
 <body>
 <div style="margin-left:15px; margin-right:15px;">
-<div id='maintitle'><h1 style="text-align: center">K-path finder and visualizer</h1></div>
+<div id='maintitle'><h1 style="text-align: center">SeeK: k-path finder and visualizer</h1></div>
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -42,7 +42,7 @@
 <ul>
 <li>find its spacegroup and the primitive cell,</li>
 <li>visualize the Brillouin zone,</li>
-<li>get the list of high-symmetry points in k space and get the suggested path in k space,</li>
+<li>get the list of high-symmetry points in k-space and get the suggested path in k-space,</li>
 <li>and more...</li>
 </ul>
 </p>
@@ -83,7 +83,8 @@
     <div class='alert alert-info'>
       <div class="row">
 	<div class="col-xs-12 col-sm-6">
-	  <label for="examplestructure">Select here one example:</label>
+	  <label for="examplestructure">Select here an extended Bravais Symbol to 
+        show an example:</label>
 	</div>
 	<div class="col-xs-12 col-sm-6">
 	  <select name="examplestructure">
@@ -156,10 +157,11 @@
         <h2>How to cite</h2>
         <p>If you use this tool, please cite the following work:
         <ul>
-        <li><span style="font-style: italic">For the derivation of the paths:</span> <a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
+        <li><a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram 
     paths based on crystallography, arXiv:1602.06402 (2016)</a>.
         </li>
-        <li><span style="font-style: italic">The implementation of this tool is by Giovanni Pizzi (EPFL) and has been contributed into AiiDA, so for the implementation, please cite</span> <a href="http://dx.doi.org/10.1016/j.commatsci.2015.09.013">G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016)</a>. You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> that is an essential library used in the implementation.
+        <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> 
+            that is an essential library used in the implementation.
         </li>
         </ul>
         </p>
