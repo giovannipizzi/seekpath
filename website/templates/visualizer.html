@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset=utf-8>
-    <title>SeeK: k-path visualizer</title>
+    <title>SeeK: k-path finder and visualizer</title>
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
     <script src="../static/js/three.min.js"></script>
@@ -52,7 +52,7 @@
 
     <div id="above">
 
-      <div id='maintitle'><h1><span style="font-weight: bold;">SeeK</span>: k-path finder and visualizer</h1></div>
+      <div id='maintitle'><h1><span style="font-weight: bold;">SeeK</span>: <span style="font-style: italic">k</span>-path finder and visualizer</h1></div>
 
       <div id="webglcheckwrapper">
         <div id="support">
@@ -212,7 +212,8 @@
         <h2>Primitive structure information</h2>
 
         <h3>Crystal structure information</h3>
-        <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }} (extended Bravais lattice symbol: {{ bravais_lattice_case }}), {{ with_without_time_reversal }} inversion symmetry</p>
+        <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }}</p>
+        <p><span style="font-style: italic">Extended Bravais lattice symbol</span>: {{ bravais_lattice_case }} ({{ with_without_time_reversal }} inversion symmetry)</p>
         <p><span style="font-style: italic">Spacegroup</span>: {{ spacegroup_international }} (number {{ spacegroup_number }})</p>
 
         <h3>Volume ratio between input structure and primitive structure</h3>
