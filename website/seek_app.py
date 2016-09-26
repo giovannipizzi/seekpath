@@ -224,7 +224,7 @@ def process_structure_core(filecontent, fileformat):
             'time': datetime.datetime.now().isoformat()}))
         # Message passed to the next page
         flask.flash("Unknown format '{}'".format(fileformat))
-        return flask.redirect(flask.url_for('kpath_visualizer'))
+        return flask.redirect(flask.url_for('input_structure'))
     except Exception as e:
         import traceback
         fileobject.seek(0)
@@ -236,7 +236,7 @@ def process_structure_core(filecontent, fileformat):
             'time': datetime.datetime.now().isoformat()}))
         flask.flash("I tried my best, but I wasn't able to load your "
                 "file in format '{}'...".format(fileformat))
-        return flask.redirect(flask.url_for('kpath_visualizer'))
+        return flask.redirect(flask.url_for('input_structure'))
 
     if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
         fileobject.seek(0)
@@ -249,7 +249,7 @@ def process_structure_core(filecontent, fileformat):
         flask.flash("Sorry, this online visualizer is limited to {} atoms "
             "in the input cell, while your structure has {} atoms."
             "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
-        return flask.redirect(flask.url_for('kpath_visualizer'))
+        return flask.redirect(flask.url_for('input_structure'))
 
     fileobject.seek(0)
     data = {'filecontent': fileobject.read(), fileformat: fileformat}
@@ -393,14 +393,14 @@ def process_structure_core(filecontent, fileformat):
 
 @app.route('/')
 def index():
-    return flask.redirect(flask.url_for('kpath_visualizer'))
+    return flask.redirect(flask.url_for('input_structure'))
 
 #@app.route('/index.html')
 #def send_view_index():
 #    return flask.send_from_directory('view', 'index.html')
 
-@app.route('/kpath_visualizer/')
-def kpath_visualizer():
+@app.route('/input_structure/')
+def input_structure():
     #return flask.send_from_directory('view', 'structure_visualizer.html')
     return flask.render_template('visualizer_select.html')
 
@@ -421,7 +421,7 @@ def process_structure():
     if flask.request.method == 'POST':
         # check if the post request has the file part
         if 'structurefile' not in flask.request.files:
-            return flask.redirect(flask.url_for('kpath_visualizer'))
+            return flask.redirect(flask.url_for('input_structure'))
         structurefile = flask.request.files['structurefile']
         fileformat = flask.request.form.get('fileformat', 'unknown')
         filecontent = structurefile.read()
@@ -429,7 +429,7 @@ def process_structure():
         return process_structure_core(filecontent=filecontent, fileformat=fileformat)
 
     else: # GET Request
-        return flask.redirect(flask.url_for('kpath_visualizer'))
+        return flask.redirect(flask.url_for('input_structure'))
 
 @app.route('/process_example_structure/', methods=['GET', 'POST'])
 def process_example_structure():
@@ -443,7 +443,7 @@ def process_example_structure():
             bravais_case, withinv = valid_examples[examplestructure]
         except KeyError:
             flask.flash("Invalid example structure '{}'".format(examplestructure))
-            return flask.redirect(flask.url_for('kpath_visualizer'))
+            return flask.redirect(flask.url_for('input_structure'))
 
         poscarfile = "POSCAR_inversion" if withinv else "POSCAR_noinversion"
 
@@ -458,7 +458,7 @@ def process_example_structure():
         return process_structure_core(filecontent=filecontent, fileformat=fileformat)
 
     else: # GET Request
-        return flask.redirect(flask.url_for('kpath_visualizer'))
+        return flask.redirect(flask.url_for('input_structure'))
 
 if __name__ == "__main__":
     app.use_x_sendfile=False # Cannot use x-sendfile when testing it!
