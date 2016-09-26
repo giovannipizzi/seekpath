@@ -4,6 +4,7 @@ For the future - WEBSITE
 
 - give option to show conventional cell
 - Add more input file options
+- in the visualiser: if two points overlap, decide if we can improve the visualisation (e.g. B2 = B' for mP1-noinv, see also discussion in sec. 4.4)
 
 
 For the future - CODE
