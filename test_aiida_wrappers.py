@@ -89,7 +89,7 @@ class TestAiiDAPath(unittest.TestCase):
         self.assertAlmostEqual(retdict['volume_original_wrt_prim'], 1.0)
         self.assertAlmostEqual(retdict['volume_original_wrt_std'], 1.0)
         self.assertEqual(retdict['bravais_lattice'], 'tP')
-        self.assertEqual(retdict['bravais_lattice_case'], 'tP1')
+        self.assertEqual(retdict['bravais_lattice_extended'], 'tP1')
         self.assertEqual(
             retdict['path'], 
             [('GAMMA', 'X'), ('X', 'M'), ('M', 'GAMMA'), ('GAMMA', 'Z'), 

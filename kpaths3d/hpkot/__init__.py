@@ -72,8 +72,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
     :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
-        in the tI case, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
-        Note that depending on the bravais lattice, the meaning of the 
+        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is 
+        issued. Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
 
     :return: a dictionary with the following 
@@ -89,7 +89,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
           has_inversion_symmetry is False, and the user set 
           with_time_reversal=False in the input)
         - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
-        - bravais_lattice_case: the specific case used to define labels and
+        - bravais_lattice_extended: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
         - std_lattice: three real-space vectors for the standard conventional 
           cell (std_lattice[0,:] is the first vector)
@@ -160,108 +160,108 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     bravais_lattice = "{}{}".format(properties[0], properties[1])
     has_inv = properties[2]
 
-    # Implement all different cases
+    # Implement all different extended Bravais lattices
     if bravais_lattice == "cP":
         if spgrp_num >= 195 and spgrp_num <= 206:
-            case = "cP1"
+            ext_bravais = "cP1"
         elif spgrp_num >= 207 and spgrp_num <= 230:
-            case = "cP2"
+            ext_bravais = "cP2"
         else:
             raise ValueError("Internal error! should be cP, but the "
                 "spacegroup number is not in the correct range")
     elif bravais_lattice == "cF":
         if spgrp_num >= 195 and spgrp_num <= 206:
-            case = "cF1"
+            ext_bravais = "cF1"
         elif spgrp_num >= 207 and spgrp_num <= 230:
-            case = "cF2"
+            ext_bravais = "cF2"
         else:
             raise ValueError("Internal error! should be cF, but the "
                 "spacegroup number is not in the correct range")
     elif bravais_lattice == "cI":
-        case = "cI1"
+        ext_bravais = "cI1"
     elif bravais_lattice == "tP":
-        case = "tP1"
+        ext_bravais = "tP1"
     elif bravais_lattice == "tI":
         if abs(c-a) < threshold:
-            warnings.warn("tI case, but a almost equal to c",
+            warnings.warn("tI lattice, but a almost equal to c",
                 EdgeCaseWarning)
         if c <= a:
-            case = "tI1"
+            ext_bravais = "tI1"
         else:
-            case = "tI2"
+            ext_bravais = "tI2"
     elif bravais_lattice == "oP":
-        case = "oP1"
+        ext_bravais = "oP1"
     elif bravais_lattice == "oF":
         if abs(1./(a**2) - (1./(b**2) + 1./(c**2))) < threshold:
-            warnings.warn("oF case, but 1/a^2 almost equal to 1/b^2 + 1/c^2",
+            warnings.warn("oF lattice, but 1/a^2 almost equal to 1/b^2 + 1/c^2",
                 EdgeCaseWarning)
         if abs(1./(c**2) - (1./(a**2) + 1./(b**2))) < threshold:
-            warnings.warn("oF case, but 1/c^2 almost equal to 1/a^2 + 1/b^2",
+            warnings.warn("oF lattice, but 1/c^2 almost equal to 1/a^2 + 1/b^2",
                 EdgeCaseWarning)
         if 1./(a**2) > 1./(b**2) + 1./(c**2):
-            case = "oF1"
+            ext_bravais = "oF1"
         elif 1./(c**2) > 1./(a**2) + 1./(b**2):
-            case = "oF2"
+            ext_bravais = "oF2"
         else: # 1/a^2, 1/b^2, 1/c^2 edges of a triangle
-            case = "oF3"
+            ext_bravais = "oF3"
     elif bravais_lattice == "oI":
         # Sort a,b,c, first is the largest
         sorted_vectors = sorted([(c,1,'c'),(b,3,'b'),(a,2,'a')])[::-1]
         if abs(sorted_vectors[0][0] - sorted_vectors[1][0]) < threshold:
-            warnings.warn("oI case, but the two longest vectors {} and {} "
+            warnings.warn("oI lattice, but the two longest vectors {} and {} "
                 "have almost the same length".format(
                     sorted_vectors[0][2], sorted_vectors[1][2]),
                 EdgeCaseWarning)            
-        case = "{}{}".format(bravais_lattice, sorted_vectors[0][1])
+        ext_bravais = "{}{}".format(bravais_lattice, sorted_vectors[0][1])
     elif bravais_lattice == "oC":
         if abs(b-a) < threshold:
-            warnings.warn("oC case, but a almost equal to b",
+            warnings.warn("oC lattice, but a almost equal to b",
                 EdgeCaseWarning)
         if a <= b:
-            case = "oC1"
+            ext_bravais = "oC1"
         else:
-            case = "oC2"
+            ext_bravais = "oC2"
     elif bravais_lattice == "oA":
         if abs(b-c) < threshold:
-            warnings.warn("oA case, but b almost equal to c",
+            warnings.warn("oA lattice, but b almost equal to c",
                 EdgeCaseWarning)
         if b <= c:
-            case = "oA1"
+            ext_bravais = "oA1"
         else:
-            case = "oA2"
+            ext_bravais = "oA2"
     elif bravais_lattice == "hP":
         if spgrp_num in [143, 144, 145, 146, 147, 148, 149, 151, 153, 157, 
             159, 160, 161, 162, 163]:
-            case = "hP1"
+            ext_bravais = "hP1"
         else:
-            case = "hP2"
+            ext_bravais = "hP2"
     elif bravais_lattice == "hR":
         if abs(sqrt(3.) * a - sqrt(2.) * c) < threshold:
-            warnings.warn("hR case, but sqrt(3)a almost equal to sqrt(2)c",
+            warnings.warn("hR lattice, but sqrt(3)a almost equal to sqrt(2)c",
                 EdgeCaseWarning)        
         if sqrt(3.) * a <= sqrt(2.) * c:
-            case = "hR1"
+            ext_bravais = "hR1"
         else:
-            case = "hR2"
+            ext_bravais = "hR2"
     elif bravais_lattice == "mP":
-        case = "mP1"
+        ext_bravais = "mP1"
     elif bravais_lattice == "mC":
         if abs(b - a * sqrt(1.-cosbeta**2)) < threshold:
-            warnings.warn("mC case, but b almost equal to a*sin(beta)",
+            warnings.warn("mC lattice, but b almost equal to a*sin(beta)",
                 EdgeCaseWarning)                    
         if b < a * sqrt(1.-cosbeta**2):
-            case = "mC1"
+            ext_bravais = "mC1"
         else:
             if abs(-a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 
                    - 1.) < threshold:
-                warnings.warn("mC case, but -a*cos(beta)/c + "
+                warnings.warn("mC lattice, but -a*cos(beta)/c + "
                     "a^2*sin(beta)^2/b^2 almost equal to 1",
                     EdgeCaseWarning)                    
             if -a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 <= 1.: 
                 # 12-face
-                case = "mC2"
+                ext_bravais = "mC2"
             else:
-                case = "mC3"
+                ext_bravais = "mC3"
     elif bravais_lattice == "aP":
         # First step: cell that is Niggli reduced in reciprocal space
         # I use the default eps here, this could be changed
@@ -302,13 +302,13 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         ka3,kb3,kc3,coskalpha3,coskbeta3,coskgamma3=get_cell_params(
             reciprocal_cell3)   
         if abs(coskalpha3) < threshold:
-            warnings.warn("aP case, but the k_alpha3 angle is almost equal "
+            warnings.warn("aP lattice, but the k_alpha3 angle is almost equal "
                 "to 90 degrees", EdgeCaseWarning)                    
         if abs(coskbeta3) < threshold:
-            warnings.warn("aP case, but the k_beta3 angle is almost equal "
+            warnings.warn("aP lattice, but the k_beta3 angle is almost equal "
                 "to 90 degrees", EdgeCaseWarning)                    
         if abs(coskgamma3) < threshold:
-            warnings.warn("aP case, but the k_gamma3 angle is almost equal "
+            warnings.warn("aP lattice, but the k_gamma3 angle is almost equal "
                 "to 90 degrees", EdgeCaseWarning)                    
         # Make them all-acute or all-obtuse with the additional conditions
         # explained in HPKOT
@@ -354,7 +354,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
                 [0,-1,0],
                 [0,0,1]])
         else:
-            raise ValueError("Problem identifying M3 matrix in aP case!"
+            raise ValueError("Problem identifying M3 matrix in aP lattice!"
                 "Sign of cosines: cos(kalpha3){}0, "
                 "cos(kbeta3){}0, cos(kgamma3){}0".format(
                     ">=" if coskalpha3 >= 0 else "<",
@@ -368,12 +368,12 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
         if coskalpha <= 0. and coskbeta <= 0. and coskgamma <= 0.:
             # all-obtuse
-            case = "aP2"
+            ext_bravais = "aP2"
         elif coskalpha >= 0. and coskbeta >= 0. and coskgamma >= 0.:
             # all-acute
-            case = "aP3"
+            ext_bravais = "aP3"
         else:
-            raise ValueError("Unexpected aP triclinic case, it neither "
+            raise ValueError("Unexpected aP triclinic lattice, it neither "
                 "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
                 "cos(kbeta){}0, cos(kgamma){}0".format(
                     ">=" if coskalpha >= 0 else "<",
@@ -406,7 +406,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
     # Get the path data (k-parameters definitions, defition of the points,
     # suggested path)
-    kparam_def, points_def, path = get_path_data(case)
+    kparam_def, points_def, path = get_path_data(ext_bravais)
     
     # Get the actual numerical values of the k-parameters
     # Note: at each step, I pass kparam and store the new
@@ -458,7 +458,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'has_inversion_symmetry': has_inv,
             'augmented_path': augmented_path,
             'bravais_lattice': bravais_lattice,
-            'bravais_lattice_case': case,
+            'bravais_lattice_extended': ext_bravais,
             'std_lattice': std_lattice,
             'std_positions': std_positions,
             'std_types': std_types,
@@ -471,7 +471,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             # spg_mapping.get_P_matrix
             'inverse_primitive_transformation_matrix': invP, 
             'primitive_transformation_matrix': P, 
-            # For the time being disabled, not valid for aP cases
+            # For the time being disabled, not valid for aP lattices
             # (for which we would need the transformation matrix from niggli)
             #'transformation_matrix': transf_matrix,
             'volume_original_wrt_std': volume_std_wrt_original,

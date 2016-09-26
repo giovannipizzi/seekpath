@@ -152,7 +152,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
             check_bravais_lattice='oA')
 
     # For full coverage, we should also implement the tests for the warnings 
-    # in the mC cases, and for the oP warnings.
+    # in the mC lattices, and for the oP warnings.
 
 
 class TestPaths3D_HPKOT(unittest.TestCase):
@@ -162,14 +162,15 @@ class TestPaths3D_HPKOT(unittest.TestCase):
     # If True, print on stdout the band paths
     verbose_tests = False
 
-    def base_test(self, case, with_inv):
+    def base_test(self, ext_bravais, with_inv):
         """
-        Test a specific case, with or without inversion (uses the cell whose
+        Test a specific extended Bravais symol, 
+        with or without inversion (uses the cell whose
         POSCAR is stored in the directories - they have been obtained by 
         Y. Hinuma from the Materials Project).
 
-        :param case: a string with the Bravais Lattice case (as 'cF1', for 
-            instance)
+        :param ext_bravais: a string with the extended Bravais Lattice symbol 
+           (like 'cF1', for instance)
         :param with_inv: if True, consider a system with inversion symmetry,
             otherwise one without (in which case, the get_path function is
             called with the kwarg 'with_time_reversal = False')
@@ -181,7 +182,7 @@ class TestPaths3D_HPKOT(unittest.TestCase):
 
         # Get the POSCAR with the example structure
         this_folder = os.path.split(os.path.abspath(hpkot.__file__))[0]
-        folder = os.path.join(this_folder,"band_path_data",case)
+        folder = os.path.join(this_folder,"band_path_data",ext_bravais)
         poscar_with_inv = os.path.join(folder,'POSCAR_inversion')
         poscar_no_inv = os.path.join(folder,'POSCAR_noinversion')
 
@@ -193,12 +194,12 @@ class TestPaths3D_HPKOT(unittest.TestCase):
 
         res = hpkot.get_path(system, with_time_reversal=False) 
 
-        self.assertEquals(res['bravais_lattice_case'], case)
+        self.assertEquals(res['bravais_lattice_extended'], ext_bravais)
         self.assertEquals(res['has_inversion_symmetry'], with_inv)
 
         if self.verbose_tests:
             print "*** {} (inv={})".format(
-                case, with_inv)
+                ext_bravais, with_inv)
             for p1, p2 in res['path']:
                 print "   {} -- {}: {} -- {}".format(p1, p2, 
                     res['point_coords'][p1], res['point_coords'][p2])
@@ -206,411 +207,411 @@ class TestPaths3D_HPKOT(unittest.TestCase):
     def test_aP2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case aP2.
+        Bravais lattice (extended) aP2.
         """
-        self.base_test(case="aP2", with_inv = True)        
+        self.base_test(ext_bravais="aP2", with_inv = True)        
 
     def test_aP2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case aP2.
+        Bravais lattice (extended) aP2.
         """
-        self.base_test(case="aP2", with_inv = False)
+        self.base_test(ext_bravais="aP2", with_inv = False)
 
     def test_aP3Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case aP3.
+        Bravais lattice (extended) aP3.
         """
-        self.base_test(case="aP3", with_inv = True)        
+        self.base_test(ext_bravais="aP3", with_inv = True)        
 
     def test_aP3N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case aP3.
+        Bravais lattice (extended) aP3.
         """
-        self.base_test(case="aP3", with_inv = False)
+        self.base_test(ext_bravais="aP3", with_inv = False)
 
     def test_cF1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case cF1.
+        Bravais lattice (extended) cF1.
         """
-        self.base_test(case="cF1", with_inv = True)        
+        self.base_test(ext_bravais="cF1", with_inv = True)        
 
     def test_cF1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case cF1.
+        Bravais lattice (extended) cF1.
         """
-        self.base_test(case="cF1", with_inv = False)
+        self.base_test(ext_bravais="cF1", with_inv = False)
 
     def test_cF2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case cF2.
+        Bravais lattice (extended) cF2.
         """
-        self.base_test(case="cF2", with_inv = True)        
+        self.base_test(ext_bravais="cF2", with_inv = True)        
 
     def test_cF2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case cF2.
+        Bravais lattice (extended) cF2.
         """
-        self.base_test(case="cF2", with_inv = False)
+        self.base_test(ext_bravais="cF2", with_inv = False)
 
     def test_cI1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case cI1.
+        Bravais lattice (extended) cI1.
         """
-        self.base_test(case="cI1", with_inv = True)        
+        self.base_test(ext_bravais="cI1", with_inv = True)        
 
     def test_cI1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case cI1.
+        Bravais lattice (extended) cI1.
         """
-        self.base_test(case="cI1", with_inv = False)
+        self.base_test(ext_bravais="cI1", with_inv = False)
 
     def test_cP1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case cP1.
+        Bravais lattice (extended) cP1.
         """
-        self.base_test(case="cP1", with_inv = True)        
+        self.base_test(ext_bravais="cP1", with_inv = True)        
 
     def test_cP1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case cP1.
+        Bravais lattice (extended) cP1.
         """
-        self.base_test(case="cP1", with_inv = False)
+        self.base_test(ext_bravais="cP1", with_inv = False)
 
     def test_cP2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case cP2.
+        Bravais lattice (extended) cP2.
         """
-        self.base_test(case="cP2", with_inv = True)        
+        self.base_test(ext_bravais="cP2", with_inv = True)        
 
     def test_cP2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case cP2.
+        Bravais lattice (extended) cP2.
         """
-        self.base_test(case="cP2", with_inv = False)
+        self.base_test(ext_bravais="cP2", with_inv = False)
 
     def test_hP1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case hP1.
+        Bravais lattice (extended) hP1.
         """
-        self.base_test(case="hP1", with_inv = True)        
+        self.base_test(ext_bravais="hP1", with_inv = True)        
 
     def test_hP1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case hP1.
+        Bravais lattice (extended) hP1.
         """
-        self.base_test(case="hP1", with_inv = False)
+        self.base_test(ext_bravais="hP1", with_inv = False)
 
     def test_hP2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case hP2.
+        Bravais lattice (extended) hP2.
         """
-        self.base_test(case="hP2", with_inv = True)        
+        self.base_test(ext_bravais="hP2", with_inv = True)        
 
     def test_hP2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case hP2.
+        Bravais lattice (extended) hP2.
         """
-        self.base_test(case="hP2", with_inv = False)
+        self.base_test(ext_bravais="hP2", with_inv = False)
 
     def test_hR1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case hR1.
+        Bravais lattice (extended) hR1.
         """
-        self.base_test(case="hR1", with_inv = True)        
+        self.base_test(ext_bravais="hR1", with_inv = True)        
 
     def test_hR1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case hR1.
+        Bravais lattice (extended) hR1.
         """
-        self.base_test(case="hR1", with_inv = False)
+        self.base_test(ext_bravais="hR1", with_inv = False)
 
     def test_hR2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case hR2.
+        Bravais lattice (extended) hR2.
         """
-        self.base_test(case="hR2", with_inv = True)        
+        self.base_test(ext_bravais="hR2", with_inv = True)        
 
     def test_hR2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case hR2.
+        Bravais lattice (extended) hR2.
         """
-        self.base_test(case="hR2", with_inv = False)
+        self.base_test(ext_bravais="hR2", with_inv = False)
 
     def test_mC1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case mC1.
+        Bravais lattice (extended) mC1.
         """
-        self.base_test(case="mC1", with_inv = True)        
+        self.base_test(ext_bravais="mC1", with_inv = True)        
 
     def test_mC1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case mC1.
+        Bravais lattice (extended) mC1.
         """
-        self.base_test(case="mC1", with_inv = False)
+        self.base_test(ext_bravais="mC1", with_inv = False)
 
     def test_mC2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case mC2.
+        Bravais lattice (extended) mC2.
         """
-        self.base_test(case="mC2", with_inv = True)        
+        self.base_test(ext_bravais="mC2", with_inv = True)        
 
     def test_mC2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case mC2.
+        Bravais lattice (extended) mC2.
         """
-        self.base_test(case="mC2", with_inv = False)
+        self.base_test(ext_bravais="mC2", with_inv = False)
 
     def test_mC3Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case mC3.
+        Bravais lattice (extended) mC3.
         """
-        self.base_test(case="mC3", with_inv = True)        
+        self.base_test(ext_bravais="mC3", with_inv = True)        
 
     def test_mC3N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case mC3.
+        Bravais lattice (extended) mC3.
         """
-        self.base_test(case="mC3", with_inv = False)
+        self.base_test(ext_bravais="mC3", with_inv = False)
 
     def test_mP1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case mP1.
+        Bravais lattice (extended) mP1.
         """
-        self.base_test(case="mP1", with_inv = True)        
+        self.base_test(ext_bravais="mP1", with_inv = True)        
 
     def test_mP1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case mP1.
+        Bravais lattice (extended) mP1.
         """
-        self.base_test(case="mP1", with_inv = False)
+        self.base_test(ext_bravais="mP1", with_inv = False)
 
 ## oA1Y does not exist by symmetry
 #    def test_oA1Y(self):
 #        """
 #        Obtain the k-path for a test system with inversion symmetry and
-#        lattice case oA1.
+#        Bravais lattice (extended) oA1.
 #        """
-#        self.base_test(case="oA1", with_inv = True)        
+#        self.base_test(ext_bravais="oA1", with_inv = True)        
 
     def test_oA1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oA1.
+        Bravais lattice (extended) oA1.
         """
-        self.base_test(case="oA1", with_inv = False)
+        self.base_test(ext_bravais="oA1", with_inv = False)
 
 ## oA2Y does not exist by symmetry
 #    def test_oA2Y(self):
 #        """
 #        Obtain the k-path for a test system with inversion symmetry and
-#        lattice case oA2.
+#        Bravais lattice (extended) oA2.
 #        """
-#        self.base_test(case="oA2", with_inv = True)        
+#        self.base_test(ext_bravais="oA2", with_inv = True)        
 
     def test_oA2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oA2.
+        Bravais lattice (extended) oA2.
         """
-        self.base_test(case="oA2", with_inv = False)
+        self.base_test(ext_bravais="oA2", with_inv = False)
 
     def test_oC1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oC1.
+        Bravais lattice (extended) oC1.
         """
-        self.base_test(case="oC1", with_inv = True)        
+        self.base_test(ext_bravais="oC1", with_inv = True)        
 
     def test_oC1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oC1.
+        Bravais lattice (extended) oC1.
         """
-        self.base_test(case="oC1", with_inv = False)
+        self.base_test(ext_bravais="oC1", with_inv = False)
 
     def test_oC2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oC2.
+        Bravais lattice (extended) oC2.
         """
-        self.base_test(case="oC2", with_inv = True)        
+        self.base_test(ext_bravais="oC2", with_inv = True)        
 
     def test_oC2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oC2.
+        Bravais lattice (extended) oC2.
         """
-        self.base_test(case="oC2", with_inv = False)
+        self.base_test(ext_bravais="oC2", with_inv = False)
 
     def test_oF1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oF1.
+        Bravais lattice (extended) oF1.
         """
-        self.base_test(case="oF1", with_inv = True)        
+        self.base_test(ext_bravais="oF1", with_inv = True)        
 
     def test_oF1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oF1.
+        Bravais lattice (extended) oF1.
         """
-        self.base_test(case="oF1", with_inv = False)
+        self.base_test(ext_bravais="oF1", with_inv = False)
 
 ## oF2Y does not exist by symmetry
 #    def test_oF2Y(self):
 #        """
 #        Obtain the k-path for a test system with inversion symmetry and
-#        lattice case oF2.
+#        Bravais lattice (extended) oF2.
 #        """
-#        self.base_test(case="oF2", with_inv = True)        
+#        self.base_test(ext_bravais="oF2", with_inv = True)        
 
     def test_oF2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oF2.
+        Bravais lattice (extended) oF2.
         """
-        self.base_test(case="oF2", with_inv = False)
+        self.base_test(ext_bravais="oF2", with_inv = False)
 
     def test_oF3Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oF3.
+        Bravais lattice (extended) oF3.
         """
-        self.base_test(case="oF3", with_inv = True)        
+        self.base_test(ext_bravais="oF3", with_inv = True)        
 
     def test_oF3N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oF3.
+        Bravais lattice (extended) oF3.
         """
-        self.base_test(case="oF3", with_inv = False)
+        self.base_test(ext_bravais="oF3", with_inv = False)
 
     def test_oI1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oI1.
+        Bravais lattice (extended) oI1.
         """
-        self.base_test(case="oI1", with_inv = True)        
+        self.base_test(ext_bravais="oI1", with_inv = True)        
 
     def test_oI1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oI1.
+        Bravais lattice (extended) oI1.
         """
-        self.base_test(case="oI1", with_inv = False)
+        self.base_test(ext_bravais="oI1", with_inv = False)
 
     def test_oI2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oI2.
+        Bravais lattice (extended) oI2.
         """
-        self.base_test(case="oI2", with_inv = True)        
+        self.base_test(ext_bravais="oI2", with_inv = True)        
 
     def test_oI2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oI2.
+        Bravais lattice (extended) oI2.
         """
-        self.base_test(case="oI2", with_inv = False)
+        self.base_test(ext_bravais="oI2", with_inv = False)
 
     def test_oI3Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oI3.
+        Bravais lattice (extended) oI3.
         """
-        self.base_test(case="oI3", with_inv = True)        
+        self.base_test(ext_bravais="oI3", with_inv = True)        
 
     def test_oI3N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oI3.
+        Bravais lattice (extended) oI3.
         """
-        self.base_test(case="oI3", with_inv = False)
+        self.base_test(ext_bravais="oI3", with_inv = False)
 
     def test_oP1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case oP1.
+        Bravais lattice (extended) oP1.
         """
-        self.base_test(case="oP1", with_inv = True)        
+        self.base_test(ext_bravais="oP1", with_inv = True)        
 
     def test_oP1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case oP1.
+        Bravais lattice (extended) oP1.
         """
-        self.base_test(case="oP1", with_inv = False)
+        self.base_test(ext_bravais="oP1", with_inv = False)
 
     def test_tI1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case tI1.
+        Bravais lattice (extended) tI1.
         """
-        self.base_test(case="tI1", with_inv = True)        
+        self.base_test(ext_bravais="tI1", with_inv = True)        
 
     def test_tI1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case tI1.
+        Bravais lattice (extended) tI1.
         """
-        self.base_test(case="tI1", with_inv = False)
+        self.base_test(ext_bravais="tI1", with_inv = False)
 
     def test_tI2Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case tI2.
+        Bravais lattice (extended) tI2.
         """
-        self.base_test(case="tI2", with_inv = True)        
+        self.base_test(ext_bravais="tI2", with_inv = True)        
 
     def test_tI2N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case tI2.
+        Bravais lattice (extended) tI2.
         """
-        self.base_test(case="tI2", with_inv = False)
+        self.base_test(ext_bravais="tI2", with_inv = False)
 
     def test_tP1Y(self):
         """
         Obtain the k-path for a test system with inversion symmetry and
-        lattice case tP1.
+        Bravais lattice (extended) tP1.
         """
-        self.base_test(case="tP1", with_inv = True)        
+        self.base_test(ext_bravais="tP1", with_inv = True)        
 
     def test_tP1N(self):
         """
         Obtain the k-path for a test system without inversion symmetry and
-        lattice case tP1.
+        Bravais lattice (extended) tP1.
         """
-        self.base_test(case="tP1", with_inv = False)
+        self.base_test(ext_bravais="tP1", with_inv = False)
 
 
 if __name__ == "__main__":

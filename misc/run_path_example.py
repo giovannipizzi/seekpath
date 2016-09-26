@@ -6,11 +6,11 @@ if __name__ == '__main__':
     import kpaths3d.hpkot as hpkot
 
     with_inv = True
-    case = 'cP1'
+    ext_bravais = 'cP1'
 
     # Get the POSCAR with the example structure
     hpkot_folder = os.path.split(os.path.abspath(hpkot.__file__))[0]
-    folder = os.path.join(hpkot_folder,"band_path_data",case)
+    folder = os.path.join(hpkot_folder,"band_path_data",ext_bravais)
     poscar_with_inv = os.path.join(folder,'POSCAR_inversion')
     poscar_no_inv = os.path.join(folder,'POSCAR_noinversion')
 

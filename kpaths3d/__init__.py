@@ -199,7 +199,7 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
 
    :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
-        in the tI case, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
+        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
         Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
 
@@ -216,7 +216,7 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
           has_inversion_symmetry is False, and the user set 
           with_time_reversal=False in the input)
         - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
-        - bravais_lattice_case: the specific case used to define labels and
+        - bravais_lattice_extended: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
         - std_lattice: three real-space vectors for the standard conventional 
           cell (std_lattice[0,:] is the first vector)
@@ -306,7 +306,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
 
     :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
-        in the tI case, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
+        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
         Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
 

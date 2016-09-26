@@ -377,7 +377,7 @@ def process_structure_core(filecontent, fileformat):
         raw_code=raw_code,
         kpoints=kpoints,
         bravais_lattice=path_results['bravais_lattice'],
-        bravais_lattice_case=path_results['bravais_lattice_case'],
+        bravais_lattice_extended=path_results['bravais_lattice_extended'],
         spacegroup_number=path_results['spacegroup_number'],
         spacegroup_international=path_results['spacegroup_international'],
         direct_vectors=direct_vectors,
@@ -440,7 +440,7 @@ def process_example_structure():
         print flask.request
 
         try:
-            bravais_case, withinv = valid_examples[examplestructure]
+            ext_bravais, withinv = valid_examples[examplestructure]
         except KeyError:
             flask.flash("Invalid example structure '{}'".format(examplestructure))
             return flask.redirect(flask.url_for('input_structure'))
@@ -452,7 +452,7 @@ def process_example_structure():
         with open(os.path.join(
                 os.path.split(__file__)[0],
                 'kpaths3d', 'hpkot', 'band_path_data', 
-                bravais_case, poscarfile)) as structurefile:
+                ext_bravais, poscarfile)) as structurefile:
             filecontent = structurefile.read()
         
         return process_structure_core(filecontent=filecontent, fileformat=fileformat)

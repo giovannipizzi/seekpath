@@ -263,12 +263,14 @@ def get_real_cell_from_reciprocal_rows(reciprocal_space_rows):
     return (real_space_columns.T).tolist()
 
 
-def get_path_data(case):
+def get_path_data(ext_bravais):
     """
-    Given a case among those defined in the HPKOT paper, return
-    the points and the suggested path.
+    Given an extended Bravais symbol among those defined in the HPKOT paper
+    (only first three characters, like cF1), return the points and the 
+    suggested path.
 
-    :param case: a string among the allowed cases defined in HPKOT.
+    :param ext_bravais: a string among the allowed etended Bravais lattices 
+        defined in HPKOT.
     :return: a tuple (kparam_def, points_def, path) where the
         first element is the list with the definition of the
         k-point parameters, the second is the dictionary with the 
@@ -283,7 +285,7 @@ def get_path_data(case):
 
     # Get the data from the band_data folder
     this_folder = os.path.split(os.path.abspath(__file__))[0]
-    folder = os.path.join(this_folder,"band_path_data",case)
+    folder = os.path.join(this_folder,"band_path_data",ext_bravais)
     path_file = os.path.join(folder,"path.txt")
     points_file = os.path.join(folder,"points.txt")
     kparam_file = os.path.join(folder,"k_vector_parameters.txt")
@@ -307,7 +309,7 @@ def get_path_data(case):
     for label, kPx, kPy, kPz in points_raw:
         if label in points_def:
             raise ValueError("Internal error! Point {} defined multiple times "
-                "for case {}".format(label, case))
+                "for Bravais lattice {}".format(label, ext_bravais))
         points_def[label] = (kPx, kPy, kPz)
     path = [(_[0], _[1]) for _ in path_raw]
 
@@ -316,10 +318,10 @@ def get_path_data(case):
     for p1, p2 in path:
         if p1 not in points_def:
             raise ValueError("Point {} found in path (for {}) but undefined!".format(
-                p1, case))
+                p1, ext_bravais))
         if p2 not in points_def:
             raise ValueError("Point {} found in path (for {}) but undefined!".format(
-                p2, case))
+                p2, ext_bravais))
 
     return (kparam_def, points_def, path)
 
