@@ -5,6 +5,6 @@ GAMMA A
 A L
 L H
 H A
-M L
+L M
 H K
 K H_2
