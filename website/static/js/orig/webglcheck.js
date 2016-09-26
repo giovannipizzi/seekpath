@@ -47,8 +47,8 @@ var startWebGLCheck = function() {
         // addClass($$("no-javascript"), "webgl-hidden");
         canvas = document.getElementById("webgl-logo");
         var ratio = (window.devicePixelRatio ? window.devicePixelRatio : 1);
-        canvas.width = 140 * ratio;
-        canvas.height = 150 * ratio;
+        canvas.width = 1 * ratio; // replace 1 with the width you want as specified in the HTML
+        canvas.height = 1 * ratio; // replace 1 with the height you want as specified in the HTML
         var experimental = false;
         try { gl = canvas.getContext("webgl"); }
         catch (x) { gl = null; }
@@ -72,6 +72,8 @@ var startWebGLCheck = function() {
             // Show the no webgl message.
             removeClass($$("webgl-no"), "webgl-hidden");
         }
+        // In any case, hide the canvas since I don't want to show a logo
+        addClass($$("webgl-logo"), "webgl-hidden");
     }
 
     // addEventListener does not work on IE7/8.
