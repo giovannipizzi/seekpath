@@ -1,6 +1,6 @@
 import unittest
 
-class TestPaths3D_HKOT_Supercell(unittest.TestCase):
+class TestPaths3D_HPKOT_Supercell(unittest.TestCase):
     """
     Test what happens for a supercell
     """
@@ -9,20 +9,20 @@ class TestPaths3D_HKOT_Supercell(unittest.TestCase):
         Test a supercell (BCC).
         This is just a very basic test.
         """
-        import hkot
+        import hpkot
         
         cell = [[4.,0.,0.],[0.,10.,0.],[0.,0.,4.]]
         positions = [[0.,0.,0.],[0.5,0.25,0.5],[0.,0.5,0.],[0.5,0.75,0.5]]
         atomic_numbers = [6,6,6,6]
 
         system = (cell, positions, atomic_numbers)        
-        res = hkot.get_path(system, with_time_reversal=False)
+        res = hpkot.get_path(system, with_time_reversal=False)
 
         # Just some basic checks...
         self.assertEquals(res['volume_original_wrt_std'], 2)
         self.assertEquals(res['volume_original_wrt_prim'], 4)
 
-class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
+class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
     """
     Test the warnings issued for edge cases
     """
@@ -30,7 +30,7 @@ class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
         check_bravais_lattice, check_string=None):
         """
         Given a cell, the positions and the atomic numbers, checks that
-        (only one) warning is issued, of type hkot.EdgeCaseWarning,
+        (only one) warning is issued, of type hpkot.EdgeCaseWarning,
         that the bravais lattice is the expected one,
         and that (optionally, if specified) the warning message contains
         the given string 'check_string'.
@@ -45,17 +45,17 @@ class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
         """
         import warnings
 
-        import hkot
+        import hpkot
 
         system = (cell, positions, atomic_numbers)
 
         with warnings.catch_warnings(record=True) as w:
-            res = hkot.get_path(system, with_time_reversal=False) 
+            res = hpkot.get_path(system, with_time_reversal=False) 
             # Checks
             self.assertEquals(res['bravais_lattice'], check_bravais_lattice)
             self.assertEquals(len(w), 1, 'Wrong number of warnings issued! '
                 '({} instead of 1)'.format(len(w)))
-            assert issubclass(w[0].category, hkot.EdgeCaseWarning)
+            assert issubclass(w[0].category, hpkot.EdgeCaseWarning)
             if check_string is not None:
                 self.assertIn(check_string, str(w[0].message))
 
@@ -155,7 +155,7 @@ class TestPaths3D_HKOT_EdgeCases(unittest.TestCase):
     # in the mC cases, and for the oP warnings.
 
 
-class TestPaths3D_HKOT(unittest.TestCase):
+class TestPaths3D_HPKOT(unittest.TestCase):
     """
     Class to test the creation of paths for all cases using example structures
     """
@@ -177,10 +177,10 @@ class TestPaths3D_HKOT(unittest.TestCase):
         import os
         import ase, ase.io
 
-        import hkot
+        import hpkot
 
         # Get the POSCAR with the example structure
-        this_folder = os.path.split(os.path.abspath(hkot.__file__))[0]
+        this_folder = os.path.split(os.path.abspath(hpkot.__file__))[0]
         folder = os.path.join(this_folder,"band_path_data",case)
         poscar_with_inv = os.path.join(folder,'POSCAR_inversion')
         poscar_no_inv = os.path.join(folder,'POSCAR_noinversion')
@@ -191,7 +191,7 @@ class TestPaths3D_HKOT(unittest.TestCase):
         system = (asecell.get_cell(), asecell.get_scaled_positions(), 
             asecell.get_atomic_numbers())
 
-        res = hkot.get_path(system, with_time_reversal=False) 
+        res = hpkot.get_path(system, with_time_reversal=False) 
 
         self.assertEquals(res['bravais_lattice_case'], case)
         self.assertEquals(res['has_inversion_symmetry'], with_inv)

@@ -36,7 +36,7 @@ except ImportError:
     import StringIO
 
 import numpy as np
-from kpaths3d import hkot
+from kpaths3d import hpkot
 from brillouinzone import brillouinzone
 from kpaths3d import get_explicit_k_path
 
@@ -165,11 +165,11 @@ def get_atomic_numbers(symbols):
 
 def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     system = (np.array(cell), np.array(relcoords), np.array(atomic_numbers))
-    res = hkot.get_path(system, with_time_reversal=False) 
+    res = hpkot.get_path(system, with_time_reversal=False) 
 
     real_lattice = res['primitive_lattice']
     #rec_lattice = np.linalg.inv(real_lattice).T # Missing 2pi!
-    rec_lattice = np.array(hkot.tools.get_reciprocal_cell_rows(real_lattice))
+    rec_lattice = np.array(hpkot.tools.get_reciprocal_cell_rows(real_lattice))
     b1, b2, b3 = rec_lattice
 
 
@@ -451,7 +451,7 @@ def process_example_structure():
         # files, so I don't try/except here
         with open(os.path.join(
                 os.path.split(__file__)[0],
-                'kpaths3d', 'hkot', 'band_path_data', 
+                'kpaths3d', 'hpkot', 'band_path_data', 
                 bravais_case, poscarfile)) as structurefile:
             filecontent = structurefile.read()
         

@@ -5,7 +5,7 @@ from . import (
     get_path as _raw_get_path)
 
 def get_explicit_k_path(structure, with_time_reversal=True,
-    reference_distance=0.025, recipe='hkot', 
+    reference_distance=0.025, recipe='hpkot', 
     threshold=1.e-7):
     """
     Return the kpoint path for band structure (in scaled and absolute 
@@ -30,9 +30,9 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     :param recipe: choose the reference publication that defines the special
        points and paths.
        Currently, the following value is implemented:
-       'hkot': HKOT paper: 
-       Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-       paths based on crystallography, arXiv:1602.06402 (2016)
+       'hpkot': HPKOT paper: 
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+       diagram paths based on crystallography, arXiv:1602.06402 (2016)
 
     :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
@@ -119,7 +119,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     return retdict
     
 def get_path(structure, with_time_reversal=True,
-    reference_distance=0.025, recipe='hkot', 
+    reference_distance=0.025, recipe='hpkot', 
     threshold=1.e-7):
     """
     Return the kpoint path information for band structure given a 
@@ -129,26 +129,22 @@ def get_path(structure, with_time_reversal=True,
     input and returned as AiiDA structures rather than tuples.
 
 
-    If you use this module, please cite both the AiiDA paper for 
-    the implementation::
-
-      G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016),
-
-    and the paper of the corresponding recipe (see parameter below).
+    If you use this module, please cite the paper of the corresponding 
+    recipe (see parameter below).
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be an AiiDA StructureData object.
 
     :param with_time_reversal: if False, and the group has no inversion 
-        symmetry, additional lines are returned as described in the HKOT
+        symmetry, additional lines are returned as described in the HPKOT
         paper.
 
     :param recipe: choose the reference publication that defines the special
        points and paths.
        Currently, the following value is implemented:
-       'hkot': HKOT paper: 
-       Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-       paths based on crystallography, arXiv:1602.06402 (2016)
+       'hpkot': HPKOT paper: 
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure  
+       diagram paths based on crystallography, arXiv:1602.06402 (2016)
 
    :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 

@@ -1,14 +1,14 @@
 """
-The kpath3d.hkot module contains routines to get automatically the
+The kpath3d.hpkot module contains routines to get automatically the
 path in a 3D Brillouin zone to plot band structures according to the 
-HKOT paper (see references below).
+HPKOT paper (see references below).
 
 Author: Giovanni Pizzi, EPFL (2016)
 
 Note: the list of point coordinates and example POSCAR files in 
   the band_path_data subfolder have been provided by Yoyo Hinuma,
   Kyoto University, Japan. The POSCARs have been retrieved from
-  the Materials Project.
+  the Materials Project (http://materialsproject.org).
 
 Licence: MIT License
 
@@ -45,13 +45,11 @@ class EdgeCaseWarning(RuntimeWarning):
 def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     """
     Return the kpoint path for band structure given a crystal structure,
-    using the paths proposed in the HKOT paper: 
-    Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
+    using the paths proposed in the HPKOT paper: 
+    Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram 
     paths based on crystallography, arXiv:1602.06402 (2016)
 
-    If you use this module, please cite both the above paper for the path,
-    and the AiiDA paper for the implementation: 
-    G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016).
+    If you use this module, please cite the paper above.
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be a tuple in the format
@@ -69,7 +67,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
           to 6 and the other to 1006)
 
     :param with_time_reversal: if False, and the group has no inversion 
-        symmetry, additional lines are returned as described in the HKOT
+        symmetry, additional lines are returned as described in the HPKOT
         paper.
 
     :param threshold: the threshold to use to verify if we are in 
@@ -313,7 +311,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             warnings.warn("aP case, but the k_gamma3 angle is almost equal "
                 "to 90 degrees", EdgeCaseWarning)                    
         # Make them all-acute or all-obtuse with the additional conditions
-        # explained in HKOT
+        # explained in HPKOT
         # Note: cos > 0 => angle < 90deg
         if coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 > 0.: #1a
             M3 = np.array([
@@ -400,7 +398,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
     ## NOTE: we simply use spglib.find_primitive, because the 
     ## find_primitive of spglib follows a different convention for mC 
-    ## and oA as explained in the HKOT paper
+    ## and oA as explained in the HPKOT paper
     (prim_lattice, prim_pos, prim_types), (P, invP), conv_prim_mapping = \
         get_primitive(
             structure = (std_lattice, std_positions, std_types), 

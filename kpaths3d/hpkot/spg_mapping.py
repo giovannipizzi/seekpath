@@ -120,7 +120,7 @@ def get_P_matrix(bravais_lattice):
 
     with invP = P^-1.
 
-    These P matrices are obtained from Table 3 of the HKOT 
+    These P matrices are obtained from Table 3 of the HPKOT 
     paper.
 
     The P matrix is a 3x3 matrix is the matrix that converts

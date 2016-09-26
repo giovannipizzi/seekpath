@@ -20,7 +20,7 @@ class TestAiiDAExplicitPath(unittest.TestCase):
         
         retdict = get_explicit_k_path(s, with_time_reversal=True,
                                       reference_distance=0.025,
-                                      recipe='hkot', threshold=1.e-7)
+                                      recipe='hpkot', threshold=1.e-7)
 
         self.assertTrue(retdict['has_inversion_symmetry'])
         self.assertFalse(retdict['augmented_path'])
@@ -82,7 +82,7 @@ class TestAiiDAPath(unittest.TestCase):
         
         retdict = get_path(s, with_time_reversal=True,
                                       reference_distance=0.025,
-                                      recipe='hkot', threshold=1.e-7)
+                                      recipe='hpkot', threshold=1.e-7)
 
         self.assertTrue(retdict['has_inversion_symmetry'])
         self.assertFalse(retdict['augmented_path'])

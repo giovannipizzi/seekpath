@@ -3,14 +3,14 @@ if __name__ == '__main__':
     import ase, ase.io
 
     from kpaths3d import get_explicit_k_path
-    import kpaths3d.hkot as hkot
+    import kpaths3d.hpkot as hpkot
 
     with_inv = True
     case = 'cP1'
 
     # Get the POSCAR with the example structure
-    hkot_folder = os.path.split(os.path.abspath(hkot.__file__))[0]
-    folder = os.path.join(hkot_folder,"band_path_data",case)
+    hpkot_folder = os.path.split(os.path.abspath(hpkot.__file__))[0]
+    folder = os.path.join(hpkot_folder,"band_path_data",case)
     poscar_with_inv = os.path.join(folder,'POSCAR_inversion')
     poscar_no_inv = os.path.join(folder,'POSCAR_noinversion')
 

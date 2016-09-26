@@ -162,18 +162,14 @@ def get_aiida_structure_from_tuple(structure_tuple, kind_info=None, kinds=None):
     return out_structure
 
 
-def get_path(structure, with_time_reversal=True, recipe='hkot',
+def get_path(structure, with_time_reversal=True, recipe='hpkot',
              threshold=1.e-7):
     """
     Return the kpoint path information for band structure given a 
     crystal structure, using the paths from the chosen recipe/reference.
 
-    If you use this module, please cite both the AiiDA paper for 
-    the implementation::
-
-      G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016),
-
-    and the paper of the corresponding recipe (see parameter below).
+    If you use this module, please cite the paper of the corresponding 
+    recipe (see parameter below).
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be a tuple in the format
@@ -191,15 +187,15 @@ def get_path(structure, with_time_reversal=True, recipe='hkot',
           to 6 and the other to 1006)
 
     :param with_time_reversal: if False, and the group has no inversion 
-        symmetry, additional lines are returned as described in the HKOT
+        symmetry, additional lines are returned as described in the HPKOT
         paper.
 
     :param recipe: choose the reference publication that defines the special
        points and paths.
        Currently, the following value is implemented:
-       'hkot': HKOT paper: 
-       Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-       paths based on crystallography, arXiv:1602.06402 (2016)
+       'hpkot': HPKOT paper: 
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure  
+       diagram paths based on crystallography, arXiv:1602.06402 (2016)
 
    :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
@@ -251,18 +247,18 @@ def get_path(structure, with_time_reversal=True, recipe='hkot',
         orthorhombic systems). In this case, still one of the valid cases
         is picked.
     """
-    if recipe == 'hkot':
-        from . import hkot
-        res = hkot.get_path(structure, with_time_reversal, threshold)
+    if recipe == 'hpkot':
+        from . import hpkot
+        res = hpkot.get_path(structure, with_time_reversal, threshold)
 
         return res
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
-            "currently accepted is 'hkot'.")
+            "currently accepted is 'hpkot'.")
 
 
 def get_explicit_k_path(structure, with_time_reversal=True,
-    reference_distance=0.025, recipe='hkot', 
+    reference_distance=0.025, recipe='hpkot', 
     threshold=1.e-7):
     """
     Return the kpoint path for band structure (in scaled and absolute 
@@ -271,16 +267,12 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     of the 'recipe' input parameter). 
     Note that the k-path typically refers to a different unit cell
     (e.g., the primitive one with some transformation matrix to comply with
-    the conventions in the case of the HKOT paper). So, one should use the
+    the conventions in the case of the HPKOT paper). So, one should use the
     crystal cell provided in output for all calculations, rather than the
     input 'structure'.
 
-    If you use this module, please cite both the AiiDA paper for 
-    the implementation::
-
-      G. Pizzi et al., Comp. Mat. Sci. 111, 218 (2016),
-
-    and the paper of the corresponding recipe (see parameter below).
+    If you use this module, please cite the paper of the corresponding 
+    recipe (see parameter below).
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be a tuple in the format
@@ -308,9 +300,9 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     :param recipe: choose the reference publication that defines the special
        points and paths.
        Currently, the following value is implemented:
-       'hkot': HKOT paper: 
-       Y. Hinuma, Y Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-       paths based on crystallography, arXiv:1602.06402 (2016)
+       'hpkot': HPKOT paper: 
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure  
+       diagram paths based on crystallography, arXiv:1602.06402 (2016)
 
     :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
@@ -376,9 +368,9 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     """
     import numpy as np
 
-    if recipe == 'hkot':
-        from . import hkot
-        res = hkot.get_path(structure, with_time_reversal, threshold)
+    if recipe == 'hpkot':
+        from . import hpkot
+        res = hpkot.get_path(structure, with_time_reversal, threshold)
 
         retdict = {}
         retdict['has_inversion_symmetry'] = res['has_inversion_symmetry']
@@ -441,5 +433,5 @@ def get_explicit_k_path(structure, with_time_reversal=True,
         return retdict
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
-            "currently accepted is 'hkot'.")
+            "currently accepted is 'hpkot'.")
 

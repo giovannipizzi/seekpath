@@ -265,10 +265,10 @@ def get_real_cell_from_reciprocal_rows(reciprocal_space_rows):
 
 def get_path_data(case):
     """
-    Given a case among those defined in the HKOT paper, return
+    Given a case among those defined in the HPKOT paper, return
     the points and the suggested path.
 
-    :param case: a string among the allowed cases defined in HKOT.
+    :param case: a string among the allowed cases defined in HPKOT.
     :return: a tuple (kparam_def, points_def, path) where the
         first element is the list with the definition of the
         k-point parameters, the second is the dictionary with the 
