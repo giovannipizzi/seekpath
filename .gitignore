@@ -1,3 +1,6 @@
+build/
+dist/
+seekpath.egg-info/
 *~
 *.pyc
 .DS_Store
