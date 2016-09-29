@@ -4,7 +4,8 @@ python:
 install:
     - pip install --user -e .
 script:
-    - python test_aiida_conversion.py
-    - python test_aiida_wrappers.py
     - cd seekpath && python test_paths_hpkot.py
     - cd seekpath/hpkot && python test_get_primitive.py
+## Commenting the next two because they require AiiDA
+#    - python test_aiida_conversion.py
+#    - python test_aiida_wrappers.py
