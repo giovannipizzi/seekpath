@@ -35,6 +35,7 @@ except ImportError:
     import StringIO
 
 import numpy as np
+import seekpath
 from seekpath import hpkot
 from seekpath.brillouinzone import brillouinzone
 from seekpath import get_explicit_k_path
@@ -404,6 +405,7 @@ def process_structure_core(filecontent, fileformat):
         reciprocal_primitive_vectors=reciprocal_primitive_vectors,
         suggested_path=suggested_path,
         compute_time=compute_time,
+        seekpath_version=seekpath.__version__,
         time_reversal_note=time_reversal_note if path_results['augmented_path'] else ""
         )
 

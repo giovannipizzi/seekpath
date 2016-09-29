@@ -39,7 +39,7 @@ setup(
         'numpy>=1.0', 'spglib>=1.9.4',
     ],
     extras_require = {
-        "BZ": ["scipy>=0.17"],
+        "bz": ["scipy>=0.17"],
         "webservice": ["Flask", "ase>=3.9"],
         },
     packages=find_packages(),

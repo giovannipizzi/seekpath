@@ -1,8 +1,9 @@
 A note: this folder in currently not installed when you do 
 'pip install seekpath'
 
-Also, here I'm using a symlink to seekpath, but probably it's better to do
-a 'pip install seekpath'
+First step: 
+- Install with sudo pip install 'seekpath[bz,webservice]'
+Then:
 
 1. Put your script as a subfolder of /var/www/ (important, otherwise X-Sendfile
    does not allow file transfer), give permissions to the user that will be 
