@@ -19,7 +19,7 @@ class TestPaths3D_HPKOT_Supercell(unittest.TestCase):
         res = hpkot.get_path(system, with_time_reversal=False)
 
         # Just some basic checks...
-        self.assertEquals(res['volume_original_wrt_std'], 2)
+        self.assertEquals(res['volume_original_wrt_conv'], 2)
         self.assertEquals(res['volume_original_wrt_prim'], 4)
 
 class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):

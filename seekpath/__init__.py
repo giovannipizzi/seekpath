@@ -218,18 +218,18 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
         - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
         - bravais_lattice_extended: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
-        - std_lattice: three real-space vectors for the standard conventional 
-          cell (std_lattice[0,:] is the first vector)
-        - std_positions: fractional coordinates of atoms in the standard 
-          conventional cell 
-        - std_types: list of integer types of the atoms in the standard 
+        - cont_lattice: three real-space vectors for the crystallographic
+          conventional cell (conv_lattice[0,:] is the first vector)
+        - conv_positions: fractional coordinates of atoms in the 
+          crystallographic conventional cell 
+        - conv_types: list of integer types of the atoms in the crystallographic
           conventional cell (typically, the atomic numbers)
-        - primitive_lattice: three real-space vectors for the standard primitive
-          cell (primitive_lattice[0,:] is the first vector)
-        - primitive_positions: fractional coordinates of atoms in the standard 
-          primitive cell 
-        - primitive_types: list of integer types of the atoms in the standard 
-          conventional cell (typically, the atomic numbers)
+        - primitive_lattice: three real-space vectors for the crystallographic 
+          primitive cell (primitive_lattice[0,:] is the first vector)
+        - primitive_positions: fractional coordinates of atoms in the 
+          crystallographic primitive cell 
+        - primitive_types: list of integer types of the atoms in the 
+          crystallographic primitive cell (typically, the atomic numbers)
         - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
           primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
           is the first vector)
@@ -238,10 +238,10 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
         - inverse_primitive_transformation_matrix: the inverse of the matrix P
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
-        - volume_original_wrt_std: volume ratio of the user-provided cell
-          with respect to the the standard conventional cell 
+        - volume_original_wrt_conv: volume ratio of the user-provided cell
+          with respect to the the crystallographic conventional cell 
         - volume_original_wrt_prim: volume ratio of the user-provided cell
-          with respect to the the standard primitive cell 
+          with respect to the the crystalloraphic primitive cell 
 
     :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
         orthorhombic systems). In this case, still one of the valid cases
@@ -319,17 +319,17 @@ def get_explicit_k_path(structure, with_time_reversal=True,
           augmented with the -k points (this happens if both 
           has_inversion_symmetry is False, and the user set 
           with_time_reversal=False in the input)
-        - primitive_lattice: three real-space vectors for the standard primitive
-          cell (primitive_lattice[0,:] is the first vector)
-        - primitive_positions: fractional coordinates of atoms in the standard 
-          primitive cell 
-        - primitive_types: list of integer types of the atoms in the standard 
-          conventional cell (typically, the atomic numbers)
+        - primitive_lattice: three real-space vectors for the crystallographic 
+          primitive cell (primitive_lattice[0,:] is the first vector)
+        - primitive_positions: fractional coordinates of atoms in the 
+          crystallographic primitive cell 
+        - primitive_types: list of integer types of the atoms in the 
+          crystallographic primitive cell (typically, the atomic numbers)
         - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
           primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
           is the first vector)
         - volume_original_wrt_prim: volume ratio of the user-provided cell
-          with respect to the the standard primitive cell 
+          with respect to the the crystallographic primitive cell 
         - explicit_kpoints_abs: List of the kpoints along the specific path in 
           absolute (Cartesian) coordinates. The two endpoints are always 
           included, independently of the length.

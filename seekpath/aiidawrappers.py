@@ -36,7 +36,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
 
     :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
-        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
+        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued.
         Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
 
@@ -54,7 +54,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
           primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
           is the first vector)
         - volume_original_wrt_prim: volume ratio of the user-provided cell
-          with respect to the the standard primitive cell 
+          with respect to the the crystallographic primitive cell 
         - explicit_kpoints: An AiiDA KPointsData object (without weights)
           with the kpoints and the respective labels.
           For each segment, the two endpoints are always included, 
@@ -167,9 +167,9 @@ def get_path(structure, with_time_reversal=True,
         - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
         - bravais_lattice_extended: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
-        - std_structure: AiiDA StructureData for the standard conventional 
+        - conv_structure: AiiDA StructureData for the crystallographic conventional 
           cell 
-        - primitive_structure: AiiDA StructureData for the standard primitive 
+        - primitive_structure: AiiDA StructureData for the crystallographic primitive 
           cell 
         - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
           primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
@@ -179,10 +179,10 @@ def get_path(structure, with_time_reversal=True,
         - inverse_primitive_transformation_matrix: the inverse of the matrix P
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
-        - volume_original_wrt_std: volume ratio of the user-provided cell
-          with respect to the the standard conventional cell 
+        - volume_original_wrt_conv: volume ratio of the user-provided cell
+          with respect to the the crystallographic conventional cell 
         - volume_original_wrt_prim: volume ratio of the user-provided cell
-          with respect to the the standard primitive cell 
+          with respect to the the crystallographic primitive cell 
 
     :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
         orthorhombic systems). In this case, still one of the valid cases
@@ -195,13 +195,13 @@ def get_path(structure, with_time_reversal=True,
     
     retdict = _raw_get_path(struc_tuple)
 
-    # Replace std structure with AiiDA StructureData
-    std_lattice = retdict.pop('std_lattice')
-    std_positions = retdict.pop('std_positions')
-    std_types = retdict.pop('std_types')
-    std_tuple = (std_lattice, std_positions, std_types)
-    std_structure = _tuple_to_aiida(std_tuple, kind_info, kinds)
-    retdict['std_structure'] = std_structure
+    # Replace conv structure with AiiDA StructureData
+    conv_lattice = retdict.pop('conv_lattice')
+    conv_positions = retdict.pop('conv_positions')
+    conv_types = retdict.pop('conv_types')
+    conv_tuple = (conv_lattice, conv_positions, conv_types)
+    conv_structure = _tuple_to_aiida(conv_tuple, kind_info, kinds)
+    retdict['conv_structure'] = conv_structure
 
     # Replace primitive structure with AiiDA StructureData
     primitive_lattice = retdict.pop('primitive_lattice')

@@ -87,7 +87,7 @@ class TestAiiDAPath(unittest.TestCase):
         self.assertTrue(retdict['has_inversion_symmetry'])
         self.assertFalse(retdict['augmented_path'])
         self.assertAlmostEqual(retdict['volume_original_wrt_prim'], 1.0)
-        self.assertAlmostEqual(retdict['volume_original_wrt_std'], 1.0)
+        self.assertAlmostEqual(retdict['volume_original_wrt_conv'], 1.0)
         self.assertEqual(retdict['bravais_lattice'], 'tP')
         self.assertEqual(retdict['bravais_lattice_extended'], 'tP1')
         self.assertEqual(
@@ -111,7 +111,7 @@ class TestAiiDAPath(unittest.TestCase):
                    [0, 0, 1]]))), 0.)
 
         ret_prims = retdict['primitive_structure']
-        ret_stds = retdict['std_structure']
+        ret_convs = retdict['conv_structure']
         # The primitive structure should be the same as the one I input
         self.assertAlmostEqual(np.sum(np.abs(
                     np.array(s.cell) - np.array(ret_prims.cell)
@@ -124,13 +124,13 @@ class TestAiiDAPath(unittest.TestCase):
 
         # Also the conventional structure should be the same as the one I input
         self.assertAlmostEqual(np.sum(np.abs(
-                    np.array(s.cell) - np.array(ret_stds.cell)
+                    np.array(s.cell) - np.array(ret_convs.cell)
                     )), 0.)
         self.assertEqual([_.kind_name for _ in s.sites],
-                         [_.kind_name for _ in ret_stds.sites])
+                         [_.kind_name for _ in ret_convs.sites])
         self.assertEqual(np.sum(np.abs(
                     np.array([_.position for _ in s.sites]) - 
-                    np.array([_.position for _ in ret_stds.sites]))), 0.)
+                    np.array([_.position for _ in ret_convs.sites]))), 0.)
 
 
 if __name__ == "__main__":

@@ -92,18 +92,18 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
         - bravais_lattice_extended: the specific case used to define labels and
           coordinates (like 'cP1', 'tI2', ...)
-        - std_lattice: three real-space vectors for the standard conventional 
-          cell (std_lattice[0,:] is the first vector)
-        - std_positions: fractional coordinates of atoms in the standard 
-          conventional cell 
-        - std_types: list of integer types of the atoms in the standard 
-          conventional cell (typically, the atomic numbers)
-        - primitive_lattice: three real-space vectors for the standard primitive
-          cell (primitive_lattice[0,:] is the first vector)
-        - primitive_positions: fractional coordinates of atoms in the standard 
-          primitive cell 
-        - primitive_types: list of integer types of the atoms in the standard 
-          conventional cell (typically, the atomic numbers)
+        - conv_lattice: three real-space vectors for the crystallographic 
+          conventional cell (conv_lattice[0,:] is the first vector)
+        - conv_positions: fractional coordinates of atoms in the 
+          crystallographic conventional cell 
+        - conv_types: list of integer types of the atoms in the 
+          crystallographic conventional cell (typically, the atomic numbers)
+        - primitive_lattice: three real-space vectors for the crystallographic 
+          primitive cell (primitive_lattice[0,:] is the first vector)
+        - primitive_positions: fractional coordinates of atoms in the 
+          crystallographic primitive cell 
+        - primitive_types: list of integer types of the atoms in the 
+          crystallographic conventional cell (typically, the atomic numbers)
         - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
           primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
           is the first vector)
@@ -112,10 +112,10 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         - inverse_primitive_transformation_matrix: the inverse of the matrix P
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
-        - volume_original_wrt_std: volume ratio of the user-provided cell
-          with respect to the the standard conventional cell 
+        - volume_original_wrt_conv: volume ratio of the user-provided cell
+          with respect to the the crystallographic conventional cell 
         - volume_original_wrt_prim: volume ratio of the user-provided cell
-          with respect to the the standard primitive cell 
+          with respect to the the crystallographic primitive cell 
         - spacegroup_number: Number from 1 to 230 of the spacegroup of the 
           crystal
         - spacegroup_international: International name of the spacegroup 
@@ -141,20 +141,23 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     # otherwise
     spglib = check_spglib_version()
 
-    structure_internal = (np.array(structure[0]), np.array(structure[1]), np.array(structure[2]))
+    structure_internal = (np.array(structure[0]), 
+                          np.array(structure[1]), 
+                          np.array(structure[2]))
 
-    # Symmetry analysis by SPGlib, get standard lattice, 
+    # Symmetry analysis by SPGlib, get crystallographic lattice, 
     # and cell parameters for this lattice
     dataset = spglib.get_symmetry_dataset(structure_internal)
-    std_lattice = dataset['std_lattice']
-    std_positions = dataset['std_positions']
-    std_types = dataset['std_types']
-    a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(std_lattice)
+    conv_lattice = dataset['std_lattice']
+    conv_positions = dataset['std_positions']
+    conv_types = dataset['std_types']
+    a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(conv_lattice)
     spgrp_num = dataset['number']
-    # This is the transformation from the original to the standard conventional
-    #  Lattice^{standard_bravais} = L^{original} * transf_matrix
+    # This is the transformation from the original to the crystallographic 
+    # conventional (called std in spglib)
+    #  Lattice^{crystallographic_bravais} = L^{original} * transf_matrix
     transf_matrix = dataset['transformation_matrix']
-    volume_std_wrt_original = np.linalg.det(transf_matrix)
+    volume_conv_wrt_original = np.linalg.det(transf_matrix)
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
     properties = get_spgroup_data()[spgrp_num]
@@ -266,7 +269,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     elif bravais_lattice == "aP":
         # First step: cell that is Niggli reduced in reciprocal space
         # I use the default eps here, this could be changed
-        reciprocal_cell_orig = get_reciprocal_cell_rows(std_lattice)
+        reciprocal_cell_orig = get_reciprocal_cell_rows(conv_lattice)
         ## This is Niggli-reduced
         reciprocal_cell2 = spglib.niggli_reduce(reciprocal_cell_orig)
         real_cell2 = get_real_cell_from_reciprocal_rows(reciprocal_cell2)
@@ -382,12 +385,12 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
                     ">=" if coskgamma >= 0 else "<"))
 
         # Get absolute positions
-        std_pos_abs = np.dot(std_positions, std_lattice)
-        # Replace std_lattice with the new std_lattice
-        std_lattice = np.array(real_cell_final)
+        conv_pos_abs = np.dot(conv_positions, conv_lattice)
+        # Replace conv_lattice with the new conv_lattice
+        conv_lattice = np.array(real_cell_final)
         # Store the relative coords with respect to the new vectors
         # TODO: decide if we want to do %1. for the fractional coordinates
-        std_positions = np.dot(std_pos_abs, np.linalg.inv(std_lattice))
+        conv_positions = np.dot(conv_pos_abs, np.linalg.inv(conv_lattice))
         # TODO: implement the correct one (probably we need the matrix
         # out from niggli, and then we can combine it with M2 and M3??)
         # We set it to None for the time being to avoid confusion
@@ -402,7 +405,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     ## and oA as explained in the HPKOT paper
     (prim_lattice, prim_pos, prim_types), (P, invP), conv_prim_mapping = \
         get_primitive(
-            structure = (std_lattice, std_positions, std_types), 
+            structure = (conv_lattice, conv_positions, conv_types), 
             bravais_lattice = bravais_lattice)
 
     # Get the path data (k-parameters definitions, defition of the points,
@@ -460,24 +463,24 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'augmented_path': augmented_path,
             'bravais_lattice': bravais_lattice,
             'bravais_lattice_extended': ext_bravais,
-            'std_lattice': std_lattice,
-            'std_positions': std_positions,
-            'std_types': std_types,
+            'conv_lattice': conv_lattice,
+            'conv_positions': conv_positions,
+            'conv_types': conv_types,
             'primitive_lattice': prim_lattice,
             'primitive_positions': prim_pos,
-            'primitive_types': prim_types, # to std_
+            'primitive_types': prim_types, 
             'reciprocal_primitive_lattice': get_reciprocal_cell_rows(
                 prim_lattice),
-            # The following: between std and primitive, see docstring of 
+            # The following: between conv and primitive, see docstring of 
             # spg_mapping.get_P_matrix
             'inverse_primitive_transformation_matrix': invP, 
             'primitive_transformation_matrix': P, 
             # For the time being disabled, not valid for aP lattices
             # (for which we would need the transformation matrix from niggli)
             #'transformation_matrix': transf_matrix,
-            'volume_original_wrt_std': volume_std_wrt_original,
+            'volume_original_wrt_conv': volume_conv_wrt_original,
             'volume_original_wrt_prim': \
-                volume_std_wrt_original * np.linalg.det(invP),
+                volume_conv_wrt_original * np.linalg.det(invP),
             'spacegroup_number': dataset['number'],
             'spacegroup_international': dataset['international'],
             }

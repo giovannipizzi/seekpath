@@ -223,13 +223,14 @@ def get_P_matrix(bravais_lattice):
 
 def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     """
-    Return the primitive cell from a standard crystallographic cell.
+    Return the primitive cell from a conventional crystallographic cell.
 
     :note: the input structure MUST be already standardized by spglib!
 
     :param structure: should be a tuple of the form
-      (lattice, positions, types) and it MUST be already a standard
-      crystallographic cell (e.g. as returned by spglib).
+      (lattice, positions, types) and it MUST be already a conventional
+      crystallographic cell (i.e. as returned by spglib with the 'std_'
+      prefix).
 
     :param bravais_lattice: a string with the information of the
       Bravais lattice of the input structure.
