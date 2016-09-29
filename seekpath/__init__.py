@@ -227,7 +227,7 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
         - primitive_lattice: three real-space vectors for the standard primitive
           cell (primitive_lattice[0,:] is the first vector)
         - primitive_positions: fractional coordinates of atoms in the standard 
-          primiitive cell 
+          primitive cell 
         - primitive_types: list of integer types of the atoms in the standard 
           conventional cell (typically, the atomic numbers)
         - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
