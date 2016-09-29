@@ -1,0 +1,6 @@
+# The following is needed to get the Brillouin zone
+scipy==0.17.1
+# The following are needed for the web service
+Flask==0.10.1
+ase==3.11.0
+

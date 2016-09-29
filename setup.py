@@ -36,8 +36,12 @@ setup(
     # http://blog.miguelgrinberg.com/post/the-package-dependency-blues
     # for a useful dicussion
     install_requires=[
-        'numpy>=1.0', 'scipy>=0.17', 'spglib>=1.9.4',
+        'numpy>=1.0', 'spglib>=1.9.4',
     ],
+    extras_require = {
+        "BZ": ["scipy>=0.17"],
+        "webservice": ["Flask", "ase>=3.9"],
+        },
     packages=find_packages(),
     download_url = 'https://github.com/giovannipizzi/seekpath/archive/v{}.tar.gz'.format(version),
     keywords = ['path', 'band structure', 'Brillouin', 'crystallography', 
