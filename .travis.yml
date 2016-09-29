@@ -2,7 +2,7 @@ language: python
 python:
     - "2.7"
 install:
-    - pip install --user -e .
+    - pip install -e .
 script:
     - cd seekpath && python test_paths_hpkot.py
     - cd seekpath/hpkot && python test_get_primitive.py
