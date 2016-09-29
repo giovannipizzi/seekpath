@@ -6,6 +6,7 @@ from aiida.orm.data.structure import Kind, StructureData, Site
 import unittest
 import numpy as np
 import seekpath
+import seekpath.aiidawrappers
 
 class TestConversion(unittest.TestCase):
 
@@ -25,7 +26,7 @@ class TestConversion(unittest.TestCase):
 
         numbers = [56, 22, 8, 8, 8]
 
-        struc = seekpath.get_aiida_structure_from_tuple(
+        struc = seekpath.aiidawrappers._tuple_to_aiida(
             (cell, relcoords, numbers))
 
         self.assertAlmostEqual(np.sum(np.abs(
@@ -98,13 +99,13 @@ class TestConversion(unittest.TestCase):
 
         # Must specify also kind_info and kinds
         with self.assertRaises(ValueError):
-            struc = seekpath.get_aiida_structure_from_tuple(
+            struc = seekpath.aiidawrappers._tuple_to_aiida(
                 (cell, relcoords, numbers),
                 )
 
         # There is no kind_info for one of the numbers
         with self.assertRaises(ValueError):
-            struc = seekpath.get_aiida_structure_from_tuple(
+            struc = seekpath.aiidawrappers._tuple_to_aiida(
                 (cell, relcoords, numbers),
                 kind_info = kind_info_wrong,
                 kinds = kinds
@@ -113,13 +114,13 @@ class TestConversion(unittest.TestCase):
         # There is no kind in the kinds for one of the labels 
         # specified in kind_info
         with self.assertRaises(ValueError):
-            struc = seekpath.get_aiida_structure_from_tuple(
+            struc = seekpath.aiidawrappers._tuple_to_aiida(
                 (cell, relcoords, numbers),
                 kind_info = kind_info,
                 kinds = kinds_wrong
                 )
 
-        struc = seekpath.get_aiida_structure_from_tuple(
+        struc = seekpath.aiidawrappers._tuple_to_aiida(
             (cell, relcoords, numbers),
             kind_info = kind_info,
             kinds = kinds
@@ -150,7 +151,7 @@ class TestConversion(unittest.TestCase):
                  weights=[0.2,0.4], mass=120.))
         struc.append_site(Site(kind_name='Test', position=[3,5,1]))
         
-        struc_tuple, kind_info, kinds = seekpath.get_tuple_from_aiida_structure(
+        struc_tuple, kind_info, kinds = seekpath.aiidawrappers._aiida_to_tuple(
             struc
             )
         
@@ -182,10 +183,10 @@ class TestConversion(unittest.TestCase):
                  weights=[0.2,0.4], mass=120.))
         struc.append_site(Site(kind_name='Test', position=[3,5,1]))
         
-        struc_tuple, kind_info, kinds = seekpath.get_tuple_from_aiida_structure(
+        struc_tuple, kind_info, kinds = seekpath.aiidawrappers._aiida_to_tuple(
             struc
             )
-        roundtrip_struc = seekpath.get_aiida_structure_from_tuple(
+        roundtrip_struc = seekpath.aiidawrappers._tuple_to_aiida(
             struc_tuple, kind_info, kinds)
 
         self.assertAlmostEqual(np.sum(np.abs(
