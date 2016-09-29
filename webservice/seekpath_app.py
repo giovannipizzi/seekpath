@@ -111,15 +111,16 @@ static_folder = os.path.join(os.path.split(os.path.realpath(__file__))[0],
         'static')
 app = flask.Flask(__name__, static_folder=static_folder)
 app.use_x_sendfile=True
+directory = os.path.split(os.path.realpath(__file__))[0]
 try:
     with open(os.path.join(
-        os.path.split(os.path.realpath(__file__))[0],
+        directory,
         'SECRET_KEY')) as f:
         app.secret_key = f.readlines()[0].strip()
         if len(app.secret_key) < 16:
             raise ValueError
 except Exception:
-    raise ConfigurationError("Please create a SECRET_KEY file with a random string of at least 16 characters")
+    raise ConfigurationError("Please create a SECRET_KEY file in {} with a random string of at least 16 characters".format(directory))
 
 logger.debug("Start")
 
