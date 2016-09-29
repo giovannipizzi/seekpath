@@ -1,0 +1,3 @@
+include seekpath/hpkot/band_path_data/*
+include seekpath/hpkot/band_path_data/*/*.txt
+include seekpath/hpkot/band_path_data/*/POSCAR_*
