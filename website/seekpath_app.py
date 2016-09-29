@@ -2,10 +2,9 @@
 """
 Main Flask python function that manages the server backend
 
-# TODO: TO IMPROVE FOR SECURITY (EXPOSE ONLY SPECIFIC FILES? MOVE CSS ETC
-# UNDER /static? http://flask.pocoo.org/docs/0.10/quickstart/
-# If there are overlapping atoms, the code crashes (probably spglib)
-# Check what happens when on apache.
+If you just want to try it out, just run this file and connect to
+http://localhost:5000 from a browser. Otherwise, read the instructions
+in README_DEPLOY.txt to deploy on a Apache server.
 """
 import flask
 import sys, os

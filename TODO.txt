@@ -1,23 +1,22 @@
+This is a list of TODOs
 
-For the future - WEBSITE
-------------------------
+SeeK-path
+---------
+
+- If possible, it would be nice to have the transformation matrix. 
+   a. for non-aP lattices, this should be already possible. 
+   Check if it is sufficient to combine the transf_matrix with the P matrix 
+   b. for aP lattices, we should probably check if we can get the matrix out 
+      of Niggli-reduce. This should be easy to obtain. Then,
+  dd to the output:
+    - the transformation matrix from user to standard, and from standard to 
+      primitive (and the combination)
+    - a warning/flag to say if the cell has changed in the process 
+      (probably it will almost always change?)
+
+web service
+-----------
 
 - give option to show conventional cell
 - Add more input file options
 - in the visualiser: if two points overlap, decide if we can improve the visualisation (e.g. B2 = B' for mP1-noinv, see also discussion in sec. 4.4)
-
-
-For the future - CODE
----------------------
-
-- If possible, it would be nice to have the transformation matrix. 
-   a. for non-aP lattices, this should be already possible. Check if it is sufficient to combine the 
-      transf_matrix with the P matrix 
-   b. for aP lattices, we should probably check if we can get the matrix out of Niggli-reduce (the order is
-      not preserved... but the algorithm itself has internally the matrix, for what I can understand).
-   NOTE! According to Togo, see emails in late Aug/early Sep, this should be easy to obtain.
-
-- Add to the output:
-  - the transformation matrix from user to standard, and from standard to primitive (and the combination)
-  - a warning/flag to say if the cell has changed in the process (probably it will almost always change?)
-
