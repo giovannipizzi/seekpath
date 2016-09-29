@@ -470,8 +470,8 @@ def process_example_structure():
         # I expect that the valid_examples dictionary already filters only existing 
         # files, so I don't try/except here
         with open(os.path.join(
-                os.path.split(__file__)[0],
-                'seekpath', 'hpkot', 'band_path_data', 
+                os.path.split(seekpath.__file__)[0],
+                'hpkot', 'band_path_data', 
                 ext_bravais, poscarfile)) as structurefile:
             filecontent = structurefile.read()
         
