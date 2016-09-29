@@ -4,6 +4,7 @@ python:
 addons:
     apt:
         packages:
+            - gfortran
             - libblas-dev
             - liblapack-dev 
 install:
