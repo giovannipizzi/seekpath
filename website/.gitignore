@@ -1,6 +1,6 @@
 requests.log
 SECRET_KEY
-kpath_app.wsgi
-kpath-visualizer-site.conf
+seekpath_app.wsgi
+seekpath-site.conf
 
 
