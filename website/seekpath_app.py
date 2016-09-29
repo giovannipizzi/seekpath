@@ -16,7 +16,7 @@ import numpy as np
 import time, datetime
 
 import logging, logging.handlers
-logger = logging.getLogger("kpath_server")
+logger = logging.getLogger("seekpath_server")
 
 logHandler = logging.handlers.RotatingFileHandler(
     os.path.join(
@@ -36,9 +36,9 @@ except ImportError:
     import StringIO
 
 import numpy as np
-from kpaths3d import hpkot
-from brillouinzone import brillouinzone
-from kpaths3d import get_explicit_k_path
+from seekpath import hpkot
+from seekpath.brillouinzone import brillouinzone
+from seekpath import get_explicit_k_path
 
 MAX_NUMBER_OF_ATOMS = 256
 time_reversal_note = "The second half of the path is required only if the system does not have time-reversal symmetry"
@@ -451,7 +451,7 @@ def process_example_structure():
         # files, so I don't try/except here
         with open(os.path.join(
                 os.path.split(__file__)[0],
-                'kpaths3d', 'hpkot', 'band_path_data', 
+                'seekpath', 'hpkot', 'band_path_data', 
                 ext_bravais, poscarfile)) as structurefile:
             filecontent = structurefile.read()
         

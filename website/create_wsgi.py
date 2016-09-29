@@ -7,8 +7,8 @@ import string
 
 import getpass, grp, pwd
 
-WSGI_FILENAME = 'seek_app.wsgi'
-site_fname = "seek-site.conf"
+WSGI_FILENAME = 'seekpath_app.wsgi'
+site_fname = "seekpath-site.conf"
 
 current_user = getpass.getuser()
 current_group = grp.getgrgid(pwd.getpwnam(current_user).pw_gid).gr_name
@@ -49,7 +49,7 @@ for importline, modules in import_content_lines.iteritems():
         importline, ", ".join(modules)
     ))
 content_lines.append("")
-content_lines.append("from seek_app import app as application")
+content_lines.append("from seekpath_app import app as application")
 
 print "=" * 78
 print "\n".join(content_lines)
@@ -83,11 +83,11 @@ site_template = string.Template("""
 
 site_file_content = site_template.substitute(
 #    servername=servername,
-    appname="seek_app",
+    appname="seekpath_app",
     user=current_user,
     group=current_group,
     numthreads=4,
-    urlpath='/seek',
+    urlpath='/seekpath',
     wsgipath=wsgi_file,
     wsgifolder=wsgi_folder,
     )

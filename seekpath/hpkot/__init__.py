@@ -1,14 +1,9 @@
 """
-The kpath3d.hpkot module contains routines to get automatically the
+The seekpath.hpkot module contains routines to get automatically the
 path in a 3D Brillouin zone to plot band structures according to the 
 HPKOT paper (see references below).
 
 Author: Giovanni Pizzi, EPFL (2016)
-
-Note: the list of point coordinates and example POSCAR files in 
-  the band_path_data subfolder have been provided by Yoyo Hinuma,
-  Kyoto University, Japan. The POSCARs have been retrieved from
-  the Materials Project (http://materialsproject.org).
 
 Licence: MIT License
 
@@ -34,6 +29,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+Note: the list of point coordinates and example POSCAR files in 
+  the band_path_data subfolder have been provided by Yoyo Hinuma,
+  Kyoto University, Japan. The POSCARs have been retrieved from
+  the Materials Project (http://materialsproject.org).
+
 """
 class EdgeCaseWarning(RuntimeWarning):
     """

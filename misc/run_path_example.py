@@ -2,8 +2,8 @@ if __name__ == '__main__':
     import os
     import ase, ase.io
 
-    from kpaths3d import get_explicit_k_path
-    import kpaths3d.hpkot as hpkot
+    from seekpath import get_explicit_k_path
+    import seekpath.hpkot as hpkot
 
     with_inv = True
     ext_bravais = 'cP1'

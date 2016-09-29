@@ -2,7 +2,7 @@ from aiida import load_dbenv
 load_dbenv()
 
 import unittest
-from kpaths3d.aiidawrappers import get_explicit_k_path, get_path
+from seekpath.aiidawrappers import get_explicit_k_path, get_path
 
 class TestAiiDAExplicitPath(unittest.TestCase):
     def test_simple(self):

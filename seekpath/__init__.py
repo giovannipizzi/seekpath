@@ -1,5 +1,5 @@
 """
-The kpath3d module contains routines to get automatically the
+The seekpath module contains routines to get automatically the
 path in a 3D Brillouin zone to plot band structures.
 
 Author: Giovanni Pizzi, EPFL (2016)
