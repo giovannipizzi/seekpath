@@ -1,2 +1,0 @@
-J (1+a*a/b/b-a*a/c/c)/4
-H (1+a*a/b/b+a*a/c/c)/4

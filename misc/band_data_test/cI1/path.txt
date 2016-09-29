@@ -1,6 +1,0 @@
-GAMMA H
-H N
-N GAMMA
-GAMMA P
-P H
-P N

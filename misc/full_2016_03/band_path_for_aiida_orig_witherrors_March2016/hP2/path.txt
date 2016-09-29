@@ -1,9 +1,0 @@
-GAMMA M
-M K
-K GAMMA
-GAMMA A
-A L
-L H
-H A
-M L
-H K
