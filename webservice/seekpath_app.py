@@ -141,16 +141,32 @@ def get_structure_tuple(fileobject, fileformat):
     if fileformat == 'vasp':
         import ase.io.vasp
         asestructure = ase.io.vasp.read_vasp(fileobject)
+        atomic_numbers = get_atomic_numbers(
+            asestructure.get_chemical_symbols())
+        structure_tuple = (
+            asestructure.cell.tolist(),
+            asestructure.get_scaled_positions().tolist(),
+            atomic_numbers)
+        return structure_tuple
     elif fileformat == 'xsf':
         import ase.io.xsf
         asestructure = ase.io.xsf.read_xsf(fileobject)
+        atomic_numbers = get_atomic_numbers(
+            asestructure.get_chemical_symbols())
+        structure_tuple = (
+            asestructure.cell.tolist(),
+            asestructure.get_scaled_positions().tolist(),
+            atomic_numbers)
+        return structure_tuple
+    elif fileformat == 'qe-inp':
+        from structure_importers.qeinp import read_qeinp
+        structure_tuple = read_qeinp(fileobject)
+        return structure_tuple
     else:
         raise UnknownFormatError(fileformat)
 
-    return (
-        asestructure.cell.tolist(),
-        asestructure.get_scaled_positions().tolist(),
-        asestructure.get_chemical_symbols())
+    # I should never be here, I raise anyway a UnknownFormatError
+    raise UnknownFormatError(fileformat)    
 
 def get_atomic_numbers(symbols):
     retlist = []
@@ -215,6 +231,7 @@ def process_structure_core(filecontent, fileformat):
     try:
         structure_tuple = get_structure_tuple(fileobject, fileformat)
     except UnknownFormatError:
+        # I don't know the fileformat
         fileobject.seek(0)
         data = {'filecontent': fileobject.read(), fileformat: fileformat}
         logger.debug(json.dumps({'data': data, 'reason': 'unknownformat',
@@ -225,6 +242,7 @@ def process_structure_core(filecontent, fileformat):
         flask.flash("Unknown format '{}'".format(fileformat))
         return flask.redirect(flask.url_for('input_structure'))
     except Exception as e:
+        # There was an exception...
         import traceback
         fileobject.seek(0)
         data = {'filecontent': fileobject.read(), fileformat: fileformat}
@@ -238,6 +256,7 @@ def process_structure_core(filecontent, fileformat):
         return flask.redirect(flask.url_for('input_structure'))
 
     if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
+        ## Structure too big
         fileobject.seek(0)
         data = {'filecontent': fileobject.read(), fileformat: fileformat}
         logger.debug(json.dumps({'data': data, 'reason': 'toolarge', 
@@ -250,6 +269,7 @@ def process_structure_core(filecontent, fileformat):
             "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
         return flask.redirect(flask.url_for('input_structure'))
 
+    # Log the content in case of valid structure
     fileobject.seek(0)
     data = {'filecontent': fileobject.read(), fileformat: fileformat}
     logger.debug(json.dumps({'data': data, 'reason': 'OK',
@@ -257,12 +277,10 @@ def process_structure_core(filecontent, fileformat):
         'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
         'time': datetime.datetime.now().isoformat()}))
 
-    atomic_numbers = get_atomic_numbers(structure_tuple[2])
     in_json_data = {
         'cell': structure_tuple[0],
         'scaled_coords': structure_tuple[1],
-        'symbols': structure_tuple[2],
-        'atomic_numbers': atomic_numbers
+        'atomic_numbers': structure_tuple[2]
     }
 
     out_json_data, path_results = get_json_for_visualizer(
@@ -436,7 +454,7 @@ def process_example_structure():
         examplestructure = flask.request.form.get('examplestructure', '<none>')
         fileformat = "vasp"
 
-        print flask.request
+        # print flask.request
 
         try:
             ext_bravais, withinv = valid_examples[examplestructure]
