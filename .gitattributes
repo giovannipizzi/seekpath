@@ -1,0 +1,9 @@
+webservice/static/css/*.min.css* linguist-vendored
+webservice/static/css/orig/bootstrap* linguist-vendored
+webservice/static/css/orig/ChemDoodle* linguist-vendored
+webservice/static/fonts/* linguist-vendored
+webservice/static/js/*.min.js linguist-vendored
+webservice/static/js/orig/ChemDoodle* linguist-vendored
+webservice/static/js/orig/OrbitControls* linguist-vendored
+webservice/static/js/orig/bootstrap* linguist-vendored
+webservice/static/js/orig/three* linguist-vendored
