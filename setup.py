@@ -43,6 +43,8 @@ setup(
         "webservice": ["Flask", "ase>=3.9"],
         },
     packages=find_packages(),
+    # Needed to include some static files declared in MANIFEST.in
+    include_package_data = True,
     download_url = 'https://github.com/giovannipizzi/seekpath/archive/v{}.tar.gz'.format(version),
     keywords = ['path', 'band structure', 'Brillouin', 'crystallography', 
                 'physics', 'primitive cell', 'conventional cell'],
