@@ -11,7 +11,8 @@ install:
     - pip install -e .
 script:
     - cd seekpath && python test_paths_hpkot.py
-    - cd seekpath/hpkot && python test_get_primitive.py
+# I go in a subfolder
+    - cd hpkot && python test_get_primitive.py
 ## Commenting the next two because they require AiiDA
 #    - python test_aiida_conversion.py
 #    - python test_aiida_wrappers.py
