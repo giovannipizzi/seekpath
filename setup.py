@@ -8,13 +8,19 @@ except ImportError:
 modulename = 'seekpath'
 the_license = "The MIT license"
 
-# Get the version number
+# Get the version number in a dirty way
 folder = os.path.split(os.path.abspath(__file__))[0]
 fname = os.path.join(folder, modulename, '__init__.py')
 with open(fname) as init:
     ns = {}
-    exec (init.read(), ns)
-    version = ns['__version__']
+    # Get lines that match, remove comment part 
+    # (assuming it's not in the string...)
+    versionlines = [l.partition('#')[0] 
+                    for l in init.readlines() if l.startswith('__version__')]
+if len(versionlines) != 1:
+    raise ValueError("Unable to detect the version lines")
+versionline = versionlines[0]
+version = versionline.partition('=')[2].replace('"', '').strip()
 
 setup(
     name=modulename,
@@ -36,5 +42,5 @@ setup(
     download_url = 'https://github.com/giovannipizzi/seekpath/archive/v{}.tar.gz'.format(version),
     keywords = ['path', 'band structure', 'Brillouin', 'crystallography', 
                 'physics', 'primitive cell', 'conventional cell'],
-    long_description=open(os.path.join(aiida_folder, 'README.rst')).read(),
+    long_description=open(os.path.join(folder, 'README.rst')).read(),
 )
