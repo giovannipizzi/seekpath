@@ -16,8 +16,9 @@ How to cite
 If you use this tool, please cite the following work:
 
 - Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, *Band structure diagram 
- paths based on crystallography*, arXiv:1602.06402 (2016) (`JOURNAL LINK`_).
-- You should also cite `spglib`_ that is an essential library used in the implementation.
+  paths based on crystallography*, arXiv:1602.06402 (2016) (`JOURNAL LINK`_).
+- You should also cite `spglib`_ that is an essential library used in the 
+  implementation.
 
 How to install
 --------------
