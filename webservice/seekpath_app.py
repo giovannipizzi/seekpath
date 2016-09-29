@@ -235,7 +235,7 @@ def process_structure_core(filecontent, fileformat):
     except UnknownFormatError:
         # I don't know the fileformat
         fileobject.seek(0)
-        data = {'filecontent': fileobject.read(), fileformat: fileformat}
+        data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
         logger.debug(json.dumps({'data': data, 'reason': 'unknownformat',
             'request': str(flask.request.headers),
             'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
@@ -247,7 +247,7 @@ def process_structure_core(filecontent, fileformat):
         # There was an exception...
         import traceback
         fileobject.seek(0)
-        data = {'filecontent': fileobject.read(), fileformat: fileformat}
+        data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
         logger.debug(json.dumps({'data': data, 'reason': 'exception', 
             'traceback': traceback.format_exc(),
             'request': str(flask.request.headers),
@@ -260,7 +260,7 @@ def process_structure_core(filecontent, fileformat):
     if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
         ## Structure too big
         fileobject.seek(0)
-        data = {'filecontent': fileobject.read(), fileformat: fileformat}
+        data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
         logger.debug(json.dumps({'data': data, 'reason': 'toolarge', 
             'number_of_atoms': len(structure_tuple[1]),
             'request': str(flask.request.headers), 
@@ -273,7 +273,7 @@ def process_structure_core(filecontent, fileformat):
 
     # Log the content in case of valid structure
     fileobject.seek(0)
-    data = {'filecontent': fileobject.read(), fileformat: fileformat}
+    data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
     logger.debug(json.dumps({'data': data, 'reason': 'OK',
         'request': str(flask.request.headers),
         'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
