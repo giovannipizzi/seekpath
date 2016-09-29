@@ -1,6 +1,11 @@
 language: python
 python:
     - "2.7"
+addons:
+    apt:
+        packages:
+            - libblas-dev
+            - liblapack-dev 
 install:
     - pip install -e .
 script:
