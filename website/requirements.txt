@@ -1,0 +1,4 @@
+# Note: to use the web service, there are a couple of additional requirements, that are not installed by default with seekpath
+Flask==0.10.1
+ase==3.11.0
+

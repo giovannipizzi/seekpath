@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.spatial import Voronoi, voronoi_plot_2d
-import matplotlib.pyplot as plt
 from collections import defaultdict
 
 
