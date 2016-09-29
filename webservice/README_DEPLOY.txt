@@ -2,7 +2,10 @@ A note: this folder in currently not installed when you do
 'pip install seekpath'
 
 First step: 
-- Install with sudo pip install 'seekpath[bz,webservice]'
+## THIS DOES NOT WORK - Install with pip install 'seekpath[bz,webservice]'
+## Do instead:
+pip install --user -r ../optional_requirements.txt
+
 Then:
 
 1. Put your script as a subfolder of /var/www/ (important, otherwise X-Sendfile
