@@ -279,115 +279,125 @@ def process_structure_core(filecontent, fileformat):
         'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
         'time': datetime.datetime.now().isoformat()}))
 
-    in_json_data = {
-        'cell': structure_tuple[0],
-        'scaled_coords': structure_tuple[1],
-        'atomic_numbers': structure_tuple[2]
-    }
-
-    out_json_data, path_results = get_json_for_visualizer(
-        in_json_data['cell'], 
-        in_json_data['scaled_coords'],
-        in_json_data['atomic_numbers'])
-
-    raw_code_dict = copy.copy(out_json_data)
-    for k in list(raw_code_dict.keys()):
-        if k.startswith('explicit_'):
-            raw_code_dict.pop(k)
-    raw_code_dict.pop('faces_data')
-    raw_code_dict['primitive_lattice'] = path_results['primitive_lattice'].tolist()
-    raw_code_dict['primitive_positions'] = path_results['primitive_positions'].tolist()
-    primitive_positions_cartesian = np.dot(
-        np.array(path_results['primitive_positions']),
-        np.array(path_results['primitive_lattice']),
-        ).tolist()
-    primitive_positions_cartesian_refolded = np.dot(
-        np.array(path_results['primitive_positions'])%1.,
-        np.array(path_results['primitive_lattice']),
-        ).tolist()
-    raw_code_dict['primitive_positions_cartesian'] = primitive_positions_cartesian
-
-    # raw_code['primitive_types'] = path_results['primitive_types']
-    primitive_symbols = [chemical_symbols[num] for num 
-        in path_results['primitive_types']]
-    raw_code_dict['primitive_symbols'] = primitive_symbols
-
-    raw_code = json.dumps(raw_code_dict, indent=2)
-    ## I manually escape it to then add <br> and pass it to a filter with
-    ## |safe. I have to 'unicode' it otherwise it keeps escaping also the
-    ## next replaces
-    raw_code = unicode(flask.escape(raw_code)).replace(
-        '\n', '<br>').replace(' ', '&nbsp;')
-    #content = content.replace('\n', '<br>').replace(' ', '&nbsp;')
-    #content = "<code>{}</code>".format(content)
-
-    kpoints = [[k, out_json_data['kpoints'][k][0], 
-        out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
-        for k in sorted(out_json_data['kpoints'])]
-
-    direct_vectors = [[idx, coords[0], coords[1], coords[2]]
-        for idx, coords in 
-        enumerate(path_results['primitive_lattice'], start=1)
-    ]
-
-    reciprocal_primitive_vectors = [[idx, coords[0], coords[1], coords[2]]
-        for idx, coords in 
-        enumerate(path_results['reciprocal_primitive_lattice'], start=1)
-    ]
-
-    atoms_scaled = [[label, coords[0], coords[1], coords[2]]
-        for label, coords in 
-        zip(primitive_symbols, 
-            path_results['primitive_positions'])]
-
-    atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
-        for label, coords in 
-        zip(primitive_symbols, 
-            primitive_positions_cartesian)]
-
-    # Create extetically-nice looking path, with dashes and pipes
-    suggested_path = []
-    if path_results['path']:
-        suggested_path.append(path_results['path'][0][0])
-        suggested_path.append('-')
-        suggested_path.append(path_results['path'][0][1])
-        last = path_results['path'][0][1]
-    for p1, p2 in path_results['path'][1:]:
-        if p1 != last:
-            suggested_path.append('|')
-            suggested_path.append(p1)
-        suggested_path.append('-')
-        suggested_path.append(p2)
-        last = p2
-
-    primitive_lattice = path_results['primitive_lattice']
-    # Manual recenter of the structure
-    center = (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2])/2.
-    cell_json = {
-            "t": "UnitCell",
-            "i": "s0",
-            "o": (-center).tolist(),
-            "x": (primitive_lattice[0]-center).tolist(),
-            "y": (primitive_lattice[1]-center).tolist(),
-            "z": (primitive_lattice[2]-center).tolist(),
-            "xy": (primitive_lattice[0] + primitive_lattice[1] - center).tolist(),
-            "xz": (primitive_lattice[0] + primitive_lattice[2] - center).tolist(),
-            "yz": (primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
-            "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
+    try:
+        in_json_data = {
+            'cell': structure_tuple[0],
+            'scaled_coords': structure_tuple[1],
+            'atomic_numbers': structure_tuple[2]
         }
-    atoms_json = [ 
-                {"l": label,
-                "x": pos[0]-center[0],
-                "y": pos[1]-center[1],
-                "z": pos[2]-center[2]} 
-                for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
-                ]
-    # These will be passed to ChemDoodle
-    json_content = {"s": [cell_json], 
-                    "m": [{"a": atoms_json}]
-                    }
 
-    compute_time = time.time() - start_time        
+        out_json_data, path_results = get_json_for_visualizer(
+            in_json_data['cell'], 
+            in_json_data['scaled_coords'],
+            in_json_data['atomic_numbers'])
+
+        raw_code_dict = copy.copy(out_json_data)
+        for k in list(raw_code_dict.keys()):
+            if k.startswith('explicit_'):
+                raw_code_dict.pop(k)
+        raw_code_dict.pop('faces_data')
+        raw_code_dict['primitive_lattice'] = path_results['primitive_lattice'].tolist()
+        raw_code_dict['primitive_positions'] = path_results['primitive_positions'].tolist()
+        primitive_positions_cartesian = np.dot(
+            np.array(path_results['primitive_positions']),
+            np.array(path_results['primitive_lattice']),
+            ).tolist()
+        primitive_positions_cartesian_refolded = np.dot(
+            np.array(path_results['primitive_positions'])%1.,
+            np.array(path_results['primitive_lattice']),
+            ).tolist()
+        raw_code_dict['primitive_positions_cartesian'] = primitive_positions_cartesian
+
+        # raw_code['primitive_types'] = path_results['primitive_types']
+        primitive_symbols = [chemical_symbols[num] for num 
+            in path_results['primitive_types']]
+        raw_code_dict['primitive_symbols'] = primitive_symbols
+
+        raw_code = json.dumps(raw_code_dict, indent=2)
+        ## I manually escape it to then add <br> and pass it to a filter with
+        ## |safe. I have to 'unicode' it otherwise it keeps escaping also the
+        ## next replaces
+        raw_code = unicode(flask.escape(raw_code)).replace(
+            '\n', '<br>').replace(' ', '&nbsp;')
+        #content = content.replace('\n', '<br>').replace(' ', '&nbsp;')
+        #content = "<code>{}</code>".format(content)
+
+        kpoints = [[k, out_json_data['kpoints'][k][0], 
+            out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
+            for k in sorted(out_json_data['kpoints'])]
+
+        direct_vectors = [[idx, coords[0], coords[1], coords[2]]
+            for idx, coords in 
+            enumerate(path_results['primitive_lattice'], start=1)
+        ]
+
+        reciprocal_primitive_vectors = [[idx, coords[0], coords[1], coords[2]]
+            for idx, coords in 
+            enumerate(path_results['reciprocal_primitive_lattice'], start=1)
+        ]
+
+        atoms_scaled = [[label, coords[0], coords[1], coords[2]]
+            for label, coords in 
+            zip(primitive_symbols, 
+                path_results['primitive_positions'])]
+
+        atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
+            for label, coords in 
+            zip(primitive_symbols, 
+                primitive_positions_cartesian)]
+
+        # Create extetically-nice looking path, with dashes and pipes
+        suggested_path = []
+        if path_results['path']:
+            suggested_path.append(path_results['path'][0][0])
+            suggested_path.append('-')
+            suggested_path.append(path_results['path'][0][1])
+            last = path_results['path'][0][1]
+        for p1, p2 in path_results['path'][1:]:
+            if p1 != last:
+                suggested_path.append('|')
+                suggested_path.append(p1)
+            suggested_path.append('-')
+            suggested_path.append(p2)
+            last = p2
+
+        primitive_lattice = path_results['primitive_lattice']
+        # Manual recenter of the structure
+        center = (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2])/2.
+        cell_json = {
+                "t": "UnitCell",
+                "i": "s0",
+                "o": (-center).tolist(),
+                "x": (primitive_lattice[0]-center).tolist(),
+                "y": (primitive_lattice[1]-center).tolist(),
+                "z": (primitive_lattice[2]-center).tolist(),
+                "xy": (primitive_lattice[0] + primitive_lattice[1] - center).tolist(),
+                "xz": (primitive_lattice[0] + primitive_lattice[2] - center).tolist(),
+                "yz": (primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
+                "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
+            }
+        atoms_json = [ 
+                    {"l": label,
+                    "x": pos[0]-center[0],
+                    "y": pos[1]-center[1],
+                    "z": pos[2]-center[2]} 
+                    for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
+                    ]
+        # These will be passed to ChemDoodle
+        json_content = {"s": [cell_json], 
+                        "m": [{"a": atoms_json}]
+                        }
+
+        compute_time = time.time() - start_time        
+    except Exception:
+        import traceback
+
+        logger.debug(json.dumps({'data': data, 'reason': 'codeexception',
+            'request': str(flask.request.headers),
+            'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
+            'time': datetime.datetime.now().isoformat(), 'traceback': traceback.extract_stack()}))
+        raise
+
     return flask.render_template(
         'visualizer.html', 
         jsondata=json.dumps(out_json_data),
