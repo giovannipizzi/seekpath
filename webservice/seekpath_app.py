@@ -7,8 +7,7 @@ http://localhost:5000 from a browser. Otherwise, read the instructions
 in README_DEPLOY.txt to deploy on a Apache server.
 """
 import flask
-import sys, os
-import tempfile
+import os
 
 import copy
 import numpy as np
@@ -26,22 +25,19 @@ logHandler.setFormatter(formatter)
 logger.addHandler(logHandler) 
 logger.setLevel(logging.DEBUG) 
 
-import ase, ase.io, ase.data
-from ase.data import chemical_symbols, atomic_numbers
+from ase.data import chemical_symbols
 import json
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
 
-import numpy as np
-import seekpath
-from seekpath import hpkot
+import seekpath, seekpath.hpkot
 from seekpath.brillouinzone import brillouinzone
-from seekpath import get_explicit_k_path
 
 MAX_NUMBER_OF_ATOMS = 256
-time_reversal_note = "The second half of the path is required only if the system does not have time-reversal symmetry"
+time_reversal_note = ("The second half of the path is required only if "
+                      "the system does not have time-reversal symmetry")
 
 valid_examples = {
     "aP2_inv": ("aP2", True),
@@ -120,14 +116,15 @@ try:
         if len(app.secret_key) < 16:
             raise ValueError
 except Exception:
-    raise ConfigurationError("Please create a SECRET_KEY file in {} with a random string of at least 16 characters".format(directory))
+    raise ConfigurationError(
+        "Please create a SECRET_KEY file in {} with a random string "
+        "of at least 16 characters".format(directory))
 
 logger.debug("Start")
 
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
 ## Add @nocache right between @app.route and the 'def' line
 from functools import wraps, update_wrapper
-
 def nocache(view):
     @wraps(view)
     def no_cache(*args, **kwargs):
@@ -139,56 +136,43 @@ def nocache(view):
         return response
     return update_wrapper(no_cache, view) 
 
-def get_structure_tuple(fileobject, fileformat):        
-    if fileformat == 'vasp':
-        import ase.io.vasp
-        asestructure = ase.io.vasp.read_vasp(fileobject)
-        atomic_numbers = get_atomic_numbers(
-            asestructure.get_chemical_symbols())
-        structure_tuple = (
-            asestructure.cell.tolist(),
-            asestructure.get_scaled_positions().tolist(),
-            atomic_numbers)
-        return structure_tuple
-    elif fileformat == 'xsf':
-        import ase.io.xsf
-        asestructure = ase.io.xsf.read_xsf(fileobject)
-        atomic_numbers = get_atomic_numbers(
-            asestructure.get_chemical_symbols())
-        structure_tuple = (
-            asestructure.cell.tolist(),
-            asestructure.get_scaled_positions().tolist(),
-            atomic_numbers)
-        return structure_tuple
-    elif fileformat == 'qe-inp':
-        from structure_importers.qeinp import read_qeinp
-        structure_tuple = read_qeinp(fileobject)
-        return structure_tuple
-    else:
-        raise UnknownFormatError(fileformat)
+def logme(filecontent, fileformat, request, call_source, reason, extra={}):
+    """
+    Given a string with the file content, a file format, a Flask request and 
+    a string identifying the reason for logging, stores the 
+    correct logs.
 
-    # I should never be here, I raise anyway a UnknownFormatError
-    raise UnknownFormatError(fileformat)    
-
-def get_atomic_numbers(symbols):
-    retlist = []
-    for s in symbols:
-        try:
-            retlist.append(atomic_numbers[s])
-        except KeyError:
-            raise ValueError("Unknown symbol '{}'".format(s))
-    return retlist
-
+    :param filecontent: a string with the file content
+    :param fileformat: string with the file format
+    :param request: a Flask request
+    :param call_source: a string identifying who called the function
+    :param reason: a string identifying the reason for this log
+    :param extra: additional data to add to the logged dictionary. 
+        NOTE! it must be JSON-serializable
+    """
+    # I don't know the fileformat
+    data = {'filecontent': filecontent, 'fileformat': fileformat}
+    
+    logdict =  {
+        'data': data, 'reason': reason,
+        'request': str(request.headers),
+        'call_source': call_source,
+        'source': request.headers.get(
+            'X-Forwarded-For', request.remote_addr),
+        'time': datetime.datetime.now().isoformat()
+        }
+    logdict.update(extra)
+    logger.debug(json.dumps(logdict))
 
 def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     system = (np.array(cell), np.array(relcoords), np.array(atomic_numbers))
-    res = hpkot.get_path(system, with_time_reversal=False) 
+    res = seekpath.hpkot.get_path(system, with_time_reversal=False) 
 
     real_lattice = res['primitive_lattice']
     #rec_lattice = np.linalg.inv(real_lattice).T # Missing 2pi!
-    rec_lattice = np.array(hpkot.tools.get_reciprocal_cell_rows(real_lattice))
+    rec_lattice = np.array(
+        seekpath.hpkot.tools.get_reciprocal_cell_rows(real_lattice))
     b1, b2, b3 = rec_lattice
-
 
     faces_data = brillouinzone.get_BZ(
         b1 = b1, b2=b2, b3=b3)
@@ -204,7 +188,8 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     response['path'] = res['path']
 
     # It should use the same logic, so give the same cell as above
-    res_explicit = get_explicit_k_path(system, with_time_reversal=False) 
+    res_explicit = seekpath.get_explicit_k_path(
+        system, with_time_reversal=False) 
     for k in res_explicit:
         if k == 'segments' or k.startswith('explicit_'):
             if isinstance(res_explicit[k], np.ndarray):
@@ -219,65 +204,57 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     # Response for JS, and path_results
     return response, res
 
-def process_structure_core(filecontent, fileformat):
+def process_structure_core(filecontent, fileformat, call_source=""):
     """
     The main function that generates the data to be sent back to the view.
     
     :param filecontent: The file content (string)
     :param fileformat: The file format (string), among the accepted formats
+    :param call_source: a string identifying the source (i.e., who called
+       this function). This is a string, mainly for logging reasons.
 
-    :return: this function calls directly flask methods and returns flask objects
+    :return: this function calls directly flask methods and returns flask 
+        objects
     """
+    from structure_importers import get_structure_tuple
+
     start_time = time.time()
     fileobject = StringIO.StringIO(filecontent)
     try:
         structure_tuple = get_structure_tuple(fileobject, fileformat)
     except UnknownFormatError:
-        # I don't know the fileformat
-        fileobject.seek(0)
-        data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
-        logger.debug(json.dumps({'data': data, 'reason': 'unknownformat',
-            'request': str(flask.request.headers),
-            'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
-            'time': datetime.datetime.now().isoformat()}))
+        logme(filecontent, fileformat, flask.request, call_source,
+              reason = 'unknownformat')
         # Message passed to the next page
         flask.flash("Unknown format '{}'".format(fileformat))
         return flask.redirect(flask.url_for('input_structure'))
-    except Exception as e:
+    except Exception:
         # There was an exception...
         import traceback
-        fileobject.seek(0)
-        data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
-        logger.debug(json.dumps({'data': data, 'reason': 'exception', 
-            'traceback': traceback.format_exc(),
-            'request': str(flask.request.headers),
-            'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
-            'time': datetime.datetime.now().isoformat()}))
+        logme(filecontent, fileformat, flask.request, call_source,
+              reason = 'exception', extra = {
+                'traceback': traceback.format_exc()
+                })
         flask.flash("I tried my best, but I wasn't able to load your "
                 "file in format '{}'...".format(fileformat))
         return flask.redirect(flask.url_for('input_structure'))
 
     if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
         ## Structure too big
-        fileobject.seek(0)
-        data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
-        logger.debug(json.dumps({'data': data, 'reason': 'toolarge', 
-            'number_of_atoms': len(structure_tuple[1]),
-            'request': str(flask.request.headers), 
-            'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
-            'time': datetime.datetime.now().isoformat()}))
+        logme(filecontent, fileformat, flask.request, call_source,
+              reason = 'toolarge', extra={
+                'number_of_atoms': len(structure_tuple[1])
+                })
         flask.flash("Sorry, this online visualizer is limited to {} atoms "
             "in the input cell, while your structure has {} atoms."
             "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
         return flask.redirect(flask.url_for('input_structure'))
 
     # Log the content in case of valid structure
-    fileobject.seek(0)
-    data = {'filecontent': fileobject.read(), 'fileformat': fileformat}
-    logger.debug(json.dumps({'data': data, 'reason': 'OK',
-        'request': str(flask.request.headers),
-        'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
-        'time': datetime.datetime.now().isoformat()}))
+    logme(filecontent, fileformat, flask.request, call_source,
+          reason = 'OK', extra={
+            'number_of_atoms': len(structure_tuple[1])
+            })
 
     try:
         in_json_data = {
@@ -296,8 +273,10 @@ def process_structure_core(filecontent, fileformat):
             if k.startswith('explicit_'):
                 raw_code_dict.pop(k)
         raw_code_dict.pop('faces_data')
-        raw_code_dict['primitive_lattice'] = path_results['primitive_lattice'].tolist()
-        raw_code_dict['primitive_positions'] = path_results['primitive_positions'].tolist()
+        raw_code_dict['primitive_lattice'] = path_results[
+            'primitive_lattice'].tolist()
+        raw_code_dict['primitive_positions'] = path_results[
+            'primitive_positions'].tolist()
         primitive_positions_cartesian = np.dot(
             np.array(path_results['primitive_positions']),
             np.array(path_results['primitive_lattice']),
@@ -306,7 +285,8 @@ def process_structure_core(filecontent, fileformat):
             np.array(path_results['primitive_positions'])%1.,
             np.array(path_results['primitive_lattice']),
             ).tolist()
-        raw_code_dict['primitive_positions_cartesian'] = primitive_positions_cartesian
+        raw_code_dict['primitive_positions_cartesian'] = \
+            primitive_positions_cartesian
 
         # raw_code['primitive_types'] = path_results['primitive_types']
         primitive_symbols = [chemical_symbols[num] for num 
@@ -319,8 +299,6 @@ def process_structure_core(filecontent, fileformat):
         ## next replaces
         raw_code = unicode(flask.escape(raw_code)).replace(
             '\n', '<br>').replace(' ', '&nbsp;')
-        #content = content.replace('\n', '<br>').replace(' ', '&nbsp;')
-        #content = "<code>{}</code>".format(content)
 
         kpoints = [[k, out_json_data['kpoints'][k][0], 
             out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
@@ -363,7 +341,8 @@ def process_structure_core(filecontent, fileformat):
 
         primitive_lattice = path_results['primitive_lattice']
         # Manual recenter of the structure
-        center = (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2])/2.
+        center = (primitive_lattice[0] + primitive_lattice[1] + 
+                  primitive_lattice[2])/2.
         cell_json = {
                 "t": "UnitCell",
                 "i": "s0",
@@ -371,17 +350,23 @@ def process_structure_core(filecontent, fileformat):
                 "x": (primitive_lattice[0]-center).tolist(),
                 "y": (primitive_lattice[1]-center).tolist(),
                 "z": (primitive_lattice[2]-center).tolist(),
-                "xy": (primitive_lattice[0] + primitive_lattice[1] - center).tolist(),
-                "xz": (primitive_lattice[0] + primitive_lattice[2] - center).tolist(),
-                "yz": (primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
-                "xyz": (primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
+                "xy": (primitive_lattice[0] + primitive_lattice[1] 
+                       - center).tolist(),
+                "xz": (primitive_lattice[0] + primitive_lattice[2] 
+                       - center).tolist(),
+                "yz": (primitive_lattice[1] + primitive_lattice[2] 
+                       - center).tolist(),
+                "xyz": (primitive_lattice[0] + primitive_lattice[1] 
+                        + primitive_lattice[2] - center).tolist(),
             }
         atoms_json = [ 
                     {"l": label,
                     "x": pos[0]-center[0],
                     "y": pos[1]-center[1],
                     "z": pos[2]-center[2]} 
-                    for label, pos in zip(primitive_symbols, primitive_positions_cartesian_refolded)
+                    for label, pos in zip(
+                            primitive_symbols, 
+                            primitive_positions_cartesian_refolded)
                     ]
         # These will be passed to ChemDoodle
         json_content = {"s": [cell_json], 
@@ -391,11 +376,9 @@ def process_structure_core(filecontent, fileformat):
         compute_time = time.time() - start_time        
     except Exception:
         import traceback
-
-        logger.debug(json.dumps({'data': data, 'reason': 'codeexception',
-            'request': str(flask.request.headers),
-            'source': flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr),
-            'time': datetime.datetime.now().isoformat(), 'traceback': traceback.extract_stack()}))
+        logme(filecontent, fileformat, flask.request, call_source,
+              reason = 'codeexception', extra={
+                'traceback': traceback.extract_stack()})
         raise
 
     return flask.render_template(
@@ -411,43 +394,60 @@ def process_structure_core(filecontent, fileformat):
         spacegroup_international=path_results['spacegroup_international'],
         direct_vectors=direct_vectors,
         atoms_scaled=atoms_scaled,
-        with_without_time_reversal="with" if path_results['has_inversion_symmetry'] else "without",
+        with_without_time_reversal= (
+            "with" if path_results['has_inversion_symmetry'] 
+            else "without"),
         atoms_cartesian=atoms_cartesian,
         reciprocal_primitive_vectors=reciprocal_primitive_vectors,
         suggested_path=suggested_path,
         compute_time=compute_time,
         seekpath_version=seekpath.__version__,
-        time_reversal_note=time_reversal_note if path_results['augmented_path'] else ""
+        time_reversal_note = (
+            time_reversal_note if path_results['augmented_path'] 
+            else ""),
         )
 
 
 @app.route('/')
 def index():
+    """
+    Main view, redirect to input_structure
+    """
     return flask.redirect(flask.url_for('input_structure'))
-
-#@app.route('/index.html')
-#def send_view_index():
-#    return flask.send_from_directory('view', 'index.html')
 
 @app.route('/input_structure/')
 def input_structure():
-    #return flask.send_from_directory('view', 'structure_visualizer.html')
+    """
+    Input structure selection
+    """
     return flask.render_template('visualizer_select.html')
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
+    """
+    Serve static JS files
+    """
     return flask.send_from_directory(os.path.join(static_folder, 'js'), path)
 
 @app.route('/static/css/<path:path>')
 def send_css(path):
+    """
+    Serve static CSS files
+    """
     return flask.send_from_directory(os.path.join(static_folder, 'css'), path)
 
 @app.route('/static/fonts/<path:path>')
 def send_fonts(path):
+    """
+    Serve static font files
+    """
     return flask.send_from_directory(os.path.join(static_folder, 'fonts'), path)
 
 @app.route('/process_structure/', methods=['GET', 'POST'])
 def process_structure():
+    """
+    Process a structure (uploaded from POST request)
+    """
     if flask.request.method == 'POST':
         # check if the post request has the file part
         if 'structurefile' not in flask.request.files:
@@ -456,40 +456,48 @@ def process_structure():
         fileformat = flask.request.form.get('fileformat', 'unknown')
         filecontent = structurefile.read()
         
-        return process_structure_core(filecontent=filecontent, fileformat=fileformat)
+        return process_structure_core(
+            filecontent=filecontent, fileformat=fileformat,
+            call_source="process_structure")
 
     else: # GET Request
         return flask.redirect(flask.url_for('input_structure'))
 
 @app.route('/process_example_structure/', methods=['GET', 'POST'])
 def process_example_structure():
+    """
+    Process an example structure (example name from POST request)
+    """
     if flask.request.method == 'POST':
         examplestructure = flask.request.form.get('examplestructure', '<none>')
         fileformat = "vasp"
 
-        # print flask.request
-
         try:
             ext_bravais, withinv = valid_examples[examplestructure]
         except KeyError:
-            flask.flash("Invalid example structure '{}'".format(examplestructure))
+            flask.flash("Invalid example structure '{}'".format(
+                examplestructure))
             return flask.redirect(flask.url_for('input_structure'))
 
         poscarfile = "POSCAR_inversion" if withinv else "POSCAR_noinversion"
 
-        # I expect that the valid_examples dictionary already filters only existing 
-        # files, so I don't try/except here
+        # I expect that the valid_examples dictionary already filters only 
+        # existing files, so I don't try/except here
         with open(os.path.join(
                 os.path.split(seekpath.__file__)[0],
                 'hpkot', 'band_path_data', 
                 ext_bravais, poscarfile)) as structurefile:
             filecontent = structurefile.read()
         
-        return process_structure_core(filecontent=filecontent, fileformat=fileformat)
+        return process_structure_core(
+            filecontent=filecontent, fileformat=fileformat,
+            call_source="process_example_structure[{}]".format(examplestructure))
 
     else: # GET Request
         return flask.redirect(flask.url_for('input_structure'))
 
 if __name__ == "__main__":
-    app.use_x_sendfile=False # Cannot use x-sendfile when testing it!
+    # Don't use x-sendfile when testing it, because this is only good
+    # if deployed with Apache
+    app.use_x_sendfile=False 
     app.run(debug=True)
