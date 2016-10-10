@@ -32,6 +32,13 @@ try:
 except ImportError:
     import StringIO
 
+if __name__ == "__main__":
+    # If run manually (=> debug/development mode),
+    # use the local version of seekpath, not the installed one
+    import sys
+    sys.path.insert(0, os.path.join(
+        os.path.split(__file__)[0], os.pardir))
+
 import seekpath, seekpath.hpkot
 from seekpath.brillouinzone import brillouinzone
 
@@ -499,5 +506,6 @@ def process_example_structure():
 if __name__ == "__main__":
     # Don't use x-sendfile when testing it, because this is only good
     # if deployed with Apache
+    # Use the local version of seekpath, not the installed one
     app.use_x_sendfile=False 
     app.run(debug=True)

@@ -116,7 +116,7 @@
     </div>
 
     <div id='aboveright'>
-      <div id='structuretitle'><h3>Structure</h3></div>
+      <div id='structuretitle'><h3>Primitive structure</h3></div>
       <div id='structure'><script>
         parentcanvas = document.getElementById('structure');
         the_width = parentcanvas.offsetWidth;
@@ -284,7 +284,15 @@
     </div>
 
     <div id='citations'>
-        <h2>How to cite</h2>
+        <h2>Important note</h2>
+	<p>
+	  The structure visualized above is <emph>not</emph>
+	  the structure you passed in input, but its primitive cell. 
+	  Moreover, the primitive cell has been standardized 
+	  (using the conventions of spglib).
+	</p>
+
+        <h2>How to cite and acknowledgements</h2>
         <p>If you use this tool, please cite the following work:
         <ul>
         <li><a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, arXiv:1602.06402 (2016)</a>.
@@ -292,6 +300,12 @@
         <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> 
             that is an essential library used in the implementation.
         </li>
+	<li>
+	  Some of the input parsers have been implemented either with the 
+	     <a href="https://wiki.fysik.dtu.dk/ase/">ASE python library</a>
+	     or using routines from 
+	     <a href="http://www.aiida.net">AiiDA</a>.
+	</li>
         </ul>
         </p>
     </div>

@@ -31,6 +31,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 import numpy as np
+import seekpath.util
 from seekpath.util import atoms_num_dict
 
 bohr_to_ang = 0.52917720859
