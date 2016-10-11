@@ -263,9 +263,9 @@
         <table class="center">
           <thead>
             <th style="padding-right: 15px; text-align: center">Element</th>
-            <th style="text-align: center">r<sub>1</sub></th>
-            <th style="text-align: center">r<sub>2</sub></th>
-            <th style="text-align: center">r<sub>3</sub></th>
+            <th style="text-align: center">x</th>
+            <th style="text-align: center">y</th>
+            <th style="text-align: center">z</th>
           </thead>
           <tbody>      
             {% for b in atoms_cartesian %}
@@ -284,14 +284,6 @@
     </div>
 
     <div id='citations'>
-        <h2>Important note</h2>
-	<p>
-	  The structure visualized above is <emph>not</emph>
-	  the structure you passed in input, but its primitive cell. 
-	  Moreover, the primitive cell has been standardized 
-	  (using the conventions of spglib).
-	</p>
-
         <h2>How to cite and acknowledgements</h2>
         <p>If you use this tool, please cite the following work:
         <ul>
@@ -300,14 +292,26 @@
         <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> 
             that is an essential library used in the implementation.
         </li>
-	<li>
-	  Some of the input parsers have been implemented either with the 
-	     <a href="https://wiki.fysik.dtu.dk/ase/">ASE python library</a>
-	     or using routines from 
-	     <a href="http://www.aiida.net">AiiDA</a>.
-	</li>
+      	<li>
+      	  Some of the input parsers have been implemented either with the 
+      	     <a href="https://wiki.fysik.dtu.dk/ase/">ASE python library</a>
+      	     or using routines from 
+    	       <a href="http://www.aiida.net">AiiDA</a>.
+      	</li>
         </ul>
         </p>
+        <h2>Important note</h2>
+	<p>
+	  The structure visualized above is <span style="font-style: italic;">not</span>
+	  the structure you passed in input, but its primitive cell. 
+	  Moreover, the primitive cell has been standardized 
+	  (using the conventions of spglib).<br/>
+
+	 <span style="font-weight: bold;">If you want to run a new simulation, 
+    and plan (now or later) to use the suggested path provided here, 
+    please use the primitive cell above.</span>
+	</p>
+
     </div>
 
 
