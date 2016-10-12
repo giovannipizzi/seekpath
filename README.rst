@@ -46,14 +46,17 @@ where (if ``N`` is the number of atoms):
 The output of the function is a dictionary containing, among other quantities, the k-vector coefficients, the suggested band path, whether the system has inversion symmetry, the crystallographic primitive lattice, the reciprocal primitive lattice.
 A detailed description of all output information and their format can be found in the function docstring.
 
-**Important note**: SeeK-path standardizes the crystal structure (e.g., rotates the tetragonal system so that the *c* axis is along *z*, etc.) and can 
-compute the suggested band paths only of standardized (crystallographic) primitive cells. Therefore, the correct approach to use this tool is the following:
+.. warning:: SeeK-path standardizes the crystal structure 
+  (e.g., rotates the tetragonal system so that the *c* axis is along *z*, 
+  etc.) and can compute the suggested band paths only of standardized 
+  (crystallographic) primitive cells. Therefore, the correct approach 
+  to use this tool is the following:
 
-1. You first find the standardized primitive cell with SeeK-path (returned in
-   output) and store it somewhere, together with the k-point coordinates
-   and suggested band path
+  1. You first find the standardized primitive cell with SeeK-path (returned in
+     output) and store it somewhere, together with the k-point coordinates
+     and suggested band path
 
-2. You then run all your calculations using the standardized primitive cell
+  2. You then run all your calculations using the standardized primitive cell
 
 If you already have done calculations with a non-standardized cell, you will
 then need to figure out how to remap the labeled k-points in the choice of
