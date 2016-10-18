@@ -279,6 +279,8 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         for k in list(raw_code_dict.keys()):
             if k.startswith('explicit_'):
                 raw_code_dict.pop(k)
+            if k == 'segments':
+                raw_code_dict.pop(k)
         raw_code_dict.pop('faces_data')
         raw_code_dict['primitive_lattice'] = path_results[
             'primitive_lattice'].tolist()
