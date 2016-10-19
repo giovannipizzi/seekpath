@@ -260,7 +260,7 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     lattice, positions, types = structure
     P, invP = get_P_matrix(bravais_lattice)
 
-    volume_ratio = int(np.linalg.det(invP))
+    volume_ratio = int(round(np.linalg.det(invP)))
 
     # (a_P, b_P, c_P) = (a,b,c) P
     # a is the first ROW of lattice => I have to transpose lattice

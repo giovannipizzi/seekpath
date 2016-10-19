@@ -395,7 +395,7 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         'visualizer.html', 
         jsondata=json.dumps(out_json_data),
         json_content=json.dumps(json_content),
-        volume_ratio_prim=int(path_results['volume_original_wrt_prim']),
+        volume_ratio_prim=int(round(path_results['volume_original_wrt_prim'])),
         raw_code=raw_code,
         kpoints=kpoints,
         bravais_lattice=path_results['bravais_lattice'],
