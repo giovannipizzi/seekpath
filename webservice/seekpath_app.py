@@ -41,6 +41,7 @@ if __name__ == "__main__":
 
 import seekpath, seekpath.hpkot
 from seekpath.brillouinzone import brillouinzone
+import spglib # Mainly to get its version
 
 MAX_NUMBER_OF_ATOMS = 256
 time_reversal_note = ("The second half of the path is required only if "
@@ -411,6 +412,7 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         suggested_path=suggested_path,
         compute_time=compute_time,
         seekpath_version=seekpath.__version__,
+        spglib_version=spglib.__version__,
         time_reversal_note = (
             time_reversal_note if path_results['augmented_path'] 
             else ""),
@@ -465,9 +467,20 @@ def process_structure():
         fileformat = flask.request.form.get('fileformat', 'unknown')
         filecontent = structurefile.read()
         
-        return process_structure_core(
-            filecontent=filecontent, fileformat=fileformat,
-            call_source="process_structure")
+        try:
+            return process_structure_core(
+                filecontent=filecontent, fileformat=fileformat,
+                call_source="process_structure")
+        except seekpath.hpkot.SymmetryDetectionError:
+            flask.flash(
+                "Unable to detect symmetry... "
+                "Maybe you have overlapping atoms?")
+            return flask.redirect(flask.url_for('input_structure'))
+        except Exception:
+            flask.flash(
+                "Unable to process the structure, sorry...")
+            return flask.redirect(flask.url_for('input_structure'))
+
 
     else: # GET Request
         return flask.redirect(flask.url_for('input_structure'))

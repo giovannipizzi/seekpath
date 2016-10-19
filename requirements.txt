@@ -1,2 +1,2 @@
-numpy==1.11.1
-spglib==1.9.5
+numpy==1.11.2
+spglib==1.9.6

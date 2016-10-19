@@ -43,6 +43,12 @@ class EdgeCaseWarning(RuntimeWarning):
     """
     pass
 
+class SymmetryDetectionError(Exception):
+    """
+    Error raised if spglib could not detect the symmetry
+    """
+    pass
+
 def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     """
     Return the kpoint path for band structure given a crystal structure,
@@ -148,6 +154,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     # Symmetry analysis by SPGlib, get crystallographic lattice, 
     # and cell parameters for this lattice
     dataset = spglib.get_symmetry_dataset(structure_internal)
+    if dataset is None:
+        raise SymmetryDetectionError(
+            "Spglib could not detect the symmetry of the system")
     conv_lattice = dataset['std_lattice']
     conv_positions = dataset['std_positions']
     conv_types = dataset['std_types']

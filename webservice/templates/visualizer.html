@@ -323,8 +323,9 @@
 
     <div id='finalinfo'>
         <h2>Technical info</h2>
-        <p>Time spent to compute quantities: {{ compute_time }} s</p>
+        <p>Time spent to compute quantities: {{ '%.3f' % compute_time }} s</p>
 	<p>SeeK-path version: {{ seekpath_version }}</p>
+	<p>spglib version: {{ spglib_version }}</p>
     </div>
 
     </div>
