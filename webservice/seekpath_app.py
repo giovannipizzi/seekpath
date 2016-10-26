@@ -6,6 +6,11 @@ If you just want to try it out, just run this file and connect to
 http://localhost:5000 from a browser. Otherwise, read the instructions
 in README_DEPLOY.txt to deploy on a Apache server.
 """
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import zip
 import flask
 import os
 
@@ -27,10 +32,7 @@ logger.setLevel(logging.DEBUG)
 
 from ase.data import chemical_symbols
 import json
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
+import io
 
 if __name__ == "__main__":
     # If run manually (=> debug/development mode),
@@ -192,7 +194,7 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     response['b3'] = b3.tolist()
     ## Convert to absolute
     response['kpoints'] = {k: (v[0] * b1 + v[1] * b2 + v[2] * b3).tolist()
-        for k,v in res['point_coords'].iteritems()}
+        for k,v in res['point_coords'].items()}
     response['path'] = res['path']
 
     # It should use the same logic, so give the same cell as above
@@ -227,7 +229,7 @@ def process_structure_core(filecontent, fileformat, call_source=""):
     from structure_importers import get_structure_tuple
 
     start_time = time.time()
-    fileobject = StringIO.StringIO(filecontent)
+    fileobject = io.StringIO(str(filecontent))
     try:
         structure_tuple = get_structure_tuple(fileobject, fileformat)
     except UnknownFormatError:
@@ -307,7 +309,7 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         ## I manually escape it to then add <br> and pass it to a filter with
         ## |safe. I have to 'unicode' it otherwise it keeps escaping also the
         ## next replaces
-        raw_code = unicode(flask.escape(raw_code)).replace(
+        raw_code = str(flask.escape(raw_code)).replace(
             '\n', '<br>').replace(' ', '&nbsp;')
 
         kpoints = [[k, out_json_data['kpoints'][k][0], 

@@ -2,8 +2,8 @@
 SeeK-path
 #########
 
-``SeeK-path`` is a module to obtain and visualize band paths in the Brillouin
-zone of crystal structures. 
+``SeeK-path`` is a python module to obtain and visualize band paths in the
+Brillouin zone of crystal structures. 
 
 The definition of k-point labels follows crystallographic convention, as defined
 and discussed in the `HPKOT paper`_. Moreover, the Bravais lattice is detected
@@ -29,7 +29,8 @@ If you use this tool, please cite the following work:
 ==============
 How to install
 ==============
-To install, use ``pip install seekpath``.
+To install, use ``pip install seekpath``. It works both in python 2.7 and 
+in python 3.5.
 
 ==========
 How to use
