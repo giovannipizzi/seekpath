@@ -61,8 +61,8 @@ class TestPaths3D_HPKOT_Supercell(unittest.TestCase):
         res = hpkot.get_path(system, with_time_reversal=False)
 
         # Just some basic checks...
-        self.assertEquals(res['volume_original_wrt_conv'], 2)
-        self.assertEquals(res['volume_original_wrt_prim'], 4)
+        self.assertEqual(res['volume_original_wrt_conv'], 2)
+        self.assertEqual(res['volume_original_wrt_prim'], 4)
 
 
 class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
@@ -96,12 +96,15 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             res = hpkot.get_path(system, with_time_reversal=False)
             # Checks
-            self.assertEquals(res['bravais_lattice'], check_bravais_lattice)
-            self.assertEquals(len(w), 1, 'Wrong number of warnings issued! '
-                              '({} instead of 1)'.format(len(w)))
-            assert issubclass(w[0].category, hpkot.EdgeCaseWarning)
+            self.assertEqual(res['bravais_lattice'], check_bravais_lattice)
+            # Checks on issued warnings
+            relevant_w = [_ for _ in w if 
+                          issubclass(_.category, hpkot.EdgeCaseWarning)]
+            self.assertEqual(len(relevant_w), 1, 
+                             'Wrong number of warnings issued! '
+                             '({} instead of 1)'.format(len(relevant_w)))
             if check_string is not None:
-                self.assertIn(check_string, str(w[0].message))
+                self.assertIn(check_string, str(relevant_w[0].message))
 
     def test_tI(self):
         """
@@ -242,8 +245,8 @@ class TestPaths3D_HPKOT(unittest.TestCase):
 
         res = hpkot.get_path(system, with_time_reversal=False)
 
-        self.assertEquals(res['bravais_lattice_extended'], ext_bravais)
-        self.assertEquals(res['has_inversion_symmetry'], with_inv)
+        self.assertEqual(res['bravais_lattice_extended'], ext_bravais)
+        self.assertEqual(res['has_inversion_symmetry'], with_inv)
 
         if self.verbose_tests:
             print("*** {} (inv={})".format(

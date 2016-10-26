@@ -22,8 +22,8 @@ class TestGetPrimitive(unittest.TestCase):
         system = (cell, positions, atomic_numbers)
         prim, PinvP, mapping = get_primitive(system, 'cI')
 
-        self.assertEquals(mapping.tolist(), [0, 0, 1, 1])
-        self.assertAlmostEquals(prim[1].tolist(),
+        self.assertEqual(mapping.tolist(), [0, 0, 1, 1])
+        self.assertAlmostEqual(prim[1].tolist(),
                                 [[0.,  0.,  0.],
                                  [0.25,  0.,  0.25]])
 
@@ -50,13 +50,13 @@ class TestGetPrimitive(unittest.TestCase):
         system = (cell, positions, atomic_numbers)
         prim, PinvP, mapping = get_primitive(system, 'oA')
 
-        self.assertAlmostEquals(prim[0].tolist(),
+        self.assertAlmostEqual(prim[0].tolist(),
                                 [[0.,   1.5, -1.5],
                                  [0.,   1.5,  1.5],
                                  [9.,   0.,   0.]]
                                 )
-        self.assertEquals(mapping.tolist(), [0, 1, 1, 2, 0, 2])
-        self.assertAlmostEquals(np.sum(np.abs(prim[1] - np.array(
+        self.assertEqual(mapping.tolist(), [0, 1, 1, 2, 0, 2])
+        self.assertAlmostEqual(np.sum(np.abs(prim[1] - np.array(
             [[0.03096524,  0.96903476,  0.],
              [0.34896018,  0.65103982,  0.],
              [-0.37367305,  1.37367305,  0.5]]))), 0.)
@@ -85,13 +85,13 @@ class TestGetPrimitive(unittest.TestCase):
         prim, PinvP, mapping = get_primitive(system, 'oA',
                                              wrap_to_zero_one=True)
 
-        self.assertAlmostEquals(prim[0].tolist(),
+        self.assertAlmostEqual(prim[0].tolist(),
                                 [[0.,   1.5, -1.5],
                                  [0.,   1.5,  1.5],
                                  [9.,   0.,   0.]]
                                 )
-        self.assertEquals(mapping.tolist(), [0, 1, 1, 2, 0, 2])
-        self.assertAlmostEquals(np.sum(np.abs(prim[1] - np.array(
+        self.assertEqual(mapping.tolist(), [0, 1, 1, 2, 0, 2])
+        self.assertAlmostEqual(np.sum(np.abs(prim[1] - np.array(
             [[0.03096524,  0.96903476,  0.],
              [0.34896018,  0.65103982,  0.],
              [0.62632695,  0.37367305,  0.5]]))), 0.)

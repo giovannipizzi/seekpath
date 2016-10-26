@@ -238,20 +238,20 @@ class TestAiiDAExplicitPath(unittest.TestCase):
         self.assertTrue(retdict['has_inversion_symmetry'])
         self.assertFalse(retdict['augmented_path'])
         self.assertAlmostEqual(retdict['volume_original_wrt_prim'], 1.0)
-        self.assertEquals(
+        self.assertEqual(
             retdict['segments'], 
             [(0, 31), (30, 61), (60, 104), (103, 123), (122, 153), (152, 183),
              (182, 226), (226, 246), (246, 266)])
         ret_s = retdict['primitive_structure']
         ret_k = retdict['explicit_kpoints']
-        self.assertEquals(
+        self.assertEqual(
             ret_k.labels,
             [(0, 'GAMMA'), (30, 'X'), (60, 'M'), (103, 'GAMMA'), (122, 'Z'), 
              (152, 'R'), (182, 'A'), (225, 'Z'), (226, 'X'), (245, 'R'), 
              (246, 'M'), (265, 'A')])
         kpts = ret_k.get_kpoints(cartesian=False)
         highsympoints_relcoords = [kpts[idx] for idx, label in ret_k.labels]
-        self.assertAlmostEquals(np.sum(np.abs(
+        self.assertAlmostEqual(np.sum(np.abs(
                     np.array([
                             [ 0.,   0.,   0. ], # Gamma
                             [ 0.,   0.5,  0. ], # X
