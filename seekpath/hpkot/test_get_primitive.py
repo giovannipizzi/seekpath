@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import unittest
 
 
@@ -10,7 +11,7 @@ class TestGetPrimitive(unittest.TestCase):
         """
         Test the primitive of a BCC.
         """
-        from spg_mapping import get_primitive
+        from .spg_mapping import get_primitive
         import numpy as np
 
         cell = [[4., 0., 0.], [0., 4., 0.], [0., 0., 4.]]
@@ -30,7 +31,7 @@ class TestGetPrimitive(unittest.TestCase):
         """
         Test the primitive of a oA cell.
         """
-        from spg_mapping import get_primitive
+        from .spg_mapping import get_primitive
         import numpy as np
 
         cell = [
@@ -64,7 +65,7 @@ class TestGetPrimitive(unittest.TestCase):
         """
         Test the primitive of a oA cell, wrapping coordinates between 0 and 1.
         """
-        from spg_mapping import get_primitive
+        from .spg_mapping import get_primitive
         import numpy as np
 
         cell = [
@@ -94,7 +95,3 @@ class TestGetPrimitive(unittest.TestCase):
             [[0.03096524,  0.96903476,  0.],
              [0.34896018,  0.65103982,  0.],
              [0.62632695,  0.37367305,  0.5]]))), 0.)
-
-
-if __name__ == "__main__":
-    unittest.main()

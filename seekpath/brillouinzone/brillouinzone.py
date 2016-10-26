@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 from scipy.spatial import Voronoi, voronoi_plot_2d
 from collections import defaultdict
@@ -138,7 +139,7 @@ def get_BZ(b1,b2,b3):
 
         if len(triangles) != 2:
             # An edge shared by less (or more) than 2 triangles?
-            print "Warning!", p1, p2, triangles
+            print("Warning!", p1, p2, triangles)
             continue
         else:
             # Check if two triangles are coplanar: get the other two
@@ -269,7 +270,7 @@ if __name__ == "__main__":
     faces_data = get_BZ(b1 = [1,1,-1], b2 = [1,-1,1], b3 = [-1,1,1])
 
     import json
-    print json.dumps(faces_data)
+    print(json.dumps(faces_data))
 
     faces_coords = faces_data['faces']
 
@@ -278,7 +279,7 @@ if __name__ == "__main__":
         faces_count[len(face)] += 1
 
     for num_sides in sorted(faces_count.keys()):
-        print "{} faces: {}".format(num_sides, faces_count[num_sides])
+        print("{} faces: {}".format(num_sides, faces_count[num_sides]))
 
     fig = figure()
     ax = fig.add_subplot(111, projection='3d')

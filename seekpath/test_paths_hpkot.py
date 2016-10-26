@@ -1,5 +1,7 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import unittest
-from util import atoms_num_dict
+from .util import atoms_num_dict
 
 
 def simple_read_poscar(fname):
@@ -45,7 +47,7 @@ class TestPaths3D_HPKOT_Supercell(unittest.TestCase):
         Test a supercell (BCC).
         This is just a very basic test.
         """
-        import hpkot
+        from seekpath import hpkot
 
         cell = [[4., 0., 0.], [0., 10., 0.], [0., 0., 4.]]
         positions = [[0., 0., 0.], [0.5, 0.25, 0.5],
@@ -84,7 +86,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         """
         import warnings
 
-        import hpkot
+        from seekpath import hpkot
 
         system = (cell, positions, atomic_numbers)
 
@@ -221,7 +223,7 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         """
         import os
 
-        import hpkot
+        from seekpath import hpkot
 
         # Get the POSCAR with the example structure
         this_folder = os.path.split(os.path.abspath(hpkot.__file__))[0]
@@ -241,11 +243,11 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         self.assertEquals(res['has_inversion_symmetry'], with_inv)
 
         if self.verbose_tests:
-            print "*** {} (inv={})".format(
-                ext_bravais, with_inv)
+            print("*** {} (inv={})".format(
+                ext_bravais, with_inv))
             for p1, p2 in res['path']:
-                print "   {} -- {}: {} -- {}".format(p1, p2,
-                                                     res['point_coords'][p1], res['point_coords'][p2])
+                print("   {} -- {}: {} -- {}".format(p1, p2,
+                                                     res['point_coords'][p1], res['point_coords'][p2]))
 
     def test_aP2Y(self):
         """
@@ -656,6 +658,3 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         """
         self.base_test(ext_bravais="tP1", with_inv=False)
 
-
-if __name__ == "__main__":
-    unittest.main()

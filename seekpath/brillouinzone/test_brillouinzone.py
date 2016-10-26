@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import unittest
 import numpy as np
 
-import brillouinzone
+from . import brillouinzone
 
 def is_same_point(p1, p2):
     threshold = 1.e-7
