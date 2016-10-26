@@ -441,7 +441,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     # Now I have evaluated all needed kparams; I can compute the actual
     # coordinates of the relevant kpoints, using eval_expr_simple
     points = {}
-    for pointname, coords_def in points_def.iteritems():
+    for pointname, coords_def in points_def.items():
         coords = [eval_expr_simple(_, kparam_extended) for _ in coords_def]
         points[pointname] = coords
 
@@ -453,7 +453,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         augmented_path = False
 
     if augmented_path:
-        for pointname, coords in list(points.iteritems()):
+        for pointname, coords in list(points.items()):
             if pointname == 'GAMMA':
                 continue
             points["{}'".format(pointname)] = [

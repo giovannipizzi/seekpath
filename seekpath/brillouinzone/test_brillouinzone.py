@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import range
 import unittest
 import numpy as np
 
@@ -63,7 +64,7 @@ def are_same_faces(faces1, faces2):
         return False, ("The two list of faces have different "
             "length ({} vs. {})".format(len(faces1), len(faces2)))
 
-    remaining_indices = range(len(faces1))
+    remaining_indices = list(range(len(faces1)))
     for f1idx, f1 in enumerate(faces1):
         found = False
         for f2idx in remaining_indices:

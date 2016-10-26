@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import numpy as np
 from scipy.spatial import Voronoi, voronoi_plot_2d
 from collections import defaultdict
@@ -130,7 +131,7 @@ def get_BZ(b1,b2,b3):
     # List of found simplices that have been merged; will be used at the 
     # end to add the triangles that have not been merged, if any
     merged_simplices = []
-    for (p1, p2), triangles in edges.iteritems():
+    for (p1, p2), triangles in edges.items():
         # I do it many times, but it's the easiest way (and anyway it's
         # a set, so it should be fast: I add a point to be merged with 
         # itself
@@ -188,20 +189,20 @@ def get_BZ(b1,b2,b3):
                         merge_with[other1].add(other2)
 
     # convert to dict, and most importantly convert to list and sort
-    merge_with = {k: sorted(v) for k, v in merge_with.iteritems()}
+    merge_with = {k: sorted(v) for k, v in merge_with.items()}
         
     # Assign to the smallest integer idx
-    merge_group = {k: v[0] for k, v in merge_with.iteritems()}
+    merge_group = {k: v[0] for k, v in merge_with.items()}
 
     groups = defaultdict(list)
     # I create a reverse index
-    for k, v in merge_group.iteritems():
+    for k, v in merge_group.items():
         groups[v].append(k)
 
     # List of faces (elements are lists of vertex ids)
     faces = [] 
 
-    for group in groups.itervalues():
+    for group in groups.values():
         if len(group) == 1:
             faces.append([hull.points[point_idx] 
                           for point_idx in hull.simplices[group[0]]])

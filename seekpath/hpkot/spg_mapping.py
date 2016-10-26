@@ -1,3 +1,7 @@
+from builtins import str
+from builtins import range
+from builtins import int # subclass of long on Py2
+
 def get_crystal_family(number):
     """
     Given a spacegroup number, returns a string to identify its
@@ -5,7 +9,7 @@ def get_crystal_family(number):
 
     :param number: the spacegroup number, from 1 to 230
     """
-    if not isinstance(number, (int, long)):
+    if not isinstance(number, int):
         raise TypeError("number should be integer")
     if number < 1:
         raise ValueError("number should be >= 1")
@@ -300,7 +304,7 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     group_of_equivalent_atoms = [
         tuple(np.arange(all_match.shape[0])[row]) for row in all_match]
     group_count = Counter(group_of_equivalent_atoms)
-    wrong_count = [group for group, cnt in group_count.iteritems()
+    wrong_count = [group for group, cnt in group_count.items()
                    if cnt != volume_ratio]
     if wrong_count:
         raise ValueError("Problem creating primitive cell, I found the "

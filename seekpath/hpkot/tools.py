@@ -42,7 +42,7 @@ def extend_kparam(kparam):
     :return: a similar dictionary, extended with simple expressions
     """
     kparam_extended = {}
-    for k, v in kparam.iteritems():
+    for k, v in kparam.items():
         kparam_extended[k] = v
         kparam_extended["-{}".format(k)] = -v
         kparam_extended["1-{}".format(k)] = 1. - v

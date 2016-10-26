@@ -1,6 +1,7 @@
 """
 This module contains the main functions to get a path and an explicit path.
 """
+from builtins import range
 
 
 def get_path(structure, with_time_reversal=True, recipe='hpkot',

@@ -1,3 +1,4 @@
+from builtins import zip
 from . import (
     get_explicit_k_path as _raw_explicit_path,
     get_path as _raw_get_path)
@@ -38,7 +39,7 @@ def _aiida_to_tuple(aiida_structure):
                 found = True
                 return retval
 
-    Z = {v['symbol']: k for k, v in elements.iteritems()}
+    Z = {v['symbol']: k for k, v in elements.items()}
 
     cell = np.array(aiida_structure.cell)
     abs_pos = np.array([_.position for _ in aiida_structure.sites])
@@ -49,14 +50,14 @@ def _aiida_to_tuple(aiida_structure):
     for kind in aiida_structure.kinds:
         if len(kind.symbols) == 1:
             realnumber = Z[kind.symbols[0]]
-            if realnumber in kind_numbers.values():
+            if realnumber in list(kind_numbers.values()):
                 number = get_new_number(
-                    kind_numbers.values(), start_from=realnumber * 1000)
+                    list(kind_numbers.values()), start_from=realnumber * 1000)
             else:
                 number = realnumber
             kind_numbers[kind.name] = number
         else:
-            number = get_new_number(kind_numbers.values(), start_from=200000)
+            number = get_new_number(list(kind_numbers.values()), start_from=200000)
             kind_numbers[kind.name] = number
 
     numbers = [kind_numbers[s.kind_name] for s in aiida_structure.sites]
@@ -88,7 +89,7 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     if kinds is None and kind_info is not None:
         raise ValueError("If you pass kinds, you should also pass kind_info")
 
-    Z = {v['symbol']: k for k, v in elements.iteritems()}
+    Z = {v['symbol']: k for k, v in elements.items()}
     cell, rel_pos, numbers = structure_tuple
     if kind_info:
         _kind_info = copy.copy(kind_info)
@@ -111,11 +112,11 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
         raise ValueError(
             "There is at least a number repeated twice in kind_info!")
     # Invert the mapping
-    mapping_num_kindname = {v: k for k, v in _kind_info.iteritems()}
+    mapping_num_kindname = {v: k for k, v in _kind_info.items()}
     # Create the actual mapping
     try:
         mapping_to_kinds = {num: _kinds_dict[kindname] for num, kindname
-                            in mapping_num_kindname.iteritems()}
+                            in mapping_num_kindname.items()}
     except KeyError as e:
         raise ValueError(
             "Unable to find '{}' in the kinds list".format(e.message))
