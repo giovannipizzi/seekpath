@@ -1,7 +1,6 @@
 from __future__ import print_function
 from builtins import range
 import numpy as np
-from scipy.spatial import Voronoi, voronoi_plot_2d
 from collections import defaultdict
 
 
@@ -42,6 +41,7 @@ def get_BZ(b1,b2,b3):
         plotting library prefers these - these are not oriented for the
         time being)
     """
+    from scipy.spatial import Voronoi, ConvexHull, Delaunay
     ret_data = {}
 
     supercell_size = 3 # Is this enough?
@@ -62,7 +62,6 @@ def get_BZ(b1,b2,b3):
     central_voronoi_3d = np.array([vor3d.vertices[idx] for idx in vor3d.regions[vor3d.point_region[central_idx]]])
 
     # Get the convex hull of these points (all triangular faces)
-    from scipy.spatial import ConvexHull, Delaunay
     hull = ConvexHull(central_voronoi_3d)
 
     ## REORIENT TRIANGLES
