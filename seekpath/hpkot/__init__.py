@@ -36,6 +36,8 @@ Note: the list of point coordinates and example POSCAR files in
   the Materials Project (http://materialsproject.org).
 
 """
+
+
 class EdgeCaseWarning(RuntimeWarning):
     """
     A warning issued when the cell is an edge case (e.g. orthorhombic
@@ -43,11 +45,13 @@ class EdgeCaseWarning(RuntimeWarning):
     """
     pass
 
+
 class SymmetryDetectionError(Exception):
     """
     Error raised if spglib could not detect the symmetry
     """
     pass
+
 
 def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     """
@@ -136,9 +140,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     import warnings
 
     import numpy as np
-    
+
     from .tools import (
-        check_spglib_version, extend_kparam, eval_expr, eval_expr_simple, 
+        check_spglib_version, extend_kparam, eval_expr, eval_expr_simple,
         get_cell_params, get_path_data, get_reciprocal_cell_rows,
         get_real_cell_from_reciprocal_rows)
     from .spg_mapping import (get_spgroup_data, get_primitive)
@@ -147,11 +151,11 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     # otherwise
     spglib = check_spglib_version()
 
-    structure_internal = (np.array(structure[0]), 
-                          np.array(structure[1]), 
+    structure_internal = (np.array(structure[0]),
+                          np.array(structure[1]),
                           np.array(structure[2]))
 
-    # Symmetry analysis by SPGlib, get crystallographic lattice, 
+    # Symmetry analysis by SPGlib, get crystallographic lattice,
     # and cell parameters for this lattice
     dataset = spglib.get_symmetry_dataset(structure_internal)
     if dataset is None:
@@ -160,9 +164,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     conv_lattice = dataset['std_lattice']
     conv_positions = dataset['std_positions']
     conv_types = dataset['std_types']
-    a,b,c,cosalpha,cosbeta,cosgamma=get_cell_params(conv_lattice)
+    a, b, c, cosalpha, cosbeta, cosgamma = get_cell_params(conv_lattice)
     spgrp_num = dataset['number']
-    # This is the transformation from the original to the crystallographic 
+    # This is the transformation from the original to the crystallographic
     # conventional (called std in spglib)
     #  Lattice^{crystallographic_bravais} = L^{original} * transf_matrix
     transf_matrix = dataset['transformation_matrix']
@@ -181,7 +185,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             ext_bravais = "cP2"
         else:
             raise ValueError("Internal error! should be cP, but the "
-                "spacegroup number is not in the correct range")
+                             "spacegroup number is not in the correct range")
     elif bravais_lattice == "cF":
         if spgrp_num >= 195 and spgrp_num <= 206:
             ext_bravais = "cF1"
@@ -189,15 +193,15 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             ext_bravais = "cF2"
         else:
             raise ValueError("Internal error! should be cF, but the "
-                "spacegroup number is not in the correct range")
+                             "spacegroup number is not in the correct range")
     elif bravais_lattice == "cI":
         ext_bravais = "cI1"
     elif bravais_lattice == "tP":
         ext_bravais = "tP1"
     elif bravais_lattice == "tI":
-        if abs(c-a) < threshold:
+        if abs(c - a) < threshold:
             warnings.warn("tI lattice, but a almost equal to c",
-                EdgeCaseWarning)
+                          EdgeCaseWarning)
         if c <= a:
             ext_bravais = "tI1"
         else:
@@ -205,53 +209,53 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     elif bravais_lattice == "oP":
         ext_bravais = "oP1"
     elif bravais_lattice == "oF":
-        if abs(1./(a**2) - (1./(b**2) + 1./(c**2))) < threshold:
+        if abs(1. / (a**2) - (1. / (b**2) + 1. / (c**2))) < threshold:
             warnings.warn("oF lattice, but 1/a^2 almost equal to 1/b^2 + 1/c^2",
-                EdgeCaseWarning)
-        if abs(1./(c**2) - (1./(a**2) + 1./(b**2))) < threshold:
+                          EdgeCaseWarning)
+        if abs(1. / (c**2) - (1. / (a**2) + 1. / (b**2))) < threshold:
             warnings.warn("oF lattice, but 1/c^2 almost equal to 1/a^2 + 1/b^2",
-                EdgeCaseWarning)
-        if 1./(a**2) > 1./(b**2) + 1./(c**2):
+                          EdgeCaseWarning)
+        if 1. / (a**2) > 1. / (b**2) + 1. / (c**2):
             ext_bravais = "oF1"
-        elif 1./(c**2) > 1./(a**2) + 1./(b**2):
+        elif 1. / (c**2) > 1. / (a**2) + 1. / (b**2):
             ext_bravais = "oF2"
-        else: # 1/a^2, 1/b^2, 1/c^2 edges of a triangle
+        else:  # 1/a^2, 1/b^2, 1/c^2 edges of a triangle
             ext_bravais = "oF3"
     elif bravais_lattice == "oI":
         # Sort a,b,c, first is the largest
-        sorted_vectors = sorted([(c,1,'c'),(b,3,'b'),(a,2,'a')])[::-1]
+        sorted_vectors = sorted([(c, 1, 'c'), (b, 3, 'b'), (a, 2, 'a')])[::-1]
         if abs(sorted_vectors[0][0] - sorted_vectors[1][0]) < threshold:
             warnings.warn("oI lattice, but the two longest vectors {} and {} "
-                "have almost the same length".format(
-                    sorted_vectors[0][2], sorted_vectors[1][2]),
-                EdgeCaseWarning)            
+                          "have almost the same length".format(
+                              sorted_vectors[0][2], sorted_vectors[1][2]),
+                          EdgeCaseWarning)
         ext_bravais = "{}{}".format(bravais_lattice, sorted_vectors[0][1])
     elif bravais_lattice == "oC":
-        if abs(b-a) < threshold:
+        if abs(b - a) < threshold:
             warnings.warn("oC lattice, but a almost equal to b",
-                EdgeCaseWarning)
+                          EdgeCaseWarning)
         if a <= b:
             ext_bravais = "oC1"
         else:
             ext_bravais = "oC2"
     elif bravais_lattice == "oA":
-        if abs(b-c) < threshold:
+        if abs(b - c) < threshold:
             warnings.warn("oA lattice, but b almost equal to c",
-                EdgeCaseWarning)
+                          EdgeCaseWarning)
         if b <= c:
             ext_bravais = "oA1"
         else:
             ext_bravais = "oA2"
     elif bravais_lattice == "hP":
-        if spgrp_num in [143, 144, 145, 146, 147, 148, 149, 151, 153, 157, 
-            159, 160, 161, 162, 163]:
+        if spgrp_num in [143, 144, 145, 146, 147, 148, 149, 151, 153, 157,
+                         159, 160, 161, 162, 163]:
             ext_bravais = "hP1"
         else:
             ext_bravais = "hP2"
     elif bravais_lattice == "hR":
         if abs(sqrt(3.) * a - sqrt(2.) * c) < threshold:
             warnings.warn("hR lattice, but sqrt(3)a almost equal to sqrt(2)c",
-                EdgeCaseWarning)        
+                          EdgeCaseWarning)
         if sqrt(3.) * a <= sqrt(2.) * c:
             ext_bravais = "hR1"
         else:
@@ -259,18 +263,18 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     elif bravais_lattice == "mP":
         ext_bravais = "mP1"
     elif bravais_lattice == "mC":
-        if abs(b - a * sqrt(1.-cosbeta**2)) < threshold:
+        if abs(b - a * sqrt(1. - cosbeta**2)) < threshold:
             warnings.warn("mC lattice, but b almost equal to a*sin(beta)",
-                EdgeCaseWarning)                    
-        if b < a * sqrt(1.-cosbeta**2):
+                          EdgeCaseWarning)
+        if b < a * sqrt(1. - cosbeta**2):
             ext_bravais = "mC1"
         else:
-            if abs(-a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 
+            if abs(-a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2
                    - 1.) < threshold:
                 warnings.warn("mC lattice, but -a*cos(beta)/c + "
-                    "a^2*sin(beta)^2/b^2 almost equal to 1",
-                    EdgeCaseWarning)                    
-            if -a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 <= 1.: 
+                              "a^2*sin(beta)^2/b^2 almost equal to 1",
+                              EdgeCaseWarning)
+            if -a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 <= 1.:
                 # 12-face
                 ext_bravais = "mC2"
             else:
@@ -284,100 +288,100 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         real_cell2 = get_real_cell_from_reciprocal_rows(reciprocal_cell2)
         # TODO: get transformation matrix?
 
-        ka2,kb2,kc2,coskalpha2,coskbeta2,coskgamma2=get_cell_params(
-            reciprocal_cell2)   
+        ka2, kb2, kc2, coskalpha2, coskbeta2, coskgamma2 = get_cell_params(
+            reciprocal_cell2)
 
         conditions = np.array([
-            abs(kb2 * kc2 * coskalpha2), 
-            abs(kc2 * ka2 * coskbeta2), 
+            abs(kb2 * kc2 * coskalpha2),
+            abs(kc2 * ka2 * coskbeta2),
             abs(ka2 * kb2 * coskgamma2)
-            ])
+        ])
         M2_matrices = [
             np.array([
-                [0,0,1],
-                [1,0,0],
-                [0,1,0]]),
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0]]),
             np.array([
-                [0,1,0],
-                [0,0,1],
-                [1,0,0]]),
+                [0, 1, 0],
+                [0, 0, 1],
+                [1, 0, 0]]),
             np.array([
-                [1,0,0],
-                [0,1,0],
-                [0,0,1]])
-            ]
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]])
+        ]
         # TODO: manage edge cases
         smallest_condition = np.argsort(conditions)[0]
         M2 = M2_matrices[smallest_condition]
         # First change of vectors to have |ka3 kb3 cosgamma3| smallest
         real_cell3 = np.dot(np.array(real_cell2).T, M2).T
         reciprocal_cell3 = get_reciprocal_cell_rows(real_cell3)
-        ka3,kb3,kc3,coskalpha3,coskbeta3,coskgamma3=get_cell_params(
-            reciprocal_cell3)   
+        ka3, kb3, kc3, coskalpha3, coskbeta3, coskgamma3 = get_cell_params(
+            reciprocal_cell3)
         if abs(coskalpha3) < threshold:
             warnings.warn("aP lattice, but the k_alpha3 angle is almost equal "
-                "to 90 degrees", EdgeCaseWarning)                    
+                          "to 90 degrees", EdgeCaseWarning)
         if abs(coskbeta3) < threshold:
             warnings.warn("aP lattice, but the k_beta3 angle is almost equal "
-                "to 90 degrees", EdgeCaseWarning)                    
+                          "to 90 degrees", EdgeCaseWarning)
         if abs(coskgamma3) < threshold:
             warnings.warn("aP lattice, but the k_gamma3 angle is almost equal "
-                "to 90 degrees", EdgeCaseWarning)                    
+                          "to 90 degrees", EdgeCaseWarning)
         # Make them all-acute or all-obtuse with the additional conditions
         # explained in HPKOT
         # Note: cos > 0 => angle < 90deg
-        if coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 > 0.: #1a
+        if coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 > 0.:  # 1a
             M3 = np.array([
-                [1,0,0],
-                [0,1,0],
-                [0,0,1]])
-        elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 <= 0.: #1b
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]])
+        elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 <= 0.:  # 1b
             M3 = np.array([
-                [1,0,0],
-                [0,1,0],
-                [0,0,1]])
-        elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 <= 0.: #2a
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]])
+        elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 <= 0.:  # 2a
             M3 = np.array([
-                [1,0,0],
-                [0,-1,0],
-                [0,0,-1]])
-        elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 > 0.: #2b
+                [1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1]])
+        elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 > 0.:  # 2b
             M3 = np.array([
-                [1,0,0],
-                [0,-1,0],
-                [0,0,-1]])
-        elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 <= 0.: #3a
+                [1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1]])
+        elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 <= 0.:  # 3a
             M3 = np.array([
-                [-1,0,0],
-                [0,1,0],
-                [0,0,-1]])
-        elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 > 0.: #3b
+                [-1, 0, 0],
+                [0, 1, 0],
+                [0, 0, -1]])
+        elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 > 0.:  # 3b
             M3 = np.array([
-                [-1,0,0],
-                [0,1,0],
-                [0,0,-1]])
-        elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 > 0.: #4a
+                [-1, 0, 0],
+                [0, 1, 0],
+                [0, 0, -1]])
+        elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 > 0.:  # 4a
             M3 = np.array([
-                [-1,0,0],
-                [0,-1,0],
-                [0,0,1]])
-        elif coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 <= 0.: #4b
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, 1]])
+        elif coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 <= 0.:  # 4b
             M3 = np.array([
-                [-1,0,0],
-                [0,-1,0],
-                [0,0,1]])
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, 1]])
         else:
             raise ValueError("Problem identifying M3 matrix in aP lattice!"
-                "Sign of cosines: cos(kalpha3){}0, "
-                "cos(kbeta3){}0, cos(kgamma3){}0".format(
-                    ">=" if coskalpha3 >= 0 else "<",
-                    ">=" if coskbeta3 >= 0 else "<",
-                    ">=" if coskgamma3 >= 0 else "<"))
+                             "Sign of cosines: cos(kalpha3){}0, "
+                             "cos(kbeta3){}0, cos(kgamma3){}0".format(
+                                 ">=" if coskalpha3 >= 0 else "<",
+                                 ">=" if coskbeta3 >= 0 else "<",
+                                 ">=" if coskgamma3 >= 0 else "<"))
 
         real_cell_final = np.dot(real_cell3.T, M3).T
         reciprocal_cell_final = get_reciprocal_cell_rows(real_cell_final)
-        ka,kb,kc,coskalpha,coskbeta,coskgamma=get_cell_params(
-            reciprocal_cell_final)   
+        ka, kb, kc, coskalpha, coskbeta, coskgamma = get_cell_params(
+            reciprocal_cell_final)
 
         if coskalpha <= 0. and coskbeta <= 0. and coskgamma <= 0.:
             # all-obtuse
@@ -387,11 +391,11 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             ext_bravais = "aP3"
         else:
             raise ValueError("Unexpected aP triclinic lattice, it neither "
-                "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
-                "cos(kbeta){}0, cos(kgamma){}0".format(
-                    ">=" if coskalpha >= 0 else "<",
-                    ">=" if coskbeta >= 0 else "<",
-                    ">=" if coskgamma >= 0 else "<"))
+                             "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
+                             "cos(kbeta){}0, cos(kgamma){}0".format(
+                                 ">=" if coskalpha >= 0 else "<",
+                                 ">=" if coskbeta >= 0 else "<",
+                                 ">=" if coskgamma >= 0 else "<"))
 
         # Get absolute positions
         conv_pos_abs = np.dot(conv_positions, conv_lattice)
@@ -409,23 +413,23 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         raise ValueError("Unknown type '{}' for spacegroup {}".format(
             bravais_lattice, dataset['number']))
 
-    ## NOTE: we simply use spglib.find_primitive, because the 
-    ## find_primitive of spglib follows a different convention for mC 
-    ## and oA as explained in the HPKOT paper
+    # NOTE: we simply use spglib.find_primitive, because the
+    # find_primitive of spglib follows a different convention for mC
+    # and oA as explained in the HPKOT paper
     (prim_lattice, prim_pos, prim_types), (P, invP), conv_prim_mapping = \
         get_primitive(
-            structure = (conv_lattice, conv_positions, conv_types), 
-            bravais_lattice = bravais_lattice)
+            structure=(conv_lattice, conv_positions, conv_types),
+            bravais_lattice=bravais_lattice)
 
     # Get the path data (k-parameters definitions, defition of the points,
     # suggested path)
     kparam_def, points_def, path = get_path_data(ext_bravais)
-    
+
     # Get the actual numerical values of the k-parameters
     # Note: at each step, I pass kparam and store the new
     # parameter in the same dictionary. This allows to have
     # some parameters defined implicitly in terms of previous
-    # parameters, as far as they are returned in the 
+    # parameters, as far as they are returned in the
     kparam = {}
     for kparam_name, kparam_expr in kparam_def:
         kparam[kparam_name] = eval_expr(
@@ -433,7 +437,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
     # Extend kparam with additional simple expressions (like 1-a, ...)
     kparam_extended = extend_kparam(kparam)
-        
+
     # Now I have evaluated all needed kparams; I can compute the actual
     # coordinates of the relevant kpoints, using eval_expr_simple
     points = {}
@@ -453,7 +457,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             if pointname == 'GAMMA':
                 continue
             points["{}'".format(pointname)] = [
-                -coords[0],-coords[1],-coords[2]]
+                -coords[0], -coords[1], -coords[2]]
         old_path = copy.deepcopy(path)
         for start_p, end_p in old_path:
             if start_p == "GAMMA":
@@ -477,20 +481,19 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'conv_types': conv_types,
             'primitive_lattice': prim_lattice,
             'primitive_positions': prim_pos,
-            'primitive_types': prim_types, 
+            'primitive_types': prim_types,
             'reciprocal_primitive_lattice': get_reciprocal_cell_rows(
                 prim_lattice),
-            # The following: between conv and primitive, see docstring of 
+            # The following: between conv and primitive, see docstring of
             # spg_mapping.get_P_matrix
-            'inverse_primitive_transformation_matrix': invP, 
-            'primitive_transformation_matrix': P, 
+            'inverse_primitive_transformation_matrix': invP,
+            'primitive_transformation_matrix': P,
             # For the time being disabled, not valid for aP lattices
             # (for which we would need the transformation matrix from niggli)
             #'transformation_matrix': transf_matrix,
             'volume_original_wrt_conv': volume_conv_wrt_original,
             'volume_original_wrt_prim': \
-                volume_conv_wrt_original * np.linalg.det(invP),
+            volume_conv_wrt_original * np.linalg.det(invP),
             'spacegroup_number': dataset['number'],
             'spacegroup_international': dataset['international'],
             }
-

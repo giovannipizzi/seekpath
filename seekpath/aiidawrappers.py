@@ -2,6 +2,7 @@ from . import (
     get_explicit_k_path as _raw_explicit_path,
     get_path as _raw_get_path)
 
+
 def _aiida_to_tuple(aiida_structure):
     """
     Convert an AiiDA structure to a tuple of the format
@@ -17,7 +18,7 @@ def _aiida_to_tuple(aiida_structure):
     """
     import numpy as np
     from aiida.common.constants import elements
-    
+
     def get_new_number(the_list, start_from):
         """
         Get the first integer >= start_from not yet in the list
@@ -37,19 +38,20 @@ def _aiida_to_tuple(aiida_structure):
                 found = True
                 return retval
 
-    Z = {v['symbol']: k for k,v in elements.iteritems()}
+    Z = {v['symbol']: k for k, v in elements.iteritems()}
 
     cell = np.array(aiida_structure.cell)
     abs_pos = np.array([_.position for _ in aiida_structure.sites])
     rel_pos = np.dot(abs_pos, np.linalg.inv(cell))
     kinds = {k.name: k for k in aiida_structure.kinds}
-    
+
     kind_numbers = {}
     for kind in aiida_structure.kinds:
         if len(kind.symbols) == 1:
             realnumber = Z[kind.symbols[0]]
             if realnumber in kind_numbers.values():
-                number = get_new_number(kind_numbers.values(), start_from=realnumber*1000)
+                number = get_new_number(
+                    kind_numbers.values(), start_from=realnumber * 1000)
             else:
                 number = realnumber
             kind_numbers[kind.name] = number
@@ -60,7 +62,8 @@ def _aiida_to_tuple(aiida_structure):
     numbers = [kind_numbers[s.kind_name] for s in aiida_structure.sites]
 
     return ((cell, rel_pos, numbers), kind_numbers, list(aiida_structure.kinds))
-    
+
+
 def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     """
     Convert an tuple of the format
@@ -79,13 +82,13 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     from aiida.orm.data.structure import Kind, Site, StructureData
     import numpy as np
     import copy
-    
+
     if kind_info is None and kinds is not None:
         raise ValueError("If you pass kind_info, you should also pass kinds")
     if kinds is None and kind_info is not None:
         raise ValueError("If you pass kinds, you should also pass kind_info")
 
-    Z = {v['symbol']: k for k,v in elements.iteritems()}
+    Z = {v['symbol']: k for k, v in elements.iteritems()}
     cell, rel_pos, numbers = structure_tuple
     if kind_info:
         _kind_info = copy.copy(kind_info)
@@ -105,21 +108,23 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     _kinds_dict = {k.name: k for k in _kinds}
     # Now I will use in any case _kinds and _kind_info
     if len(_kind_info.values()) != len(set(_kind_info.values())):
-        raise ValueError("There is at least a number repeated twice in kind_info!")
+        raise ValueError(
+            "There is at least a number repeated twice in kind_info!")
     # Invert the mapping
     mapping_num_kindname = {v: k for k, v in _kind_info.iteritems()}
     # Create the actual mapping
     try:
-        mapping_to_kinds = {num: _kinds_dict[kindname] for num, kindname 
+        mapping_to_kinds = {num: _kinds_dict[kindname] for num, kindname
                             in mapping_num_kindname.iteritems()}
     except KeyError as e:
-        raise ValueError("Unable to find '{}' in the kinds list".format(e.message))
-        
+        raise ValueError(
+            "Unable to find '{}' in the kinds list".format(e.message))
 
     try:
         site_kinds = [mapping_to_kinds[num] for num in numbers]
     except KeyError as e:
-        raise ValueError("Unable to find kind in kind_info for number {}".format(e.message))
+        raise ValueError(
+            "Unable to find kind in kind_info for number {}".format(e.message))
 
     out_structure = StructureData(cell=cell)
     for k in _kinds:
@@ -131,13 +136,13 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
 
     for kind, pos in zip(site_kinds, abs_pos):
         out_structure.append_site(Site(kind_name=kind.name, position=pos))
-    
+
     return out_structure
 
 
 def get_explicit_k_path(structure, with_time_reversal=True,
-    reference_distance=0.025, recipe='hpkot', 
-    threshold=1.e-7):
+                        reference_distance=0.025, recipe='hpkot',
+                        threshold=1.e-7):
     """
     Return the kpoint path for band structure (in scaled and absolute 
     coordinates), given a crystal structure,
@@ -146,7 +151,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     as get get_explicit_k_path in __init__, but here all structures are
     input and returned as AiiDA structures rather than tuples, and similarly
     k-points-related information as a AiiDA KpointsData class.
- 
+
     :param structure: The AiiDA StructureData for which we want to obtain
         the suggested path. 
 
@@ -219,7 +224,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     from aiida.orm import DataFactory
 
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
-    
+
     retdict = _raw_explicit_path(struc_tuple)
 
     # Replace primitive structure with AiiDA StructureData
@@ -229,7 +234,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     primitive_tuple = (primitive_lattice, primitive_positions, primitive_types)
     primitive_structure = _tuple_to_aiida(primitive_tuple, kind_info, kinds)
     retdict['primitive_structure'] = primitive_structure
-    
+
     # Remove reciprocal_primitive_lattice, recalculated by kpoints class
     retdict.pop('reciprocal_primitive_lattice')
     KpointsData = DataFactory('array.kpoints')
@@ -238,7 +243,7 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     kpoints_labels = retdict.pop('explicit_kpoints_labels')
     # Expects something of the type [[0,'X'],[34,'L'],...]
     # So I generate it, skipping empty labels
-    labels = [[idx, label] for idx, label in enumerate(kpoints_labels) 
+    labels = [[idx, label] for idx, label in enumerate(kpoints_labels)
               if label]
 
     kpoints = KpointsData()
@@ -248,10 +253,11 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     retdict['explicit_kpoints'] = kpoints
 
     return retdict
-    
+
+
 def get_path(structure, with_time_reversal=True,
-    reference_distance=0.025, recipe='hpkot', 
-    threshold=1.e-7):
+             reference_distance=0.025, recipe='hpkot',
+             threshold=1.e-7):
     """
     Return the kpoint path information for band structure given a 
     crystal structure, using the paths from the chosen recipe/reference.
@@ -323,7 +329,7 @@ def get_path(structure, with_time_reversal=True,
     from aiida.orm import DataFactory
 
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
-    
+
     retdict = _raw_get_path(struc_tuple)
 
     # Replace conv structure with AiiDA StructureData
@@ -341,7 +347,5 @@ def get_path(structure, with_time_reversal=True,
     primitive_tuple = (primitive_lattice, primitive_positions, primitive_types)
     primitive_structure = _tuple_to_aiida(primitive_tuple, kind_info, kinds)
     retdict['primitive_structure'] = primitive_structure
-    
+
     return retdict
-    
-    
