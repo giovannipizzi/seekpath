@@ -1,5 +1,6 @@
+from __future__ import print_function
+from builtins import range
 import numpy as np
-from scipy.spatial import Voronoi, voronoi_plot_2d
 from collections import defaultdict
 
 
@@ -40,6 +41,7 @@ def get_BZ(b1,b2,b3):
         plotting library prefers these - these are not oriented for the
         time being)
     """
+    from scipy.spatial import Voronoi, ConvexHull, Delaunay
     ret_data = {}
 
     supercell_size = 3 # Is this enough?
@@ -60,7 +62,6 @@ def get_BZ(b1,b2,b3):
     central_voronoi_3d = np.array([vor3d.vertices[idx] for idx in vor3d.regions[vor3d.point_region[central_idx]]])
 
     # Get the convex hull of these points (all triangular faces)
-    from scipy.spatial import ConvexHull, Delaunay
     hull = ConvexHull(central_voronoi_3d)
 
     ## REORIENT TRIANGLES
@@ -129,7 +130,7 @@ def get_BZ(b1,b2,b3):
     # List of found simplices that have been merged; will be used at the 
     # end to add the triangles that have not been merged, if any
     merged_simplices = []
-    for (p1, p2), triangles in edges.iteritems():
+    for (p1, p2), triangles in edges.items():
         # I do it many times, but it's the easiest way (and anyway it's
         # a set, so it should be fast: I add a point to be merged with 
         # itself
@@ -138,7 +139,7 @@ def get_BZ(b1,b2,b3):
 
         if len(triangles) != 2:
             # An edge shared by less (or more) than 2 triangles?
-            print "Warning!", p1, p2, triangles
+            print("Warning!", p1, p2, triangles)
             continue
         else:
             # Check if two triangles are coplanar: get the other two
@@ -187,20 +188,20 @@ def get_BZ(b1,b2,b3):
                         merge_with[other1].add(other2)
 
     # convert to dict, and most importantly convert to list and sort
-    merge_with = {k: sorted(v) for k, v in merge_with.iteritems()}
+    merge_with = {k: sorted(v) for k, v in merge_with.items()}
         
     # Assign to the smallest integer idx
-    merge_group = {k: v[0] for k, v in merge_with.iteritems()}
+    merge_group = {k: v[0] for k, v in merge_with.items()}
 
     groups = defaultdict(list)
     # I create a reverse index
-    for k, v in merge_group.iteritems():
+    for k, v in merge_group.items():
         groups[v].append(k)
 
     # List of faces (elements are lists of vertex ids)
     faces = [] 
 
-    for group in groups.itervalues():
+    for group in groups.values():
         if len(group) == 1:
             faces.append([hull.points[point_idx] 
                           for point_idx in hull.simplices[group[0]]])
@@ -269,7 +270,7 @@ if __name__ == "__main__":
     faces_data = get_BZ(b1 = [1,1,-1], b2 = [1,-1,1], b3 = [-1,1,1])
 
     import json
-    print json.dumps(faces_data)
+    print(json.dumps(faces_data))
 
     faces_coords = faces_data['faces']
 
@@ -278,7 +279,7 @@ if __name__ == "__main__":
         faces_count[len(face)] += 1
 
     for num_sides in sorted(faces_count.keys()):
-        print "{} faces: {}".format(num_sides, faces_count[num_sides])
+        print("{} faces: {}".format(num_sides, faces_count[num_sides]))
 
     fig = figure()
     ax = fig.add_subplot(111, projection='3d')

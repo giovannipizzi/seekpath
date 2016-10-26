@@ -1,6 +1,8 @@
 """
 This module contains the main functions to get a path and an explicit path.
 """
+from builtins import range
+
 
 def get_path(structure, with_time_reversal=True, recipe='hpkot',
              threshold=1.e-7):
@@ -94,12 +96,12 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
         return res
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
-            "currently accepted is 'hpkot'.")
+                         "currently accepted is 'hpkot'.")
 
 
 def get_explicit_k_path(structure, with_time_reversal=True,
-    reference_distance=0.025, recipe='hpkot', 
-    threshold=1.e-7):
+                        reference_distance=0.025, recipe='hpkot',
+                        threshold=1.e-7):
     """
     Return the kpoint path for band structure (in scaled and absolute 
     coordinates), given a crystal structure,
@@ -231,16 +233,16 @@ def get_explicit_k_path(structure, with_time_reversal=True,
         for start_label, stop_label in res['path']:
             start_coord = np.array(res['point_coords'][start_label])
             stop_coord = np.array(res['point_coords'][stop_label])
-            start_coord_abs = np.dot(start_coord, 
-                retdict['reciprocal_primitive_lattice'])
-            stop_coord_abs = np.dot(stop_coord, 
-                retdict['reciprocal_primitive_lattice'])
+            start_coord_abs = np.dot(start_coord,
+                                     retdict['reciprocal_primitive_lattice'])
+            stop_coord_abs = np.dot(stop_coord,
+                                    retdict['reciprocal_primitive_lattice'])
             segment_length = np.linalg.norm(stop_coord_abs - start_coord_abs)
             num_points = max(2, int(segment_length / reference_distance))
             segment_linearcoord = np.linspace(0., segment_length, num_points)
             segment_start = len(kpoints_labels)
             for i in range(num_points):
-                # Skip the first point if it's the same as the last one of 
+                # Skip the first point if it's the same as the last one of
                 # the previous segment
                 if i == 0:
                     if kpoints_labels:
@@ -248,8 +250,8 @@ def get_explicit_k_path(structure, with_time_reversal=True,
                             segment_start -= 1
                             continue
 
-                kpoints_rel.append(start_coord + 
-                    (stop_coord - start_coord) * float(i) / float(num_points-1))
+                kpoints_rel.append(start_coord +
+                                   (stop_coord - start_coord) * float(i) / float(num_points - 1))
                 if i == 0:
                     kpoints_labels.append(start_label)
                 elif i == num_points - 1:
@@ -266,12 +268,11 @@ def get_explicit_k_path(structure, with_time_reversal=True,
         retdict['explicit_kpoints_linearcoord'] = np.array(kpoints_linearcoord)
         retdict['explicit_kpoints_labels'] = kpoints_labels
         retdict['explicit_kpoints_abs'] = np.dot(
-            retdict['explicit_kpoints_rel'], 
+            retdict['explicit_kpoints_rel'],
             retdict['reciprocal_primitive_lattice'])
         retdict['segments'] = segments
 
         return retdict
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
-            "currently accepted is 'hpkot'.")
-
+                         "currently accepted is 'hpkot'.")

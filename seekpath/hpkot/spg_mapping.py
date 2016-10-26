@@ -1,3 +1,7 @@
+from builtins import str
+from builtins import range
+from builtins import int # subclass of long on Py2
+
 def get_crystal_family(number):
     """
     Given a spacegroup number, returns a string to identify its
@@ -5,24 +9,25 @@ def get_crystal_family(number):
 
     :param number: the spacegroup number, from 1 to 230
     """
-    if not isinstance(number, (int,long)):
+    if not isinstance(number, int):
         raise TypeError("number should be integer")
     if number < 1:
         raise ValueError("number should be >= 1")
     if number <= 2:
-        return "a" # triclinic
+        return "a"  # triclinic
     elif number <= 15:
-        return "m" # monoclinic
+        return "m"  # monoclinic
     elif number <= 74:
-        return "o" # orthorhombic
+        return "o"  # orthorhombic
     elif number <= 142:
-        return "t" # tetragonal
+        return "t"  # tetragonal
     elif number <= 194:
-        return "h" # trigonal + hexagonal
+        return "h"  # trigonal + hexagonal
     elif number <= 230:
-        return "c" # cubic
+        return "c"  # cubic
     else:
         raise ValueError("number should be <= 230")
+
 
 def pointgroup_has_inversion(number):
     """
@@ -31,9 +36,9 @@ def pointgroup_has_inversion(number):
 
     :param number: The integer number of the pointgroup, from 1 to 32.
     """
-    if number in [2,5,8,11,15,17,20,23,27,29,32]:
+    if number in [2, 5, 8, 11, 15, 17, 20, 23, 27, 29, 32]:
         return True
-    elif number in [1,3,4,6,7,9,10,12,13,14,16,18,19,21,22,24,25,26,28,30,31]:
+    elif number in [1, 3, 4, 6, 7, 9, 10, 12, 13, 14, 16, 18, 19, 21, 22, 24, 25, 26, 28, 30, 31]:
         return False
     else:
         raise ValueError("number should be between 1 and 32")
@@ -79,6 +84,7 @@ def pgnum_from_pgint(pgint):
 
     return table[pgint]
 
+
 def get_spgroup_data():
     """
     Return a dictionary that has the spacegroup number as key, and a tuple 
@@ -88,6 +94,7 @@ def get_spgroup_data():
     """
     from .spg_db import spgroup_data
     return spgroup_data
+
 
 def get_spgroup_data_realtime():
     """
@@ -99,18 +106,22 @@ def get_spgroup_data_realtime():
     import spglib
 
     info = {}
-    for hall_n in range(1,531):
+    for hall_n in range(1, 531):
         data = spglib.get_spacegroup_type(hall_n)
         number = data['number']
         int_short = data['international_short']
         pg_int = data['pointgroup_international']
-        
+
         if number not in info:
-            info[int(number)] = (get_crystal_family(number), # get cyrstal family
-                            int_short[0], #centering from the first letter of the first spacegroup that I encounter
-                            pointgroup_has_inversion(pgnum_from_pgint(pg_int)), # pointgroup has inversion
-                            )
+            info[int(number)] = (get_crystal_family(number),  # get cyrstal family
+                                 # centering from the first letter of the first
+                                 # spacegroup that I encounter
+                                 int_short[0],
+                                 pointgroup_has_inversion(pgnum_from_pgint(
+                                     pg_int)),  # pointgroup has inversion
+                                 )
     return info
+
 
 def get_P_matrix(bravais_lattice):
     """
@@ -141,85 +152,86 @@ def get_P_matrix(bravais_lattice):
     import numpy as np
 
     if bravais_lattice in [
-        "cP", "tP", "hP", "oP", "mP"]:
+            "cP", "tP", "hP", "oP", "mP"]:
         P = np.array([
-            [1,0,0],
-            [0,1,0],
-            [0,0,1]])
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]])
         invP = np.array([
-            [1,0,0],
-            [0,1,0],
-            [0,0,1]])
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]])
     elif bravais_lattice in [
-        "cF", "oF"]:
-        P = 1./2. * np.array([
-            [0,1,1],
-            [1,0,1],
-            [1,1,0]])
+            "cF", "oF"]:
+        P = 1. / 2. * np.array([
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0]])
         invP = np.array([
-            [-1,1,1],
-            [1,-1,1],
-            [1,1,-1]])
+            [-1, 1, 1],
+            [1, -1, 1],
+            [1, 1, -1]])
     elif bravais_lattice in [
-        "cI", "tI", "oI"]:
-        P = 1./2. * np.array([
-            [-1,1,1],
-            [1,-1,1],
-            [1,1,-1]])
+            "cI", "tI", "oI"]:
+        P = 1. / 2. * np.array([
+            [-1, 1, 1],
+            [1, -1, 1],
+            [1, 1, -1]])
         invP = np.array([
-            [0,1,1],
-            [1,0,1],
-            [1,1,0]])
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0]])
     elif bravais_lattice == "hR":
-        P = 1./3. * np.array([
-            [2,-1,-1],
-            [1,1,-2],
-            [1,1,1]])
+        P = 1. / 3. * np.array([
+            [2, -1, -1],
+            [1, 1, -2],
+            [1, 1, 1]])
         invP = np.array([
-            [1,0,1],
-            [-1,1,1],
-            [0,-1,1]])
+            [1, 0, 1],
+            [-1, 1, 1],
+            [0, -1, 1]])
     elif bravais_lattice == "oC":
-        P = 1./2. * np.array([
-            [1, 1,0],
-            [-1,1,0],
-            [0, 0,2]])
+        P = 1. / 2. * np.array([
+            [1, 1, 0],
+            [-1, 1, 0],
+            [0, 0, 2]])
         invP = np.array([
-            [1,-1,0],
-            [1, 1,0],
-            [0, 0,1]])
+            [1, -1, 0],
+            [1, 1, 0],
+            [0, 0, 1]])
     elif bravais_lattice == "oA":
-        P = 1./2. * np.array([
-            [ 0,0,2],
-            [ 1,1,0],
-            [-1,1,0]])
+        P = 1. / 2. * np.array([
+            [0, 0, 2],
+            [1, 1, 0],
+            [-1, 1, 0]])
         invP = np.array([
-            [0,1,-1],
-            [0,1, 1],
-            [1,0, 0]])
+            [0, 1, -1],
+            [0, 1, 1],
+            [1, 0, 0]])
     elif bravais_lattice == "mC":
-        P = 1./2. * np.array([
-            [1,-1,0],
-            [1, 1,0],
-            [0, 0,2]])
+        P = 1. / 2. * np.array([
+            [1, -1, 0],
+            [1, 1, 0],
+            [0, 0, 2]])
         invP = np.array([
-            [ 1,1,0],
-            [-1,1,0],
-            [ 0,0,1]])
+            [1, 1, 0],
+            [-1, 1, 0],
+            [0, 0, 1]])
     elif bravais_lattice == "aP":
         # For aP, I should have already obtained the primitive cell
         P = np.array([
-            [1,0,0],
-            [0,1,0],
-            [0,0,1]])
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]])
         invP = np.array([
-            [1,0,0],
-            [0,1,0],
-            [0,0,1]])
-    else:        
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]])
+    else:
         raise ValueError("Invalid bravais_lattice {}".format(bravais_lattice))
 
     return P, invP
+
 
 def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     """
@@ -255,7 +267,7 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     import numpy as np
     from collections import Counter
 
-    threshold = 1.e-6 # Threshold for creation of primitive cell
+    threshold = 1.e-6  # Threshold for creation of primitive cell
 
     lattice, positions, types = structure
     P, invP = get_P_matrix(bravais_lattice)
@@ -268,58 +280,59 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     # (x_P, y_P, z_P)^T = (P^-1) (x,y,z)^T
     prim_positions = np.dot(invP, np.array(positions).T).T
 
-    ## Now I need to remove duplicates
-    ## I get if the x coord is the same, modulo one
-    # I compare all with all 
+    # Now I need to remove duplicates
+    # I get if the x coord is the same, modulo one
+    # I compare all with all
     # (I will get a NxN matrix, where N = number of atoms)
     # I shift by 1/2, do %1 and then shift back so that I get values between
     # -0.5 and 0.5 rather than between 0 and 1, which would be problematic
     # to find values close to zero
     x_match = np.abs(
-        ((prim_positions[:,0] - prim_positions[:,0][:,None] + 0.5) 
-            % 1. ) - 0.5) < threshold
+        ((prim_positions[:, 0] - prim_positions[:, 0][:, None] + 0.5)
+            % 1.) - 0.5) < threshold
     y_match = np.abs(
-        ((prim_positions[:,1] - prim_positions[:,1][:,None] + 0.5) 
-            % 1. ) - 0.5) < threshold
+        ((prim_positions[:, 1] - prim_positions[:, 1][:, None] + 0.5)
+            % 1.) - 0.5) < threshold
     z_match = np.abs(
-        ((prim_positions[:,2] - prim_positions[:,2][:,None] + 0.5) 
-            % 1. ) - 0.5) < threshold
+        ((prim_positions[:, 2] - prim_positions[:, 2][:, None] + 0.5)
+            % 1.) - 0.5) < threshold
     # To be the same, they should all match
     all_match = np.logical_and(x_match, np.logical_and(y_match, z_match))
 
     # list of ids, each row identifies a group of equivalent atoms
     # I convert to tuple so they can become keys of a dict for counting
-    group_of_equivalent_atoms = [tuple(np.arange(all_match.shape[0])[row]) for row in all_match]
+    group_of_equivalent_atoms = [
+        tuple(np.arange(all_match.shape[0])[row]) for row in all_match]
     group_count = Counter(group_of_equivalent_atoms)
-    wrong_count = [group for group,cnt in group_count.iteritems() 
-        if cnt != volume_ratio]
+    wrong_count = [group for group, cnt in group_count.items()
+                   if cnt != volume_ratio]
     if wrong_count:
         raise ValueError("Problem creating primitive cell, I found the "
-            "following group of atoms with len != {}: {}".format(
-                volume_ratio, ", ".join(str(_) for _ in wrong_count)))
+                         "following group of atoms with len != {}: {}".format(
+                             volume_ratio, ", ".join(str(_) for _ in wrong_count)))
     # These are the groups of equivalent atoms; values are the positions in
     # the list from 0 to N-1
     groups = sorted(group_count.keys())
     # I check that the type is always the same
     unique_types = [set(np.array(types)[np.array(group)]) for group in groups]
-    problematic_groups_idx = list(group_idx for group_idx, type_set 
-        in enumerate(unique_types) if len(type_set) != 1)
+    problematic_groups_idx = list(group_idx for group_idx, type_set
+                                  in enumerate(unique_types) if len(type_set) != 1)
     if problematic_groups_idx:
         raise ValueError("The following ids of atoms go on top of each other, "
-            "but they are of different type! {}".format(", ".join(
-                [str(group) for group_idx, group in enumerate(groups)
-                if group_idx in problematic_groups_idx])))
+                         "but they are of different type! {}".format(", ".join(
+                             [str(group) for group_idx, group in enumerate(groups)
+                              if group_idx in problematic_groups_idx])))
     # All good, just return the first (no wrapping to [0..1[ yet)
     chosen_idx = np.array([group[0] for group in groups])
 
     # Create the list of mapped atoms
-    conv_prim_atoms_mapping = -1 * np.ones(len(positions),dtype=int)
+    conv_prim_atoms_mapping = -1 * np.ones(len(positions), dtype=int)
     for prim_idx, group in enumerate(groups):
         for at_idx in group:
             conv_prim_atoms_mapping[at_idx] = prim_idx
     if -1 in conv_prim_atoms_mapping:
         raise ValueError("Unable to recreate correctly the atom mapping! "
-            "{}".format(conv_prim_atoms_mapping))
+                         "{}".format(conv_prim_atoms_mapping))
 
     prim_positions = prim_positions[chosen_idx]
     prim_types = np.array(types)[chosen_idx]
@@ -330,8 +343,3 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     prim_structure = (prim_lattice, prim_positions, prim_types)
 
     return (prim_structure, (P, invP), conv_prim_atoms_mapping)
-
-
-
-
-
