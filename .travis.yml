@@ -13,6 +13,7 @@ addons:
             - libblas-dev
             - liblapack-dev 
 install:
+    - pip install --upgrade pip
     - pip install -r optional-requirements.txt --only-binary numpy,scipy
     - pip install -e .
 script:
