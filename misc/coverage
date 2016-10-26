@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+coverage run --source seekpath test_aiida_wrappers.py
+coverage run -a --source seekpath test_aiida_conversion.py
+coverage run -a --source seekpath seekpath/test_paths_hpkot.py
+coverage run -a --source seekpath seekpath/hpkot/test_get_primitive.py
+coverage run -a --source seekpath seekpath/brillouinzone/test_brillouinzone.py
+
+coverage report

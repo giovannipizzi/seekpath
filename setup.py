@@ -49,4 +49,15 @@ setup(
     keywords = ['path', 'band structure', 'Brillouin', 'crystallography', 
                 'physics', 'primitive cell', 'conventional cell'],
     long_description=open(os.path.join(folder, 'README.rst')).read(),
+    classifiers=[
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Scientific/Engineering :: Chemistry",
+        "Topic :: Software Development :: Libraries :: Python Modules"
+    ],
 )
