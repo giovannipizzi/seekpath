@@ -1,2 +1,3 @@
 numpy==1.11.2
 spglib==1.9.6
+future==0.15.2

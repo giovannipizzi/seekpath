@@ -36,7 +36,7 @@ setup(
     # http://blog.miguelgrinberg.com/post/the-package-dependency-blues
     # for a useful dicussion
     install_requires=[
-        'numpy>=1.0', 'spglib>=1.9.4',
+        'numpy>=1.0', 'spglib>=1.9.4', 'future>=0.15',
     ],
     extras_require = {
         "bz": ["scipy>=0.17"],
