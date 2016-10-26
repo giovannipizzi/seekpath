@@ -212,10 +212,10 @@ def check_spglib_version():
     except ValueError:
         raise ValueError("Unable to parse version number")
 
-    if tuple(version[:2]) < (1, 9):
+    if tuple(version_pieces[:2]) < (1, 9):
         raise ValueError("Invalid spglib version, need >= 1.9.4")
 
-    if version[:2] == (1, 9) and version[2] < 4:
+    if version_pieces[:2] == (1, 9) and version_pieces[2] < 4:
         raise ValueError("Invalid spglib version, need >= 1.9.4")
     return spglib
 
