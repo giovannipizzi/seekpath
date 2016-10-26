@@ -13,7 +13,7 @@ addons:
             - libblas-dev
             - liblapack-dev 
 install:
-    - pip install --only-binary scipy -r optional-requirements.txt
+    - pip install -r optional-requirements.txt --only-binary numpy,scipy
     - pip install -e .
 script:
     - python run_tests.py
