@@ -115,6 +115,8 @@ class ConfigurationError(Exception):
 
 static_folder = os.path.join(os.path.split(os.path.realpath(__file__))[0],
         'static')
+view_folder = os.path.join(os.path.split(os.path.realpath(__file__))[0],
+        'view')
 app = flask.Flask(__name__, static_folder=static_folder)
 app.use_x_sendfile=True
 directory = os.path.split(os.path.realpath(__file__))[0]
@@ -427,6 +429,13 @@ def index():
     Main view, redirect to input_structure
     """
     return flask.redirect(flask.url_for('input_structure'))
+
+@app.route('/termsofuse/')
+def termsofuse():
+    """
+    View for the terms of use
+    """
+    return flask.send_from_directory(view_folder, 'termsofuse.html')
 
 @app.route('/input_structure/')
 def input_structure():
