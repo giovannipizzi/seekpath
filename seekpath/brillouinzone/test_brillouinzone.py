@@ -5,6 +5,13 @@ import numpy as np
 
 from . import brillouinzone
 
+def has_scipy():
+    try:
+        import scipy
+        return True
+    except ImportError:
+        return False
+
 def is_same_point(p1, p2):
     threshold = 1.e-7
 
@@ -87,6 +94,7 @@ class TestBZ(unittest.TestCase):
     """
     Test the search for BZ faces
     """
+    @unittest.skipIf(not has_scipy(), "No SciPy")
     def test_cubic(self):
         b1 = [1,0,0]
         b2 = [0,1,0]
@@ -136,7 +144,8 @@ class TestBZ(unittest.TestCase):
         self.assertFalse(is_same, 
             "The two sets of faces are not detected as different")
 
-    def test_cubic(self):
+    @unittest.skipIf(not has_scipy(), "No SciPy")
+    def test_2(self):
         b1 = [1,0,0]
         b2 = [0,1,0]
         b3 = [0.2,0.2,1]

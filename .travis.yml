@@ -13,7 +13,6 @@ addons:
             - libblas-dev
             - liblapack-dev 
 install:
-    - pip install -r optional-requirements.txt
     - pip install -e .
 script:
     - python run_tests.py
