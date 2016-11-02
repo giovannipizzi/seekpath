@@ -197,6 +197,8 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     ## Convert to absolute
     response['kpoints'] = {k: (v[0] * b1 + v[1] * b2 + v[2] * b3).tolist()
         for k,v in res['point_coords'].items()}
+    response['kpoints_rel'] = {k: [v[0], v[1], v[2]]
+        for k,v in res['point_coords'].items()}
     response['path'] = res['path']
 
     # It should use the same logic, so give the same cell as above
@@ -317,6 +319,9 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         kpoints = [[k, out_json_data['kpoints'][k][0], 
             out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
             for k in sorted(out_json_data['kpoints'])]
+        kpoints_rel = [[k, out_json_data['kpoints_rel'][k][0], 
+            out_json_data['kpoints_rel'][k][1], out_json_data['kpoints_rel'][k][2]] 
+            for k in sorted(out_json_data['kpoints_rel'])]
 
         direct_vectors = [[idx, coords[0], coords[1], coords[2]]
             for idx, coords in 
@@ -402,6 +407,7 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         volume_ratio_prim=int(round(path_results['volume_original_wrt_prim'])),
         raw_code=raw_code,
         kpoints=kpoints,
+        kpoints_rel=kpoints_rel,
         bravais_lattice=path_results['bravais_lattice'],
         bravais_lattice_extended=path_results['bravais_lattice_extended'],
         spacegroup_number=path_results['spacegroup_number'],

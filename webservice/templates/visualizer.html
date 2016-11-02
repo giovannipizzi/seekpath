@@ -182,6 +182,30 @@
 
           <tbody>      
 
+            {% for k in kpoints_rel %}
+            <tr>
+              <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+
+
+          </tbody>
+        </table> 
+
+        <h3>High-symmetry points (1/&#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="text-align: center">Label</th>
+            <th style="text-align: center">k<sub>x</sub></th>
+            <th style="text-align: center">k<sub>y</sub></th>
+            <th style="text-align: center">k<sub>z</sub></th>
+          </thead>
+
+          <tbody>      
+
             {% for k in kpoints %}
             <tr>
               <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
