@@ -52,6 +52,10 @@ def get_structure_tuple(fileobject, fileformat):
         import ase.io.xsf
         asestructure = ase.io.xsf.read_xsf(fileobject)
         return tuple_from_ase(asestructure)
+    elif fileformat == 'castep':
+        import ase.io.castep
+        asestructure = ase.io.castep.read_castep_cell(fileobject)
+        return tuple_from_ase(asestructure)
     elif fileformat == 'qe-inp':
         from .qeinp import read_qeinp
         structure_tuple = read_qeinp(fileobject)
