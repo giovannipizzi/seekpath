@@ -400,6 +400,13 @@ def process_structure_core(filecontent, fileformat, call_source=""):
                 'traceback': traceback.extract_stack()})
         raise
 
+    qe_pw = str(flask.escape(
+        get_qe_pw(raw_code_dict, out_json_data))).replace(
+            '\n', '<br>').replace(' ', '&nbsp;')
+    qe_matdyn = str(flask.escape(
+        get_qe_matdyn(raw_code_dict, out_json_data))).replace(
+            '\n', '<br>').replace(' ', '&nbsp;')
+
     return flask.render_template(
         'visualizer.html', 
         jsondata=json.dumps(out_json_data),
@@ -420,6 +427,8 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         atoms_cartesian=atoms_cartesian,
         reciprocal_primitive_vectors=reciprocal_primitive_vectors,
         suggested_path=suggested_path,
+        qe_pw=qe_pw,
+        qe_matdyn=qe_matdyn,
         compute_time=compute_time,
         seekpath_version=seekpath.__version__,
         spglib_version=spglib.__version__,
@@ -428,6 +437,62 @@ def process_structure_core(filecontent, fileformat, call_source=""):
             else ""),
         )
 
+
+def get_qe_pw(raw_data, out_json_data):
+    """
+    Return the data in format of the QE pw.x input
+    """
+    lines = []
+
+    lines.append("&CONTROL")
+    lines.append("<...>")
+    lines.append("/")
+    lines.append("&SYSTEM")
+    lines.append("    ibrav = 0")
+    lines.append("    nat = {}".format(
+        len(raw_data["primitive_symbols"])))
+    lines.append("    ntyp = {}".format(
+        len(set(raw_data["primitive_symbols"]))))
+    lines.append("<...>")
+    lines.append("/")
+    lines.append("&ELECTRONS")
+    lines.append("<...>")
+    lines.append("/")
+    lines.append("<...>")
+    lines.append("ATOMIC_SPECIES")
+    for s in sorted(set(
+        raw_data["primitive_symbols"])):
+        lines.append("{:4s} <MASS_HERE> <PSEUDO_HERE>.UPF".format(
+            s))
+
+    lines.append("ATOMIC_POSITIONS angstrom")
+    for s, p in zip(
+        raw_data["primitive_symbols"],
+        raw_data["primitive_positions_cartesian"]):
+        lines.append("{:4s} {:16.10f} {:16.10f} {:16.10f}".format(
+            s, p[0], p[1], p[2]))
+
+    lines.append("K_POINTS crystal")
+    kplines = []
+    for kp in out_json_data['explicit_kpoints_rel']:
+        kplines.append("{:16.10f} {:16.10f} {:16.10f} 1".format(
+            *kp))
+    lines.append("{}".format(len(kplines)))
+    lines += kplines
+
+    lines.append("CELL_PARAMETERS angstrom")
+    for v in raw_data['primitive_lattice']:
+        lines.append("{:16.10f} {:16.10f} {:16.10f}".format(
+            v[0], v[1], v[2]))
+
+
+    return "\n".join(lines)
+
+def get_qe_matdyn(raw_data, out_json_data):
+    """
+    Return the data in format of the QE matdyn.x input
+    """
+    return "Not implemented yet, sorry..."
 
 @app.route('/')
 def index():
@@ -463,6 +528,14 @@ def send_css(path):
     Serve static CSS files
     """
     return flask.send_from_directory(os.path.join(static_folder, 'css'), path)
+
+@app.route('/static/css/images/<path:path>')
+def send_cssimages(path):
+    """
+    Serve static CSS images files
+    """
+    return flask.send_from_directory(os.path.join(static_folder, 
+        'css', 'images'), path)
 
 @app.route('/static/fonts/<path:path>')
 def send_fonts(path):

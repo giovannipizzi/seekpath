@@ -17,7 +17,9 @@
     <script>
     $( function() {
       $( "#accordion" ).accordion({
-        collapsible: true
+        collapsible: true,
+        heightStyle: "content", // Avoid that all have the same height
+        active: false  // Start all closed
       });
     });
     </script>
@@ -351,11 +353,26 @@
 
 
     <div id='rawcode'>
+      <h2>Data for copy-paste</h2>
+        <p>Clic on the header to open the section you need</p>
         <div id="accordion">
-        <h2>Raw data (JSON)</h2>
-        <p><code>{{ raw_code|safe }}</code></p>
-        <h2>Raw data (JSON)</h2>
-        <p><code>{{ raw_code|safe }}</code></p>
+        <h3>Quantum ESPRESSO pw.x input</h3>
+        <div>
+          <p>Please replace content between angular brackets 
+            <code>&lt;...&gt;</code> with the actual content for your 
+            simulation</code></p>
+          <p><code>{{ qe_pw|safe }}</code></p>
+        </div>
+<!--        <h3>Quantum ESPRESSO matdyn.x input</h3>
+        <div>
+          <p>To be used with <code>q_in_cryst_coord=.true.</code> in 
+            the <code>&amp;INPUT</code> namelist.</p>
+          <p><code>{{ qe_matdyn|safe }}</code></p>
+        </div>-->
+        <h3>Raw data (JSON)</h3>
+        <div>
+          <p><code>{{ raw_code|safe }}</code></p>
+        </div>
       </div>
     </div>
 
