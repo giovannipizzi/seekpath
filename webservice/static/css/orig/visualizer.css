@@ -178,6 +178,13 @@ height: 100%
     margin-right: 2%;
 } 
 
+#finalinfo {
+    clear: both;
+    padding-top: 20px;
+    margin-left: 2%;
+    margin-right: 2%;
+} 
+
 #info {
     top: 95px;
     left: 2%;

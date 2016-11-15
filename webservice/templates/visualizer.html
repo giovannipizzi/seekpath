@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset=utf-8>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SeeK-path: the k-path finder and visualizer</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.1.12.1.min.css"/>
+
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
     <script src="../static/js/three.min.js"></script>
     <script src="../static/js/OrbitControls.min.js"></script>
     <script src="../static/js/jquery-3.1.0.min.js"></script>        
+    <script src="../static/js/jquery-ui.1.12.1.min.js"></script>        
     <script src="../static/js/BZVisualizer.min.js"></script>        
     <script src="../static/js/webglcheck.min.js"></script>
+    <script>
+    $( function() {
+      $( "#accordion" ).accordion({
+        collapsible: true
+      });
+    });
+    </script>
     <style>
     .webgl-hidden {
       display: none;
@@ -340,8 +351,12 @@
 
 
     <div id='rawcode'>
+        <div id="accordion">
         <h2>Raw data (JSON)</h2>
         <p><code>{{ raw_code|safe }}</code></p>
+        <h2>Raw data (JSON)</h2>
+        <p><code>{{ raw_code|safe }}</code></p>
+      </div>
     </div>
 
 
