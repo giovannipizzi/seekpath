@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!-- Bootstrap -->
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
+    <title>SeeK-path: explanation of the extended Bravais symbol</title>
+  </head>
+
+</head>
+
+<body>
+<div style="margin-left:15px; margin-right:15px;">
+<div id='maintitle'><h1 style="text-align: center;"><span style="font-weight: bold;">SeeK-path</span></div>
+<h2>Explanation of the extended Bravais symbol</h2>
+
+<div>
+<p>In the input example selector of the SeeK-path website, as well as in the
+    output of SeeK-path, you will find a short string called <em>extended Bravais symbol</em>. <br/>Here we briefly explain its meaning.</p>
+
+<h3>First two characters</h3>
+<p>The first two characters are the <em>Bravais symbol</em> identifying the type of
+    Bravais lattice of the system.</p>
+
+<p>The first letter denotes the <strong>crystal family</strong>, and can have the 
+    following values:
+    <ul>
+        <li><strong>c</strong>: cubic</li>
+        <li><strong>h</strong>: hexagonal</li>
+        <li><strong>t</strong>: tetragonal</li>
+        <li><strong>o</strong>: orthorhombic</li>
+        <li><strong>m</strong>: monoclinic</li>
+        <li><strong>a</strong>: triclinic</li>
+    </ul>
+</p>
+
+<p>The second letter described the <strong>centering</strong> of the Bravais
+    lattice, and (after standardization) it can assume the following values:
+    <ul>
+        <li><strong>P</strong>: primitive</li>
+        <li><strong>F</strong>: face-centered</li>
+        <li><strong>I</strong>: body-centered</li>
+        <li><strong>A</strong>: base-centered (A face)</li>
+        <li><strong>C</strong>: base-centered (C face)</li>
+        <li><strong>R</strong>: rhombohedrally-centered</li>
+    </ul>
+</p>
+
+<h3>Third character</h3>
+<p>The third character is an integer (the possible values are 1, 2 or 3).</p>
+
+<p>Indeed, in some cases, in order to describe the Brillouin zone, 
+different cases must be considered. These are indexed by an integer.
+The algorithm to establish the value of this third character is explained in
+Table 94 of the SeeK-path publication.</p>
+<p>This symbol can depend on the spacegroup of the crystal, 
+and/or on the values of the (<em>a</em>,
+<em>b</em>, <em>c</em>, <em>&alpha;</em>, <em>&beta;</em>, <em>&gamma;</em>) lattice parameters. In particular, we mention that there are two possible cases
+that need distinction:
+<ul>
+<li>Depending on the spacegroup, additional lines might be needed. This is the case for instance for cP (cubic primitive) lattices.</li>
+<li>The topology of the Brillouin zone (and therefore the coordinates of the
+corners of the Brillouin zone) depend on the relative ratio of the
+lattice parameters. This is for instance the case for tI (tetragonal body-centered)
+where the topology is different depending on whether <em>a</em> is larger or smaller than <em>c</em>.</li>   
+</ul>
+</p>
+
+<h3>A note on inversion symmetry</h3>
+<p>For systems that do not have inversion symmetry, the band energies typically
+differ at 
+<strong><em>k</em></strong> and <strong><em>-k</em></strong> if the Hamiltonian
+does not have time-reversal symmetry. In this case, an additional set of lines is
+taken by inverting the path about the origin (&Gamma; point).</p>
+
+<p>This is the reason why we provide examples both for systems with and without
+    inversion symmetry. In the python code, you should specify if your Hamiltonian
+    has time-reversal symmetry as an input flag to the SeeK-path functions.</p>
+
+</div>
+</body>
+</html>

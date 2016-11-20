@@ -14,6 +14,7 @@
     <script src="../static/js/jquery-ui.1.12.1.min.js"></script>        
     <script src="../static/js/BZVisualizer.min.js"></script>        
     <script src="../static/js/webglcheck.min.js"></script>
+    <script src="../static/js/clipboard.min.js"></script>
     <script>
     $( function() {
       $( "#accordion" ).accordion({
@@ -122,14 +123,16 @@
 
 
     <div id='aboveleft'>
-      <div id='canvas3dtitle'><h3>Brillouin zone</h3></div>
+      <div id='canvas3dtitle'><h3>Brillouin zone 
+        (<a href="#bz_coords">go to coordinates</a>)</h3></div>
       <div id='canvas3dcontainer'>
           <div id='canvas3d'></div><div id='info'></div>
       </div>
     </div>
 
     <div id='aboveright'>
-      <div id='structuretitle'><h3>Primitive structure</h3></div>
+      <div id='structuretitle'><h3>Primitive structure 
+        (<a href="#prim_coords">go to coordinates</a>)</h3></div>
       <div id='structure'><script>
         parentcanvas = document.getElementById('structure');
         the_width = parentcanvas.offsetWidth;
@@ -162,8 +165,8 @@
   <div id='below'>  
   <div id='groupbelow'>
       <div id='tablekpoints'>
-        <h2>Reciprocal space information</h2>
-
+        <a name="bz_coords"/>
+        <h2>Reciprocal space and Brillouin-zone information</h2>
         <h3>Reciprocal cell vectors (1/&#8491;)</h3>
         <table class="center">
           <thead>
@@ -246,7 +249,8 @@
 
       </div>
       <div id='structureinfo'>
-        <h2>Primitive structure information</h2>
+        <a name="prim_coords"/>
+        <h2>Structure information (primitive cell)</h2>
 
         <h3>Crystal structure information</h3>
         <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }}</p>
@@ -255,8 +259,13 @@
 
         <h3>Volume ratio between input structure and primitive structure</h3>
         <p>The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>
+        <p>Note that the input structure had cell vectors (in &#8491;):<br>
+            {% for v in inputstructure_cell_vectors %}
+            v<sub>{{ v[0] }}</sub>: <code>{{ "%.10f" % v[1]|float }}, {{ "%.10f" % v[2]|float }}, {{ "%.10f" % v[3]|float }}</code><br>
+            {% endfor %}
+        </p>
 
-        <h3>Real cell vectors (&#8491;)</h3>
+        <h3>Primitive cell vectors (&#8491;)</h3>
         <table class="center">
           <thead>
             <th style="padding-right: 15px; text-align: center">v</th>
@@ -354,14 +363,17 @@
 
     <div id='rawcode'>
       <h2>Data for copy-paste</h2>
-        <p>Clic on the header to open the section you need</p>
+        <p>Clic on the header to open a section</p>
         <div id="accordion">
         <h3>Quantum ESPRESSO pw.x input</h3>
         <div>
-          <p>Please replace content between angular brackets 
-            <code>&lt;...&gt;</code> with the actual content for your 
-            simulation</code></p>
-          <p><code>{{ qe_pw|safe }}</code></p>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#qepwdata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+             (Replace <code>&lt;...&gt;</code> with the actual content for your 
+            simulation</code>)
+            </p>
+          <p><code id="qepwdata">{{ qe_pw|safe }}</code></p>
         </div>
 <!--        <h3>Quantum ESPRESSO matdyn.x input</h3>
         <div>
@@ -371,17 +383,23 @@
         </div>-->
         <h3>Raw data (JSON)</h3>
         <div>
-          <p><code>{{ raw_code|safe }}</code></p>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#rawcodedata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+          </p>
+
+          <p><code id="rawcodedata">{{ raw_code|safe }}</code></p>
         </div>
       </div>
     </div>
 
+    <script>
+        // Activate clipboard buttons
+        var clipboard = new Clipboard('.clipboardbtn');
+    </script>
 
     <div id='finalinfo'>
-        <h2>Technical info</h2>
-        <p>Time spent to compute quantities: {{ '%.3f' % compute_time }} s</p>
-	<p>SeeK-path version: {{ seekpath_version }}</p>
-	<p>spglib version: {{ spglib_version }}</p>
+        <p><span style="font-weight: bold;">Technical info</span>: Time spent to compute quantities: {{ '%.3f' % compute_time }} s. SeeK-path version: {{ seekpath_version }}. spglib version: {{ spglib_version }}.
     </div>
 
     </div>

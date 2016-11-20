@@ -241,6 +241,24 @@ height: 100%
     margin-right: 2%;
 } 
 
+.clipboardbtn {
+osition: relative;
+display: inline-block;
+padding: 6px 12px;
+font-size: 13px;
+font-weight: bold;
+line-height: 20px;
+color: #333;
+white-space: nowrap;
+vertical-align: middle;
+cursor: pointer;
+background-color: #EEE;
+background-image: linear-gradient(#FCFCFC, #EEE);
+border: 1px solid #D5D5D5;
+border-radius: 3px;
+-moz-user-select: none;
+}
+
 #rawcode {
     clear: both;
     padding-top: 20px;
@@ -337,4 +355,19 @@ height: 100%
 }
 .alert-danger .alert-link {
   color: #843534;
+}
+
+#accordion .ui-state-default {
+ border: #003eff;
+ background:#007fff;
+ color: white;
+}
+#accordion .ui-state-hover {
+ border: #003eff;
+ background:#449fff;
+ color: white;
+}
+#accordion .ui-state-active {
+  background: #ccc;
+  color: #000;
 }
