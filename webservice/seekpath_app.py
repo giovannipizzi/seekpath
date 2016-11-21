@@ -197,6 +197,8 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     ## Convert to absolute
     response['kpoints'] = {k: (v[0] * b1 + v[1] * b2 + v[2] * b3).tolist()
         for k,v in res['point_coords'].items()}
+    response['kpoints_rel'] = {k: [v[0], v[1], v[2]]
+        for k,v in res['point_coords'].items()}
     response['path'] = res['path']
 
     # It should use the same logic, so give the same cell as above
@@ -317,6 +319,14 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         kpoints = [[k, out_json_data['kpoints'][k][0], 
             out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
             for k in sorted(out_json_data['kpoints'])]
+        kpoints_rel = [[k, out_json_data['kpoints_rel'][k][0], 
+            out_json_data['kpoints_rel'][k][1], out_json_data['kpoints_rel'][k][2]] 
+            for k in sorted(out_json_data['kpoints_rel'])]
+
+        inputstructure_cell_vectors = [[idx, coords[0], coords[1], coords[2]]
+            for idx, coords in 
+            enumerate(in_json_data['cell'], start=1)
+        ]
 
         direct_vectors = [[idx, coords[0], coords[1], coords[2]]
             for idx, coords in 
@@ -395,6 +405,13 @@ def process_structure_core(filecontent, fileformat, call_source=""):
                 'traceback': traceback.extract_stack()})
         raise
 
+    qe_pw = str(flask.escape(
+        get_qe_pw(raw_code_dict, out_json_data))).replace(
+            '\n', '<br>').replace(' ', '&nbsp;')
+    qe_matdyn = str(flask.escape(
+        get_qe_matdyn(raw_code_dict, out_json_data))).replace(
+            '\n', '<br>').replace(' ', '&nbsp;')
+
     return flask.render_template(
         'visualizer.html', 
         jsondata=json.dumps(out_json_data),
@@ -402,11 +419,13 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         volume_ratio_prim=int(round(path_results['volume_original_wrt_prim'])),
         raw_code=raw_code,
         kpoints=kpoints,
+        kpoints_rel=kpoints_rel,
         bravais_lattice=path_results['bravais_lattice'],
         bravais_lattice_extended=path_results['bravais_lattice_extended'],
         spacegroup_number=path_results['spacegroup_number'],
         spacegroup_international=path_results['spacegroup_international'],
         direct_vectors=direct_vectors,
+        inputstructure_cell_vectors=inputstructure_cell_vectors,
         atoms_scaled=atoms_scaled,
         with_without_time_reversal= (
             "with" if path_results['has_inversion_symmetry'] 
@@ -414,6 +433,8 @@ def process_structure_core(filecontent, fileformat, call_source=""):
         atoms_cartesian=atoms_cartesian,
         reciprocal_primitive_vectors=reciprocal_primitive_vectors,
         suggested_path=suggested_path,
+        qe_pw=qe_pw,
+        qe_matdyn=qe_matdyn,
         compute_time=compute_time,
         seekpath_version=seekpath.__version__,
         spglib_version=spglib.__version__,
@@ -422,6 +443,62 @@ def process_structure_core(filecontent, fileformat, call_source=""):
             else ""),
         )
 
+
+def get_qe_pw(raw_data, out_json_data):
+    """
+    Return the data in format of the QE pw.x input
+    """
+    lines = []
+
+    lines.append("&CONTROL")
+    lines.append("    calculation = 'bands'")
+    lines.append("    <...>")
+    lines.append("/")
+    lines.append("&SYSTEM")
+    lines.append("    ibrav = 0")
+    lines.append("    nat = {}".format(
+        len(raw_data["primitive_symbols"])))
+    lines.append("    ntyp = {}".format(
+        len(set(raw_data["primitive_symbols"]))))
+    lines.append("    <...>")
+    lines.append("/")
+    lines.append("&ELECTRONS")
+    lines.append("    <...>")
+    lines.append("/")
+    lines.append("ATOMIC_SPECIES")
+    for s in sorted(set(
+        raw_data["primitive_symbols"])):
+        lines.append("{:4s} <MASS_HERE> <PSEUDO_HERE>.UPF".format(
+            s))
+
+    lines.append("ATOMIC_POSITIONS angstrom")
+    for s, p in zip(
+        raw_data["primitive_symbols"],
+        raw_data["primitive_positions_cartesian"]):
+        lines.append("{:4s} {:16.10f} {:16.10f} {:16.10f}".format(
+            s, p[0], p[1], p[2]))
+
+    lines.append("K_POINTS crystal")
+    kplines = []
+    for kp in out_json_data['explicit_kpoints_rel']:
+        kplines.append("{:16.10f} {:16.10f} {:16.10f} 1".format(
+            *kp))
+    lines.append("{}".format(len(kplines)))
+    lines += kplines
+
+    lines.append("CELL_PARAMETERS angstrom")
+    for v in raw_data['primitive_lattice']:
+        lines.append("{:16.10f} {:16.10f} {:16.10f}".format(
+            v[0], v[1], v[2]))
+
+
+    return "\n".join(lines)
+
+def get_qe_matdyn(raw_data, out_json_data):
+    """
+    Return the data in format of the QE matdyn.x input
+    """
+    return "Not implemented yet, sorry..."
 
 @app.route('/')
 def index():
@@ -437,6 +514,14 @@ def termsofuse():
     """
     return flask.send_from_directory(view_folder, 'termsofuse.html')
 
+@app.route('/bravaissymbol_explanation/')
+def bravaissymbol_explanation():
+    """
+    View for the explanation of the Bravais symbol
+    """
+    return flask.send_from_directory(view_folder, 'bravaissymbol_explanation.html')
+
+
 @app.route('/input_structure/')
 def input_structure():
     """
@@ -451,12 +536,27 @@ def send_js(path):
     """
     return flask.send_from_directory(os.path.join(static_folder, 'js'), path)
 
+@app.route('/static/img/<path:path>')
+def send_img(path):
+    """
+    Serve static image files
+    """
+    return flask.send_from_directory(os.path.join(static_folder, 'img'), path)
+
 @app.route('/static/css/<path:path>')
 def send_css(path):
     """
     Serve static CSS files
     """
     return flask.send_from_directory(os.path.join(static_folder, 'css'), path)
+
+@app.route('/static/css/images/<path:path>')
+def send_cssimages(path):
+    """
+    Serve static CSS images files
+    """
+    return flask.send_from_directory(os.path.join(static_folder, 
+        'css', 'images'), path)
 
 @app.route('/static/fonts/<path:path>')
 def send_fonts(path):

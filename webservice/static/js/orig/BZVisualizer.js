@@ -142,7 +142,7 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     scene = new THREE.Scene();
     canvas3d_width = canvas3d.offsetWidth;
     canvas3d_height = canvas3d.offsetHeight;
-    camera = new THREE.PerspectiveCamera( 45, canvas3d_width / canvas3d_height, 0.01, 10 );
+    camera = new THREE.PerspectiveCamera( 45, canvas3d_width / canvas3d_height, 0.01, 1000 );
     // If I don't move it, I cannot pan
     camera.position.z = 3;
 

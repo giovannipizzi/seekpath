@@ -52,6 +52,16 @@ height: 100%
     float: left;
 }
 
+@media screen and (max-width: 600px) {
+    #aboveleft {
+        width: 85%;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	float: center;
+        clear: both;
+    }
+}
+
 #aboveright {
     width: 47%;
     margin: 0px;
@@ -59,6 +69,16 @@ height: 100%
     top: 0px;
     margin-right: 2%;
     float: right;
+}
+
+@media screen and (max-width: 600px) {
+    #aboveright {
+        width: 85%;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	float: center;
+	clear: both;
+    }
 }
 
 #canvas3dtitle {
@@ -93,7 +113,7 @@ height: 100%
                                     not supported by any browser */
     background-color: #fff;
     width: 100%;
-    height: 300px;
+    height: 450px;
     margin: 0px;
     padding: 0px;
     position: relative; 
@@ -101,6 +121,12 @@ height: 100%
     left: 0%;
     overflow: visible;
     border: 1px solid #bbb;
+}
+
+@media screen and (max-width: 900px) {
+    #canvas3dcontainer {
+	height: 300px;
+    }
 }
 
 #structureviewer {
@@ -119,7 +145,7 @@ height: 100%
 #structure {
     background-color: #fff;
     width: 100%;
-    height: 300px;
+    height: 450px;
     border: 1px solid #bbb;
     margin: 0px;
     padding: 0px;
@@ -128,6 +154,12 @@ height: 100%
     left: 0%;
     overflow: hidden;
 } 
+
+@media screen and (max-width: 900px) {
+    #structure {
+        height: 300px;
+    }
+}
 
 /* Below */
 
@@ -164,6 +196,44 @@ height: 100%
     float:right;
 }
 
+@media screen and (max-width: 900px) {
+    #tablekpoints {
+	float: center;
+	margin-left: 2%;
+	margin-right: 2%;
+	clear: both;
+	width: 96%;
+    }
+
+    #structureinfo {
+	float: center;
+	margin-left: 2%;
+	margin-right: 2%;
+	margin-top: 20px;
+	clear: both;
+	width: 96%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    #tablekpoints {
+	float: center;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	clear: both;
+	width: 85%;
+    }
+
+    #structureinfo {
+	float: center;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	margin-top: 20px;
+	clear: both;
+	width: 85%;
+    }
+}
+
 #citations {
     clear: both;
     padding-top: 20px;
@@ -171,7 +241,32 @@ height: 100%
     margin-right: 2%;
 } 
 
+.clipboardbtn {
+osition: relative;
+display: inline-block;
+padding: 6px 12px;
+font-size: 13px;
+font-weight: bold;
+line-height: 20px;
+color: #333;
+white-space: nowrap;
+vertical-align: middle;
+cursor: pointer;
+background-color: #EEE;
+background-image: linear-gradient(#FCFCFC, #EEE);
+border: 1px solid #D5D5D5;
+border-radius: 3px;
+-moz-user-select: none;
+}
+
 #rawcode {
+    clear: both;
+    padding-top: 20px;
+    margin-left: 2%;
+    margin-right: 2%;
+} 
+
+#finalinfo {
     clear: both;
     padding-top: 20px;
     margin-left: 2%;
@@ -260,4 +355,19 @@ height: 100%
 }
 .alert-danger .alert-link {
   color: #843534;
+}
+
+#accordion .ui-state-default {
+ border: #003eff;
+ background:#007fff;
+ color: white;
+}
+#accordion .ui-state-hover {
+ border: #003eff;
+ background:#449fff;
+ color: white;
+}
+#accordion .ui-state-active {
+  background: #ccc;
+  color: #000;
 }

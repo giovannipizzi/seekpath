@@ -1,15 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset=utf-8>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SeeK-path: the k-path finder and visualizer</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.1.12.1.min.css"/>
+
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
     <script src="../static/js/three.min.js"></script>
     <script src="../static/js/OrbitControls.min.js"></script>
     <script src="../static/js/jquery-3.1.0.min.js"></script>        
+    <script src="../static/js/jquery-ui.1.12.1.min.js"></script>        
     <script src="../static/js/BZVisualizer.min.js"></script>        
     <script src="../static/js/webglcheck.min.js"></script>
+    <script src="../static/js/clipboard.min.js"></script>
+    <script>
+    $( function() {
+      $( "#accordion" ).accordion({
+        collapsible: true,
+        heightStyle: "content", // Avoid that all have the same height
+        active: false  // Start all closed
+      });
+    });
+    </script>
     <style>
     .webgl-hidden {
       display: none;
@@ -109,14 +123,16 @@
 
 
     <div id='aboveleft'>
-      <div id='canvas3dtitle'><h3>Brillouin zone</h3></div>
+      <div id='canvas3dtitle'><h3>Brillouin zone 
+        (<a href="#bz_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom</em></p></div>
       <div id='canvas3dcontainer'>
           <div id='canvas3d'></div><div id='info'></div>
       </div>
     </div>
 
     <div id='aboveright'>
-      <div id='structuretitle'><h3>Primitive structure</h3></div>
+      <div id='structuretitle'><h3>Primitive structure 
+        (<a href="#prim_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom</em></p></div>
       <div id='structure'><script>
         parentcanvas = document.getElementById('structure');
         the_width = parentcanvas.offsetWidth;
@@ -149,8 +165,8 @@
   <div id='below'>  
   <div id='groupbelow'>
       <div id='tablekpoints'>
-        <h2>Reciprocal space information</h2>
-
+        <a name="bz_coords"/>
+        <h2>Reciprocal space and Brillouin-zone information</h2>
         <h3>Reciprocal cell vectors (1/&#8491;)</h3>
         <table class="center">
           <thead>
@@ -182,6 +198,30 @@
 
           <tbody>      
 
+            {% for k in kpoints_rel %}
+            <tr>
+              <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+
+
+          </tbody>
+        </table> 
+
+        <h3>High-symmetry points (1/&#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="text-align: center">Label</th>
+            <th style="text-align: center">k<sub>x</sub></th>
+            <th style="text-align: center">k<sub>y</sub></th>
+            <th style="text-align: center">k<sub>z</sub></th>
+          </thead>
+
+          <tbody>      
+
             {% for k in kpoints %}
             <tr>
               <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
@@ -209,7 +249,8 @@
 
       </div>
       <div id='structureinfo'>
-        <h2>Primitive structure information</h2>
+        <a name="prim_coords"/>
+        <h2>Structure information (primitive cell)</h2>
 
         <h3>Crystal structure information</h3>
         <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }}</p>
@@ -218,8 +259,13 @@
 
         <h3>Volume ratio between input structure and primitive structure</h3>
         <p>The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>
+        <p>Note that the input structure had cell vectors (in &#8491;):<br>
+            {% for v in inputstructure_cell_vectors %}
+            v<sub>{{ v[0] }}</sub>: <code>{{ "%.10f" % v[1]|float }}, {{ "%.10f" % v[2]|float }}, {{ "%.10f" % v[3]|float }}</code><br>
+            {% endfor %}
+        </p>
 
-        <h3>Real cell vectors (&#8491;)</h3>
+        <h3>Primitive cell vectors (&#8491;)</h3>
         <table class="center">
           <thead>
             <th style="padding-right: 15px; text-align: center">v</th>
@@ -316,16 +362,44 @@
 
 
     <div id='rawcode'>
-        <h2>Raw data (JSON)</h2>
-        <p><code>{{ raw_code|safe }}</code></p>
+      <h2>Data for copy-paste</h2>
+        <p>Clic on the header to open a section</p>
+        <div id="accordion">
+        <h3>Quantum ESPRESSO pw.x input</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#qepwdata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+             (Replace <code>&lt;...&gt;</code> with the actual content for your 
+            simulation</code>)
+            </p>
+          <p><code id="qepwdata">{{ qe_pw|safe }}</code></p>
+        </div>
+<!--        <h3>Quantum ESPRESSO matdyn.x input</h3>
+        <div>
+          <p>To be used with <code>q_in_cryst_coord=.true.</code> in 
+            the <code>&amp;INPUT</code> namelist.</p>
+          <p><code>{{ qe_matdyn|safe }}</code></p>
+        </div>-->
+        <h3>Raw data (JSON)</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#rawcodedata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+          </p>
+
+          <p><code id="rawcodedata">{{ raw_code|safe }}</code></p>
+        </div>
+      </div>
     </div>
 
+    <script>
+        // Activate clipboard buttons
+        var clipboard = new Clipboard('.clipboardbtn');
+    </script>
 
     <div id='finalinfo'>
-        <h2>Technical info</h2>
-        <p>Time spent to compute quantities: {{ '%.3f' % compute_time }} s</p>
-	<p>SeeK-path version: {{ seekpath_version }}</p>
-	<p>spglib version: {{ spglib_version }}</p>
+        <p><span style="font-weight: bold;">Technical info</span>: Time spent to compute quantities: {{ '%.3f' % compute_time }} s. SeeK-path version: {{ seekpath_version }}. spglib version: {{ spglib_version }}.
     </div>
 
     </div>

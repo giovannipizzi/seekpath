@@ -16,13 +16,14 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/visualizer_input.min.css"/>
     <title>SeeK-path: the k-path finder and visualizer</title>
   </head>
 
 </head>
 
 <body>
-<div style="margin-left:15px; margin-right:15px;">
+<div id='container'>
 <div id='maintitle'><h1 style="text-align: center;"><span style="font-weight: bold;">SeeK-path</span>: the <span style="font-style: italic">k</span>-path finder and visualizer</h1></div>
 
 {% with messages = get_flashed_messages() %}
@@ -38,16 +39,38 @@
   {% endif %}
 {% endwith %}
 
-<p>Upload a crystal structure to:
+<h2><a href="#tool">Skip the introduction and jump directly to the tool</a></h2>
+
+<h2>What SeeK-path does</h2>
+<p>This tool takes in <strong>input a crystal structure</strong> (in a number of different formats), and 
 <ul>
-<li>find its spacegroup and the primitive cell,</li>
-<li>visualize the Brillouin zone,</li>
-<li>get the list of high-symmetry points in k-space and get the suggested path in k-space,</li>
-<li>and more...</li>
+<li>find its <strong>spacegroup</strong>;</li>
+<li>computes the <strong>crystallographic primitive cell</strong> (i.e., always oriented according to crystallographic standard definitions);</li>
+<li>computes the <strong>Brillouin zone</strong>;</li>
+<li>provides <strong>interactive visualization</strong> of primitive cell and Brillouin zone;</li>
+<li>computes all <strong>high-symmetry k-points coordinates</strong>;</li>
+<li>for band structure plotting, provides a <strong>complete list of high-symmetry paths</strong> in the Brillouin zone going between the high-symmetry k-points;</li>
+<li>provides <strong>copy-paste content</strong> to input the kpoints in an external code or input file.</li>
+</ul>
+<p>
+<p><em>Alternatively, you can calculate and visualize an example</em>.<br>(There is one example for each possible extended Bravais symbol, both for systems with and without inversion symmetry.)
+</p>
+
+<h2>SeeK-path definitions and advantages</h2>
+<p>This tool follows the definitions of the <a href="#hpkot">HPKOT paper</a>. The main advantages of this work are:
+<ul>
+<li><strong>use of the <em>crystallographic</em> cells</strong>: The conventional cell is standardized according to the definitions that are
+standard in the field in crystallography: the <em>International Tables of Crystallography</em> (the Tables, from here on), and <em>Parth&eacute;, Gelato, Acta Cryst. A40, 169 (1984)</em>. Just a couple of examples: 
+<ul>
+  <li>orientation of the axes follows the standards mentioned above, e.g., monoclinic cells are always <em>b</em>-axis unique.</li>
+  <li>order of axes is imposed only when not already imposed by symmetry, (following the prescriptions of Parth&eacute; and Gelato). E.g., for spacegroup Pmm2 (orthorhombic), the third axis is fixed by symmetry (the one with 180&deg; rotation but no mirror plane). Therefore, we only impose <em>a&lt;b</em>, with no ordering imposed on <em>c</em>.</li>
+ </ul></li>
+<li><strong>Unambiguous high-symmetry k-point labels</strong>. For rational k-points, we use the same labels as the ones defined in the Tables. For irrational k-points (not defined in the Tables), letters are chosen so as to never collide with existing letters in the Tables.</li>
+<li><strong>Complete set of high-symmetry paths (band lines), using also spacegroup symmetry when needed</strong>. For instance, spacegroup Pm-3 (cubic primitive, extended Bravais lattice cP1) does not have 90&deg; rotation symmetries, so both the lines M&ndash;X and M&ndash;X<sub>1</sub> must be considered.</li>
 </ul>
 </p>
 
-<h2>Upload you structure</h2>
+<h2><a name="tool"></a>Upload you structure</h2>
 <div style="margin-left: 20px; margin-right: 20px">
   <form action="../process_structure/" enctype="multipart/form-data" method="post">
     <div class='alert alert-info'>
@@ -68,6 +91,7 @@
             <option value="qe-inp">Quantum ESPRESSO input</option>
             <option value="vasp">VASP POSCAR</option>
             <option value="xsf">XCrySDen (XSF)</option>
+            <option value="castep">CASTEP (.cell)</option>
 	  </select>
 	</div> 
       </div>
@@ -85,8 +109,7 @@
     <div class='alert alert-info'>
       <div class="row">
 	<div class="col-xs-12 col-sm-6">
-	  <label for="examplestructure">Select here an extended Bravais Symbol to 
-        show an example:</label>
+	  <label for="examplestructure">Select here an extended Bravais Symbol:</label>
 	</div>
 	<div class="col-xs-12 col-sm-6">
 	  <select name="examplestructure">
@@ -149,6 +172,9 @@
 	</div>
       </div>
       <div class='row' style="text-align: center">
+        <p class='small'><a href="../bravaissymbol_explanation/">
+            A simple explanation of the 
+            extended Bravais symbols</a>.</p>
 	<input type="submit" value="Calculate this example" class="btn btn-default"> 
       </div>
     </div>
@@ -159,14 +185,14 @@
         <h2>How to cite</h2>
         <p>If you use this tool, please cite the following work:
         <ul>
-        <li><a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-    paths based on crystallography, arXiv:1602.06402 (2016)</a>.
+        <li><a name="hpkot"></a><a href="https://arxiv.org/abs/1602.06402">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram 
+    paths based on crystallography, arXiv:1602.06402 (2016)</a> (the "HPKOT" paper).
         </li>
         <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> 
             that is an essential library used in the implementation.
         </li>
         <li>
-          Some of the input parsers have been implemented either with the 
+          Some of the input parsers on the website have been implemented either with the 
              <a href="https://wiki.fysik.dtu.dk/ase/">ASE python library</a>
              or using routines from 
                <a href="http://www.aiida.net">AiiDA</a>.
