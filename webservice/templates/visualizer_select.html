@@ -16,13 +16,14 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/visualizer_input.min.css"/>
     <title>SeeK-path: the k-path finder and visualizer</title>
   </head>
 
 </head>
 
 <body>
-<div style="margin-left:15px; margin-right:15px;">
+<div id='container'>
 <div id='maintitle'><h1 style="text-align: center;"><span style="font-weight: bold;">SeeK-path</span>: the <span style="font-style: italic">k</span>-path finder and visualizer</h1></div>
 
 {% with messages = get_flashed_messages() %}
@@ -86,8 +87,7 @@
     <div class='alert alert-info'>
       <div class="row">
 	<div class="col-xs-12 col-sm-6">
-	  <label for="examplestructure">Select here an extended Bravais Symbol to 
-        show an example:</label>
+	  <label for="examplestructure">Select here an extended Bravais Symbol:</label>
 	</div>
 	<div class="col-xs-12 col-sm-6">
 	  <select name="examplestructure">
