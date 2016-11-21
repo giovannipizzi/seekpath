@@ -18,6 +18,6 @@ install:
     - pip install -e .
 script:
     - python run_tests.py
-    - cd webservice && python seekpath_app_test.py
+    - cd webservice && echo "ANotSoRandomKeyJustForTesting" > SECRET_KEY && python seekpath_app_test.py
 
 
