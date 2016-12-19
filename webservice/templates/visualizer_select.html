@@ -17,7 +17,20 @@
     <![endif]-->
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_input.min.css"/>
+    <script src="../static/js/jquery-3.1.0.min.js"></script>        
+    <script src="../static/js/jquery-ui.1.12.1.min.js"></script>        
+    <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.1.12.1.min.css"/>
+
     <title>SeeK-path: the k-path finder and visualizer</title>
+    <script>
+    $( function() {
+      $( "#accordion" ).accordion({
+        collapsible: true,
+        heightStyle: "content", // Avoid that all have the same height
+        active: false  // Start all closed
+      });
+    });
+    </script>
   </head>
 
 </head>
@@ -39,9 +52,11 @@
   {% endif %}
 {% endwith %}
 
-<h2><a href="#tool">Skip the introduction and jump directly to the tool</a></h2>
+<!--<h2><a href="#tool">Skip the introduction and jump directly to the tool</a></h2>-->
 
+<div id="accordion">
 <h2>What SeeK-path does</h2>
+<div>
 <p>This tool takes in <strong>input a crystal structure</strong> (in a number of different formats), and 
 <ul>
 <li>finds its <strong>spacegroup</strong>;</li>
@@ -55,8 +70,10 @@
 <p>
 <p><em>Alternatively, you can calculate and visualize an example</em>.<br>(There is one example for each possible extended Bravais symbol, both for systems with and without inversion symmetry.)
 </p>
+</div>
 
 <h2>SeeK-path definitions and advantages</h2>
+<div>
 <p>This tool follows the definitions of the <a href="#hpkot">HPKOT paper</a>. The main advantages of this work are:
 <ul>
 <li><strong>use of the <em>crystallographic</em> cells</strong>: The conventional cell is standardized according to the definitions that are
@@ -69,6 +86,8 @@ standard in the field in crystallography: the <em>International Tables of Crysta
 <li><strong>Complete set of high-symmetry paths (band lines), using also spacegroup symmetry when needed</strong>. For instance, spacegroup Pm-3 (cubic primitive, extended Bravais lattice cP1) does not have 90&deg; rotation symmetries, so both the lines M&ndash;X and M&ndash;X<sub>1</sub> must be considered.</li>
 </ul>
 </p>
+</div>
+</div>
 
 <h2><a name="tool"></a>Upload you structure</h2>
 <div style="margin-left: 20px; margin-right: 20px">

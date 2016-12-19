@@ -75,3 +75,17 @@ table.center {
     margin-right:auto;
   }
 
+#accordion .ui-state-default {
+ border: #003eff;
+ background:#007fff;
+ color: white;
+}
+#accordion .ui-state-hover {
+ border: #003eff;
+ background:#449fff;
+ color: white;
+}
+#accordion .ui-state-active {
+  background: #ccc;
+  color: #000;
+}
