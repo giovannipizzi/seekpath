@@ -36,8 +36,9 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
        points and paths.
        Currently, the following value is implemented:
        'hpkot': HPKOT paper: 
-       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure  
-       diagram paths based on crystallography, arXiv:1602.06402 (2016)
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+       diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+       DOI: 10.1016/j.commatsci.2016.10.015
 
    :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
@@ -143,8 +144,9 @@ def get_explicit_k_path(structure, with_time_reversal=True,
        points and paths.
        Currently, the following value is implemented:
        'hpkot': HPKOT paper: 
-       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure  
-       diagram paths based on crystallography, arXiv:1602.06402 (2016)
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+       diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+       DOI: 10.1016/j.commatsci.2016.10.015
 
     :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 

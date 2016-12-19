@@ -57,8 +57,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     """
     Return the kpoint path for band structure given a crystal structure,
     using the paths proposed in the HPKOT paper: 
-    Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram 
-    paths based on crystallography, arXiv:1602.06402 (2016)
+    Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+    diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+    DOI: 10.1016/j.commatsci.2016.10.015
 
     If you use this module, please cite the paper above.
 

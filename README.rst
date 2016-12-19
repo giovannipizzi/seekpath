@@ -22,7 +22,8 @@ How to cite
 If you use this tool, please cite the following work:
 
 - Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, *Band structure diagram 
-  paths based on crystallography*, arXiv:1602.06402 (2016) (`JOURNAL LINK`_).
+  paths based on crystallography*, Comp. Mat. Sci. 128, 140 (2017)
+  (`JOURNAL LINK`_, `arXiv link`_).
 - You should also cite `spglib`_ that is an essential library used in the 
   implementation.
 
@@ -129,7 +130,8 @@ And the following is a screenshot of the main output window, showing the Brillou
      :width: 50%
      :align: center
 
-.. _HPKOT paper: http://arxiv.org/abs/1602.06402
-.. _JOURNAL LINK: http://arxiv.org/abs/1602.06402
+.. _HPKOT paper: http://dx.doi.org/10.1016/j.commatsci.2016.10.015
+.. _JOURNAL LINK: http://dx.doi.org/10.1016/j.commatsci.2016.10.015
+.. _arXiv link: https://arxiv.org/abs/1602.06402
 .. _spglib: http://atztogo.github.io/spglib/
 .. _MaterialsCloud: http://www.materialscloud.org/tools/seekpath/
