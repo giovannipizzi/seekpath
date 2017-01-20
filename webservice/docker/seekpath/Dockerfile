@@ -67,7 +67,7 @@ WORKDIR $HOME/code
 RUN git clone \
       $SEEKPATH_REPOSITORY && \
     cd seekpath && \
-    git checkout v$SEEKPATH_VERSION 
+    git checkout $SEEKPATH_VERSION 
 
 # Install SeeK-path
 # Note: if you want to deploy with python3, use 'pip3' instead of 'pip'
