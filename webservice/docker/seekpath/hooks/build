@@ -4,4 +4,4 @@
 # See e.g. info in this issue: 
 # https://github.com/docker/hub-feedback/issues/508
 
-docker build --build-arg SEEKPATH_CHECKOUT="$SOURCE_COMMIT" SEEKPATH_REPOSITORY="$SOURCE_URL"  -t $IMAGE_NAME .
+docker build --build-arg SEEKPATH_CHECKOUT="$SOURCE_COMMIT" --build-arg SEEKPATH_REPOSITORY="$SOURCE_URL"  -t $IMAGE_NAME .
