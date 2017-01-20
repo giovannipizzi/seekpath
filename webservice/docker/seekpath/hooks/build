@@ -1,7 +1,0 @@
-#!/bin/sh
-
-# Configuration for automated builds with docker hub
-# See e.g. info in this issue: 
-# https://github.com/docker/hub-feedback/issues/508
-
-docker build --build-arg SEEKPATH_CHECKOUT="$SOURCE_COMMIT" --build-arg SEEKPATH_REPOSITORY="$SOURCE_URL"  -t $IMAGE_NAME .
