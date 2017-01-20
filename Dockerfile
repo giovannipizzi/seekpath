@@ -62,6 +62,7 @@ COPY ./setup.py setup.py
 COPY ./README.rst README.rst
 COPY ./MANIFEST.in MANIFEST.in
 COPY ./LICENSE.txt LICENSE.txt
+COPY ./run_tests.py run_tests.py
 
 # Set proper permissions
 RUN chown -R app:app $HOME
