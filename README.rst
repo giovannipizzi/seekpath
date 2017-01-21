@@ -33,6 +33,8 @@ How to install
 To install, use ``pip install seekpath``. It works both in python 2.7 and 
 in python 3.5.
 
+If you want to start everything with Docker, follow the instructions on the `docker hub`_ page.
+
 ==========
 How to use
 ==========
@@ -135,3 +137,4 @@ And the following is a screenshot of the main output window, showing the Brillou
 .. _arXiv link: https://arxiv.org/abs/1602.06402
 .. _spglib: http://atztogo.github.io/spglib/
 .. _MaterialsCloud: http://www.materialscloud.org/tools/seekpath/
+.. _docker hub: https://hub.docker.com/r/giovannipizzi/seekpath/
