@@ -1,23 +1,43 @@
+sudo: required
+
+services:
+  - docker
+
 language: python
-python:
-    - "2.7"
-    - "3.5"
+
+matrix: 
+    include:
+    - python: "2.7"
+      env: TEST_CODE=true TEST_DOCKER=false
+    - python: "3.5"
+      env: TEST_CODE=true TEST_DOCKER=false
+    - python: "2.7"
+      env: TEST_CODE=false TEST_DOCKER=true
+
 notifications:
     email:
         on_success: never
         on_failure: always
+
 addons:
     apt:
         packages:
+            - curl
             - gfortran
             - libblas-dev
             - liblapack-dev 
+
 install:
-    - pip install --upgrade pip
-    - pip install -r optional-requirements.txt --only-binary numpy,scipy
-    - pip install -e .
+    - if [ "$TEST_CODE" == "true" ] ; then pip install --upgrade pip && pip install -r optional-requirements.txt --only-binary numpy,scipy && pip install -e . ; fi
+    - if [ "$TEST_DOCKER" == "true" ] ; then docker build -t seekpathdocker . && docker run -d -p 10080:80 seekpathdocker ; fi
+
 script:
-    - python run_tests.py
-    - cd webservice && echo "ANotSoRandomKeyJustForTesting" > SECRET_KEY && python seekpath_app_test.py
+    # Very minimal test for the time being
+    - if [ "$TEST_DOCKER" == "true" ] ; then curl -X POST --data "examplestructure=mC1_inv" http://localhost:10080/process_example_structure/ 2>/dev/null | grep -F "C2/c (number 15)" ; fi
+
+    - if [ "$TEST_CODE" == "true" ] ; then python run_tests.py ; fi
+    # Note that the following command changes folder!
+    - if [ "$TEST_CODE" == "true" ] ; then cd webservice && echo "ANotSoRandomKeyJustForTesting" > SECRET_KEY && python seekpath_app_test.py ; fi
+
 
 
