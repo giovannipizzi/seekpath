@@ -31,8 +31,8 @@ install:
     - if [ "$TEST_DOCKER" == "true" ] ; then docker build -t seekpathdocker . && docker run -d -p 10080:80 seekpathdocker && docker ps ; else echo "Testing of the docker image disabled for this build" ; fi
 
 script:
-    # Very minimal test for the time being
-    - if [ "$TEST_DOCKER" == "true" ] ; then curl -X POST --data "examplestructure=mC1_inv" http://localhost:10080/process_example_structure/ > example.html && grep -F "C2/c (number 15)" example.html || ( cat example.html ; exit 1 ) ; else echo "Testing the docker image disabled for this run [log below]" ; fi
+    # Very minimal test for the time being; before starting, wait (up to 2 minutes) for the service to go up
+    - if [ "$TEST_DOCKER" == "true" ] ; then misc/wait-for-it.sh localhost:10080 -t 120 && curl -X POST --data "examplestructure=mC1_inv" http://localhost:10080/process_example_structure/ > example.html && grep -F "C2/c (number 15)" example.html || ( cat example.html ; exit 1 ) ; else echo "Testing the docker image disabled for this run [log below]" ; fi
 
     - if [ "$TEST_CODE" == "true" ] ; then python run_tests.py ; else echo "Testing of the code disabled for this build [log below]" ; fi
     # Note that the following command changes folder!
