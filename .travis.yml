@@ -1,23 +1,45 @@
+sudo: required
+
 language: python
-python:
-    - "2.7"
-    - "3.5"
+
+matrix: 
+    include:
+    - python: "2.7"
+      env: TEST_CODE=true TEST_DOCKER=false
+    - python: "3.5"
+      env: TEST_CODE=true TEST_DOCKER=false
+    - python: "2.7"
+      env: TEST_CODE=false TEST_DOCKER=true
+      services: 
+      - docker
+
 notifications:
     email:
         on_success: never
         on_failure: always
+
 addons:
     apt:
         packages:
+            - curl
             - gfortran
             - libblas-dev
             - liblapack-dev 
+
 install:
-    - pip install --upgrade pip
-    - pip install -r optional-requirements.txt --only-binary numpy,scipy
-    - pip install -e .
+    - if [ "$TEST_CODE" == "true" ] ; then pip install --upgrade pip && pip install -r optional-requirements.txt --only-binary numpy,scipy && pip install -e . ; else echo "Testing of the code disabled for this build" ; fi
+    - if [ "$TEST_DOCKER" == "true" ] ; then docker build -t seekpathdocker . && docker run -d -p 10080:80 seekpathdocker && docker ps ; else echo "Testing of the docker image disabled for this build" ; fi
+
 script:
-    - python run_tests.py
-    - cd webservice && echo "ANotSoRandomKeyJustForTesting" > SECRET_KEY && python seekpath_app_test.py
+    # Very minimal test for the time being; before starting, wait (up to 2 minutes) for the service to go up
+    # Note: I sleep 15 secs because I need to give the time to nginx + wsgi to start up, otherwise I get
+    # 'connection reset by peer' errors. It is not sufficient to wait for the connection to be up, as the port
+    # opens, but then the connection is dropped. I don't know if there is a better way...
+    - if [ "$TEST_DOCKER" == "true" ] ; then misc/wait-for-it.sh localhost:10080 -t 120 && sleep 15 && curl -X POST --data "examplestructure=mC1_inv" http://localhost:10080/process_example_structure/ > example.html && grep -F "C2/c (number 15)" example.html || ( cat example.html ; exit 1 ) ; else echo "Testing the docker image disabled for this run [log below]" ; fi
+
+    - if [ "$TEST_CODE" == "true" ] ; then python run_tests.py ; else echo "Testing of the code disabled for this build [log below]" ; fi
+    # Note that the following command changes folder!
+    - if [ "$TEST_CODE" == "true" ] ; then cd webservice && echo "ANotSoRandomKeyJustForTesting" > SECRET_KEY && python seekpath_app_test.py ; else echo "Testing of the code disabled for this build [log below]" ; fi
+
 
 
