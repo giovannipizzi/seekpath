@@ -111,13 +111,23 @@ var resize_renderer = function() {
     if (current_canvas_id) {
         var canvas3d = document.getElementById(current_canvas_id);
 
+        var devicePixelRatio = window.devicePixelRatio || 1;
+
+        // current width (in CSS pixels)
         canvas3d_width = canvas3d.offsetWidth;
         canvas3d_height = canvas3d.offsetHeight;
 
         if (renderer) {
             camera.aspect = canvas3d_width / canvas3d_height;
             camera.updateProjectionMatrix();
-            renderer.setSize( canvas3d_width, canvas3d_height );
+
+            // propertly scale dom element *and* renderer to take into account 
+            // devicePixelRatio (that is e.g. 2 on Retina displays)
+        	renderer.setSize( canvas3d_width * devicePixelRatio, canvas3d_height * devicePixelRatio);
+            renderer.domElement.style.width = canvas3d_width + "px";
+            renderer.domElement.style.height = canvas3d_height + "px";
+            renderer.domElement.width = canvas3d_width * devicePixelRatio;
+            renderer.domElement.height = canvas3d_height * devicePixelRatio;
         }
         render();        
     }
@@ -128,6 +138,8 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     current_canvas_id = canvasID;
     var canvas3d = document.getElementById(canvasID);
 
+    var devicePixelRatio = window.devicePixelRatio || 1;
+
     document.getElementById(infoID).innerHTML = ""
 
     // Remove the renderer (and anything else)
@@ -137,7 +149,6 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     // I don't need to clear the text divs, I did it in the line above
     // I just need to empty the to_update list
     to_update = [];
-
 
     scene = new THREE.Scene();
     canvas3d_width = canvas3d.offsetWidth;
@@ -156,7 +167,14 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     renderer.setClearColor( 0xffffff, 0);
     //renderer.setClearColor( 0xcccccc, 0);
 
-    renderer.setSize( canvas3d_width, canvas3d_height );
+    // propertly scale dom element *and* renderer to take into account 
+    // devicePixelRatio (that is e.g. 2 on Retina displays)
+    renderer.setSize( canvas3d_width * devicePixelRatio, canvas3d_height * devicePixelRatio);
+    renderer.domElement.style.width = canvas3d_width + "px";
+    renderer.domElement.style.height = canvas3d_height + "px";
+    renderer.domElement.width = canvas3d_width * devicePixelRatio;
+    renderer.domElement.height = canvas3d_height * devicePixelRatio;
+
     //document.body.appendChild( renderer.domElement );
     canvas3d.appendChild( renderer.domElement );
 
@@ -405,8 +423,9 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
 function toScreenPosition(vector3D, camera)
 {
-    var widthHalf = 0.5*renderer.context.canvas.width;
-    var heightHalf = 0.5*renderer.context.canvas.height;
+	var devicePixelRatio = window.devicePixelRatio || 1;
+    var widthHalf = 0.5*renderer.context.canvas.width / devicePixelRatio;
+    var heightHalf = 0.5*renderer.context.canvas.height / devicePixelRatio;
 
     vector2D = vector3D.clone().project(camera);
 
