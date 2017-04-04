@@ -31,8 +31,17 @@ THE SOFTWARE.
 
 */
 // Global variables
-var show_axes = true;
+var show_axes = false;
+var show_b_vectors = true;
 var show_pathpoints = false; // If you want to show the points of the explicit path
+
+// if true, use the SVG renderer rather than the WebGL one
+// Note that it supports less functionality, and it requires an additional
+// dependency (not in the main three.js code, but in examples/js/renderer
+// (both the svg renderer and the projector))
+// This is mainly useful if you want to get a vector image of the BZ
+// rather than a raster screenshot
+var use_svg_renderer = false;
 
 // strings to update
 var to_update = [];
@@ -159,10 +168,16 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
     //var raycaster = new THREE.Raycaster();
 
-    renderer = new THREE.WebGLRenderer({ 
-        alpha: true,
-        // antialias: true // much slower!
-    });
+    if (use_svg_renderer) {
+        renderer = new THREE.SVGRenderer();
+        renderer.setQuality('high');
+    }
+    else {
+        renderer = new THREE.WebGLRenderer({ 
+            alpha: true,
+            // antialias: true // much slower!
+        });        
+    }
     // white bg
     renderer.setClearColor( 0xffffff, 0);
     //renderer.setClearColor( 0xcccccc, 0);
@@ -306,10 +321,16 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
     // B vectors
     //var dir = new THREE.Vector3( 1, 0, 0 );
-    [[b1, '<span style="font-weight: bold">b</span><sub>1</sub>'],
+    var b_vectors = [[b1, '<span style="font-weight: bold">b</span><sub>1</sub>'],
     [b2, '<span style="font-weight: bold">b</span><sub>2</sub>'],
     [b3, '<span style="font-weight: bold">b</span><sub>3</sub>']
-    ].forEach(
+    ];
+
+    if (!show_b_vectors) {
+        b_vectors = [];
+    }
+
+    b_vectors.forEach(
         function (data) {
             b = data[0];
             label = data[1];
@@ -419,6 +440,11 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     }
 
     render();
+
+    if (use_svg_renderer) {
+        console.log('svg content:');
+        console.log(canvas3d.innerHTML.replace('/<path/g','\n<path'));
+    }
 }
 
 function toScreenPosition(vector3D, camera)
