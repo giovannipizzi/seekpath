@@ -158,7 +158,6 @@ var getText = function(label, color) {
         textdiv.setAttribute("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
         var devicePixelRatio = window.devicePixelRatio || 1;
         // 12px, but needs to be rescaled with the device pixel ratio
-        console.log(devicePixelRatio);
         textdiv.setAttribute("font-size", (devicePixelRatio * 12) + "px");
         textdiv.setAttribute('fill', color);
         textdiv.innerHTML = label;
@@ -173,6 +172,7 @@ var getText = function(label, color) {
         textdiv.style.color = color;
         textdiv.style.width = 100;
         textdiv.style.height = 100;
+        textdiv.style.fontSize = "12px";
         //text2.style.backgroundColor = "blue";
         textdiv.innerHTML = label;
         // out of view at the beginning
@@ -224,9 +224,8 @@ var load_BZ = function(canvasID, infoID, jsondata) {
             // antialias: true // much slower!
         });        
     }
-    // white bg
+    // white bg (not needed if I put alpha = true in WebGL)
     renderer.setClearColor( 0xffffff, 0);
-    //renderer.setClearColor( 0xcccccc, 0);
 
     // propertly scale dom element *and* renderer to take into account 
     // devicePixelRatio (that is e.g. 2 on Retina displays)
@@ -468,6 +467,74 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
     render();
 
+    var bz_switch_enable = function(event){ 
+        controls.enabled = !controls.enabled;
+        if (controls.enabled) {
+            scene.background = new THREE.Color( 0xffffff );
+            render();
+        }
+        else {
+            scene.background = new THREE.Color( 0xeeeeee );
+            render();
+        }
+    }
+
+    canvas3d.addEventListener('dblclick', bz_switch_enable);
+
+    var dbltapTimeout;
+    var shortTap = false;
+
+    // Manual detect of double tap
+    canvas3d.addEventListener('touchend', function(event) {
+        if (typeof dbltapTimeout !== 'undefined') {
+            // start disabling any timeout that would reset shortTap to false
+            clearTimeout(dbltapTimeout);
+        }
+        if (shortTap) {
+            // if here, there's been another tap a few ms before
+            // reset the variable and do the custom action
+            shortTap = false;
+            event.preventDefault();
+            bz_switch_enable();
+        }
+        else {
+            if (event.targetTouches.length != 0) {
+                // activate this only when there is only a finger
+                // if more than one finger is detected, cancel detection 
+                // of double tap
+                if (typeof dbltapTimeout !== 'undefined') {
+                    // disable the timeout
+                    clearTimeout(dbltapTimeout);
+                    shortTap = false;
+                }                    
+                return;
+            }
+            // If we are here, no tap was recently detected
+            // mark that a tap just happened, and start a timeout
+            // to reset this
+            shortTap = true;
+            dbltapTimeout = setTimeout(function() {
+                // after 500ms, reset shortTap to false
+                shortTap = false;
+            }, 500);
+        }
+    });
+    canvas3d.addEventListener('touchcancel', function(event) {
+        if (typeof dbltapTimeout !== 'undefined') {
+            // disable the timeout if the touch was canceled
+            clearTimeout(dbltapTimeout);
+            shortTap = false;
+        }                    
+    });
+    canvas3d.addEventListener('touchmove', function(event) {
+        if (typeof dbltapTimeout !== 'undefined') {
+            // disable the timeout if the finger is being moved
+            clearTimeout(dbltapTimeout);
+            shortTap = false;
+        }        
+    });
+
+    // This is useful to print out the SVG for reuse
     /*if (use_svg_renderer) {
         console.log('svg content:');
         console.log(renderer.domElement.outerHTML.replace('/<path/g','\n<path'));
