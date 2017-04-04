@@ -10,6 +10,11 @@
     <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
     <script src="../static/js/three.min.js"></script>
     <script src="../static/js/OrbitControls.min.js"></script>
+
+    <!-- Next two lines optional, only needed if we want to use the SVG renderer -->
+    <script src="../static/js/Projector.min.js"></script>
+    <script src="../static/js/SVGRenderer.min.js"></script>
+
     <script src="../static/js/jquery-3.1.0.min.js"></script>        
     <script src="../static/js/jquery-ui.1.12.1.min.js"></script>        
     <script src="../static/js/BZVisualizer.min.js"></script>        
@@ -129,7 +134,7 @@
 
     <div id='aboveleft'>
       <div id='canvas3dtitle'><h3>Brillouin zone 
-        (<a href="#bz_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom</em></p></div>
+        (<a href="#bz_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom, double-click to enable/disable interaction</em></p></div>
       <div id='canvas3dcontainer'>
           <div id='canvas3d'></div><div id='info'></div>
       </div>
@@ -137,7 +142,7 @@
 
     <div id='aboveright'>
       <div id='structuretitle'><h3>Primitive structure 
-        (<a href="#prim_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom</em></p></div>
+        (<a href="#prim_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom, double-click to enable/disable interaction</em></p></div>
       <div id='structure'><script>
         parentcanvas = document.getElementById('structure');
         the_width = parentcanvas.offsetWidth;
@@ -159,6 +164,51 @@
         structureviewer.specs.projectionFrontCulling_3D = 0.01;
         structureviewer.specs.projectionBackCulling_3D = 10000;
         structureviewer.setupScene();
+
+        structureviewer.defaultmouseup = structureviewer.mouseup;
+        structureviewer.defaultmousedown = structureviewer.mousedown;
+        structureviewer.defaultmousewheel = structureviewer.mousewheel;
+        structureviewer.defaulttouchend = structureviewer.touchend;
+        structureviewer.defaulttouchhold = structureviewer.touchhold;
+        structureviewer.defaulttouchmove = structureviewer.touchmove;
+        structureviewer.defaulttouchstart = structureviewer.touchstart;                        
+
+        structureviewer.enabled = true;
+
+        var structure_switch_activate = function () {
+
+            structureviewer.enabled = ! structureviewer.enabled;
+            if (structureviewer.enabled) {
+              // Restore default mouse actions
+              structureviewer.mouseup = structureviewer.defaultmouseup;
+              structureviewer.mousedown = structureviewer.defaultmousedown;
+              structureviewer.mousewheel = structureviewer.defaultmousewheel;
+              structureviewer.touchend = structureviewer.defaulttouchend;
+              structureviewer.touchhold = structureviewer.defaulttouchhold;
+              structureviewer.touchmove = structureviewer.defaulttouchmove;
+              structureviewer.touchstart = structureviewer.defaulttouchstart;                        
+              structureviewer.specs.backgroundColor = "white";
+              structureviewer.setupScene();
+              structureviewer.repaint();
+            }
+            else {
+              // disable mouse actions
+              structureviewer.mouseup = function(event) {return true;};
+              structureviewer.mousedown = function(event) {return true;};
+              structureviewer.mousewheel = function(event) {return true;};
+              structureviewer.touchend = function(event) {return true;};
+              structureviewer.touchhold = function(event) {return true;};
+              structureviewer.touchmove = function(event) {return true;};
+              structureviewer.touchstart = function(event) {return true;};
+              structureviewer.specs.backgroundColor = "#eeeeee";
+              structureviewer.setupScene();
+              structureviewer.repaint();
+            }
+
+        }
+        structureviewer.dblclick = structure_switch_activate;
+        structureviewer.dbltap = structure_switch_activate;
+
       </script></div>
     </div>
 
@@ -412,4 +462,3 @@
 <div style ="position: relative" data-iframe-height></div>
 </body>
 </html>
-

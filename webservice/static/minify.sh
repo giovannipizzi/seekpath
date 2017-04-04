@@ -1,4 +1,9 @@
 #!/bin/bash
+## To install:
+## npm install clean-css-cli -g
+## npm install uglifyjs -g
+
+
 for cssfile in css/orig/*.css
 do
     cleancss $cssfile -o css/`basename ${cssfile%.css}`.min.css
