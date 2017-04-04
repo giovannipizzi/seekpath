@@ -32,7 +32,20 @@ THE SOFTWARE.
 */
 // Global variables
 var show_axes = true;
+var show_b_vectors = true;
 var show_pathpoints = false; // If you want to show the points of the explicit path
+
+// if true, use the SVG renderer rather than the WebGL one
+// Note that it supports less functionality, and it requires an additional
+// dependency (not in the main three.js code, but in examples/js/renderer
+// (both the svg renderer and the projector))
+// This is mainly useful if you want to get a vector image of the BZ
+// rather than a raster screenshot
+// I tried to convert everything I use to work also with SVG (in particular,
+// the text is the trickiest). However, it's much slower. 
+// So leave by default to false unless you need to take a screenshot.
+// Known issue: in Firefox, with use_svg_renderer = True, scrolling does not work
+var use_svg_renderer = false;
 
 // strings to update
 var to_update = [];
@@ -45,14 +58,15 @@ var bz_material = new THREE.MeshBasicMaterial(
     //side: THREE.DoubleSide,
 });
 
-var edge_material = new THREE.MeshBasicMaterial(
+var edge_material = new THREE.LineBasicMaterial(
 {
     color: 0x333333,
     opacity: 1.,
     transparent: false,
+    linewidth: 1, 
 });
 
-var line_material = new THREE.MeshBasicMaterial(
+var line_material = new THREE.LineBasicMaterial(
 {
     color: 0x045add,
     opacity: 1.,
@@ -111,22 +125,75 @@ var resize_renderer = function() {
     if (current_canvas_id) {
         var canvas3d = document.getElementById(current_canvas_id);
 
+        var devicePixelRatio = window.devicePixelRatio || 1;
+
+        // current width (in CSS pixels)
         canvas3d_width = canvas3d.offsetWidth;
         canvas3d_height = canvas3d.offsetHeight;
 
         if (renderer) {
             camera.aspect = canvas3d_width / canvas3d_height;
             camera.updateProjectionMatrix();
-            renderer.setSize( canvas3d_width, canvas3d_height );
+
+            // propertly scale dom element *and* renderer to take into account 
+            // devicePixelRatio (that is e.g. 2 on Retina displays)
+        	renderer.setSize( canvas3d_width * devicePixelRatio, canvas3d_height * devicePixelRatio);
+            renderer.domElement.style.width = canvas3d_width + "px";
+            renderer.domElement.style.height = canvas3d_height + "px";
+            renderer.domElement.width = canvas3d_width * devicePixelRatio;
+            renderer.domElement.height = canvas3d_height * devicePixelRatio;
         }
         render();        
     }
+}
+
+var getText = function(label, color) {
+
+    color = typeof color !== 'undefined' ? color : '#000000';
+
+    if (use_svg_renderer) {
+        var textdiv = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        textdiv.setAttribute("y", -100);
+        textdiv.setAttribute("x", -100);
+        textdiv.setAttribute("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        // 12px, but needs to be rescaled with the device pixel ratio
+        textdiv.setAttribute("font-size", (devicePixelRatio * 12) + "px");
+        textdiv.setAttribute('fill', color);
+        textdiv.innerHTML = label;
+    }
+    else
+    {    
+        // Return a text div with the given label, and not unselectable
+        var textdiv = document.createElement('div');
+        textdiv.style.position = 'absolute';
+        textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+        //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+        textdiv.style.color = color;
+        textdiv.style.width = 100;
+        textdiv.style.height = 100;
+        textdiv.style.fontSize = "12px";
+        //text2.style.backgroundColor = "blue";
+        textdiv.innerHTML = label;
+        // out of view at the beginning
+        textdiv.style.top = -100 + 'px';
+        textdiv.style.left = -100 + 'px';
+        textdiv.style.userSelect = "none";
+        textdiv.style.userSelect = "none";
+        textdiv.style.webkitUserSelect = "none";
+        textdiv.style.MozUserSelect = "none";
+        textdiv.setAttribute("unselectable", "on");
+        textdiv.style.pointerEvents = "none"; 
+    }
+    return textdiv;
 }
 
 var load_BZ = function(canvasID, infoID, jsondata) {
     // to be used by resize_renderer
     current_canvas_id = canvasID;
     var canvas3d = document.getElementById(canvasID);
+
+    var devicePixelRatio = window.devicePixelRatio || 1;
 
     document.getElementById(infoID).innerHTML = ""
 
@@ -138,7 +205,6 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     // I just need to empty the to_update list
     to_update = [];
 
-
     scene = new THREE.Scene();
     canvas3d_width = canvas3d.offsetWidth;
     canvas3d_height = canvas3d.offsetHeight;
@@ -148,15 +214,27 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
     //var raycaster = new THREE.Raycaster();
 
-    renderer = new THREE.WebGLRenderer({ 
-        alpha: true,
-        // antialias: true // much slower!
-    });
-    // white bg
+    if (use_svg_renderer) {
+        renderer = new THREE.SVGRenderer();
+        renderer.setQuality('high');
+    }
+    else {
+        renderer = new THREE.WebGLRenderer({ 
+            alpha: true,
+            // antialias: true // much slower!
+        });        
+    }
+    // white bg (not needed if I put alpha = true in WebGL)
     renderer.setClearColor( 0xffffff, 0);
-    //renderer.setClearColor( 0xcccccc, 0);
 
-    renderer.setSize( canvas3d_width, canvas3d_height );
+    // propertly scale dom element *and* renderer to take into account 
+    // devicePixelRatio (that is e.g. 2 on Retina displays)
+    renderer.setSize( canvas3d_width * devicePixelRatio, canvas3d_height * devicePixelRatio);
+    renderer.domElement.style.width = canvas3d_width + "px";
+    renderer.domElement.style.height = canvas3d_height + "px";
+    renderer.domElement.width = canvas3d_width * devicePixelRatio;
+    renderer.domElement.height = canvas3d_height * devicePixelRatio;
+
     //document.body.appendChild( renderer.domElement );
     canvas3d.appendChild( renderer.domElement );
 
@@ -201,43 +279,38 @@ var load_BZ = function(canvasID, infoID, jsondata) {
         scene.add(sphere);
 
         // Label
-        var textdiv = document.createElement('div');
-        textdiv.style.position = 'absolute';
-        textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-        //textdiv.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-        textdiv.style.width = 100;
-        textdiv.style.height = 100;
-        textdiv.style.backgroundColor = "transparent";
-
         // prettify label
-        label = prettify_label(label);
-
-        textdiv.innerHTML = label;
-        // disallow scrolling etc. so that it goes to the parent div
-        textdiv.style.pointerEvents = "none"; 
-        // next are to disallow selection
-        textdiv.style.userSelect = "none";
-        textdiv.style.userSelect = "none";
-        textdiv.style.webkitUserSelect = "none";
-        textdiv.style.MozUserSelect = "none";
-        textdiv.setAttribute("unselectable", "on");
-
-        // out of view at the beginning
-        textdiv.style.top = -100 + 'px';
-        textdiv.style.left = -100 + 'px';
-        canvas3d.appendChild(textdiv);
-
-        to_update.push([
-            new THREE.Vector3(pos[0], pos[1], pos[2]), 
-            textdiv]);
+        label = prettify_label(label);        
+        var textdiv = getText(label);
+        if (use_svg_renderer) {
+            renderer.domElement.appendChild(textdiv);
+            to_update.push([
+                new THREE.Vector3(pos[0], pos[1], pos[2]), 
+                label]);
+            
+        }
+        else {
+            canvas3d.appendChild(textdiv);        
+            to_update.push([
+                new THREE.Vector3(pos[0], pos[1], pos[2]), 
+                textdiv]);            
+        }
     }
 
     if (show_axes) {
         // AXES
         //var dir = new THREE.Vector3( 1, 0, 0 );
-        [[new THREE.Vector3( 1, 0, 0 ), '<span style="font-style: italic">x</span>'],
-        [new THREE.Vector3( 0, 1, 0 ), '<span style="font-style: italic">y</span>'],
-        [new THREE.Vector3( 0, 0, 1 ), '<span style="font-style: italic">z</span>']].forEach(
+        axesLabels = [[new THREE.Vector3( 1, 0, 0 ), '<span style="font-style: italic">x</span>'],
+            [new THREE.Vector3( 0, 1, 0 ), '<span style="font-style: italic">y</span>'],
+            [new THREE.Vector3( 0, 0, 1 ), '<span style="font-style: italic">z</span>']];
+
+        if (use_svg_renderer) {
+            axesLabels = [[new THREE.Vector3( 1, 0, 0 ), '<tspan style="font-style: italic">x</tspan>'],
+                [new THREE.Vector3( 0, 1, 0 ), '<tspan style="font-style: italic">y</tspan>'],
+                [new THREE.Vector3( 0, 0, 1 ), '<tspan style="font-style: italic">z</tspan>']];
+        }
+
+        axesLabels.forEach(
             function (data) {
                 dir = data[0];
                 label = data[1];
@@ -256,42 +329,45 @@ var load_BZ = function(canvasID, infoID, jsondata) {
                 scene.add( arrow );                
 
                 // Label
-                var textdiv = document.createElement('div');
-                textdiv.style.position = 'absolute';
-                textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-                //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-                textdiv.style.color = "#555555";
-                textdiv.style.width = 100;
-                textdiv.style.height = 100;
-                //text2.style.backgroundColor = "blue";
-                textdiv.innerHTML = label;
-                // out of view at the beginning
-                textdiv.style.top = -100 + 'px';
-                textdiv.style.left = -100 + 'px';
-                textdiv.style.userSelect = "none";
-                textdiv.style.userSelect = "none";
-                textdiv.style.webkitUserSelect = "none";
-                textdiv.style.MozUserSelect = "none";
-                textdiv.setAttribute("unselectable", "on");
-                textdiv.style.pointerEvents = "none"; 
-
-
-                canvas3d.appendChild(textdiv);
-
+                the_color = '#555555';
+                textdiv = getText(label, color=the_color);
                 pos = dir.clone();
                 pos.sub(origin);
                 pos.multiplyScalar(axeslength);
-                to_update.push([pos, textdiv]);
-
+                
+                if (use_svg_renderer) {
+                    renderer.domElement.appendChild(textdiv);
+                    to_update.push([
+                        pos, label, the_color]);
+                    
+                }
+                else {
+                    canvas3d.appendChild(textdiv);        
+                    to_update.push([
+                        pos, textdiv]);            
+                }
             });
     }
 
     // B vectors
     //var dir = new THREE.Vector3( 1, 0, 0 );
-    [[b1, '<span style="font-weight: bold">b</span><sub>1</sub>'],
-    [b2, '<span style="font-weight: bold">b</span><sub>2</sub>'],
-    [b3, '<span style="font-weight: bold">b</span><sub>3</sub>']
-    ].forEach(
+    var b_vectors = [[b1, '<span style="font-weight: bold">b</span><sub>1</sub>'],
+        [b2, '<span style="font-weight: bold">b</span><sub>2</sub>'],
+        [b3, '<span style="font-weight: bold">b</span><sub>3</sub>']
+    ];
+
+    if (use_svg_renderer) {
+        var b_vectors = [[b1, '<tspan style="font-weight: bold">b</tspan><tspan baseline-shift="sub">1</tspan>'],
+            [b2, '<tspan style="font-weight: bold">b</tspan><tspan baseline-shift="sub">2</tspan>'],
+            [b3, '<tspan style="font-weight: bold">b</tspan><tspan baseline-shift="sub">3</tspan>']
+       ];
+    }
+
+    if (!show_b_vectors) {
+        b_vectors = [];
+    }
+
+    b_vectors.forEach(
         function (data) {
             b = data[0];
             label = data[1];
@@ -317,31 +393,21 @@ var load_BZ = function(canvasID, infoID, jsondata) {
             scene.add( arrow );                
 
             // Label
-            var textdiv = document.createElement('div');
-            textdiv.style.position = 'absolute';
-            textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-            //textdiv.style.color = "#555555";
-            textdiv.style.width = 100;
-            textdiv.style.height = 100;
-            //text2.style.backgroundColor = "blue";
-            textdiv.innerHTML = label;
-            // out of view at the beginning
-            textdiv.style.top = -100 + 'px';
-            textdiv.style.left = -100 + 'px';
-            textdiv.style.userSelect = "none";
-            textdiv.style.userSelect = "none";
-            textdiv.style.webkitUserSelect = "none";
-            textdiv.style.MozUserSelect = "none";
-            textdiv.setAttribute("unselectable", "on");
-            textdiv.style.pointerEvents = "none"; 
-            canvas3d.appendChild(textdiv);
-
+            var textdiv = getText(label=label);
             pos = dir.clone();
             pos.sub(origin);
-            pos.multiplyScalar(b_length);
-            to_update.push([pos, textdiv]);
-
+            pos.multiplyScalar(b_length);            
+            if (use_svg_renderer) {
+                renderer.domElement.appendChild(textdiv);
+                to_update.push([
+                    pos, label]);
+                
+            }
+            else {
+                canvas3d.appendChild(textdiv);        
+                to_update.push([
+                    pos, textdiv]);            
+            }
         });
 
     // Load BZ
@@ -356,9 +422,8 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     });
     var bz_mesh = new THREE.Mesh(brillouinzone, bz_material);
     // Create BZ edges
-    edges = new THREE.EdgesHelper( bz_mesh, 0x00ff00 );
-    edges.material = edge_material;
-    edges.material.linewidth = 1;
+    geometry = new THREE.EdgesGeometry( bz_mesh.geometry );
+    var edges = new THREE.LineSegments( geometry, edge_material );
     // Plot BZ and edges
     scene.add(bz_mesh);
     scene.add(edges);
@@ -401,17 +466,102 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     }
 
     render();
+
+    var bz_switch_enable = function(event){ 
+        controls.enabled = !controls.enabled;
+        if (controls.enabled) {
+            scene.background = new THREE.Color( 0xffffff );
+            render();
+        }
+        else {
+            scene.background = new THREE.Color( 0xeeeeee );
+            render();
+        }
+    }
+
+    canvas3d.addEventListener('dblclick', bz_switch_enable);
+
+    var dbltapTimeout;
+    var shortTap = false;
+
+    // Manual detect of double tap
+    canvas3d.addEventListener('touchend', function(event) {
+        if (typeof dbltapTimeout !== 'undefined') {
+            // start disabling any timeout that would reset shortTap to false
+            clearTimeout(dbltapTimeout);
+        }
+        if (shortTap) {
+            // if here, there's been another tap a few ms before
+            // reset the variable and do the custom action
+            shortTap = false;
+            event.preventDefault();
+            bz_switch_enable();
+        }
+        else {
+            if (event.targetTouches.length != 0) {
+                // activate this only when there is only a finger
+                // if more than one finger is detected, cancel detection 
+                // of double tap
+                if (typeof dbltapTimeout !== 'undefined') {
+                    // disable the timeout
+                    clearTimeout(dbltapTimeout);
+                    shortTap = false;
+                }                    
+                return;
+            }
+            // If we are here, no tap was recently detected
+            // mark that a tap just happened, and start a timeout
+            // to reset this
+            shortTap = true;
+            dbltapTimeout = setTimeout(function() {
+                // after 500ms, reset shortTap to false
+                shortTap = false;
+            }, 500);
+        }
+    });
+    canvas3d.addEventListener('touchcancel', function(event) {
+        if (typeof dbltapTimeout !== 'undefined') {
+            // disable the timeout if the touch was canceled
+            clearTimeout(dbltapTimeout);
+            shortTap = false;
+        }                    
+    });
+    canvas3d.addEventListener('touchmove', function(event) {
+        if (typeof dbltapTimeout !== 'undefined') {
+            // disable the timeout if the finger is being moved
+            clearTimeout(dbltapTimeout);
+            shortTap = false;
+        }        
+    });
+
+    // This is useful to print out the SVG for reuse
+    /*if (use_svg_renderer) {
+        console.log('svg content:');
+        console.log(renderer.domElement.outerHTML.replace('/<path/g','\n<path'));
+    }*/
 }
 
 function toScreenPosition(vector3D, camera)
 {
-    var widthHalf = 0.5*renderer.context.canvas.width;
-    var heightHalf = 0.5*renderer.context.canvas.height;
+    var vector2D = vector3D.clone().project(camera);
 
-    vector2D = vector3D.clone().project(camera);
 
-    vector2D.x = ( vector2D.x * widthHalf ) + widthHalf;
-    vector2D.y = - ( vector2D.y * heightHalf ) + heightHalf;
+	var devicePixelRatio = window.devicePixelRatio || 1;
+    if (use_svg_renderer) {
+        var widthHalf = 0.5 * renderer.domElement.viewBox.baseVal.width;
+        var heightHalf = 0.5 * renderer.domElement.viewBox.baseVal.height;
+        var widthOffset = renderer.domElement.viewBox.baseVal.x;
+        var heightOffset = renderer.domElement.viewBox.baseVal.y;
+        vector2D.x = ( vector2D.x * widthHalf ); 
+        vector2D.y = - ( vector2D.y * heightHalf );
+        
+    }
+    else {
+        var widthHalf = 0.5*renderer.context.canvas.width / devicePixelRatio;
+        var heightHalf = 0.5*renderer.context.canvas.height / devicePixelRatio;
+        vector2D.x = ( vector2D.x * widthHalf ) + widthHalf;
+        vector2D.y = - ( vector2D.y * heightHalf ) + heightHalf;
+    }
 
     return { 
         left: vector2D.x,
@@ -425,11 +575,37 @@ function render() {
     //requestAnimationFrame( render );  // activate only if you want to loop and make an animation
     renderer.render( scene, camera ); 
     
-    to_update.forEach(function(data) {
-        pos = data[0];
-        text = data[1];
-        pos2d = toScreenPosition(pos,camera);
-        text.style.top = pos2d.top + 'px';
-        text.style.left = pos2d.left + 'px';
-    });
+    // IMPORTANT! In the case of the SVG renderer, I pass the string, rather
+    // than the <div>, and I recreate a new <text> in here. I think this is needed
+    // because <text> elements seem to be cleaned up (at least partially) in 
+    // the render function?
+
+    if (use_svg_renderer) {
+        to_update.forEach(function(data) {
+            // For SVG we don't use divs for text, but rather 
+            // <text> elements inside the SVG
+            pos = data[0];
+            textcontent = data[1];
+            if (data.length > 2) {
+                the_color = data[2];
+                t = getText(textcontent, the_color);
+            }
+            else {
+                t = getText(textcontent);
+            }
+            pos2d = toScreenPosition(pos,camera);
+            t.setAttribute("y", pos2d.top);
+            t.setAttribute("x", pos2d.left);
+            renderer.domElement.appendChild(t);
+        });
+    }
+    else {
+        to_update.forEach(function(data) {
+            pos = data[0];
+            text = data[1];
+            pos2d = toScreenPosition(pos,camera);
+            text.style.top = pos2d.top + 'px';
+            text.style.left = pos2d.left + 'px';
+        });
+    }
 }
