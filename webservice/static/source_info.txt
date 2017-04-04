@@ -1,0 +1,8 @@
+Three JS currently at release r84, downloaded from 
+
+https://raw.githubusercontent.com/mrdoob/three.js/r84/build/three.js
+https://raw.githubusercontent.com/mrdoob/three.js/r84/build/three.min.js
+https://raw.githubusercontent.com/mrdoob/three.js/r84/examples/js/controls/OrbitControls.js
+https://raw.githubusercontent.com/mrdoob/three.js/r84/examples/js/renderers/SVGRenderer.js
+https://raw.githubusercontent.com/mrdoob/three.js/r84/examples/js/renderers/Projector.js
+

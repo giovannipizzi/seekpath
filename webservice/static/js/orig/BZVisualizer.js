@@ -395,9 +395,9 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     });
     var bz_mesh = new THREE.Mesh(brillouinzone, bz_material);
     // Create BZ edges
-    edges = new THREE.EdgesHelper( bz_mesh, 0x00ff00 );
-    edges.material = edge_material;
-    edges.material.linewidth = 1;
+    geometry = new THREE.EdgesGeometry( bz_mesh.geometry );
+    var edgeMaterial = new THREE.LineBasicMaterial( { color: 0xffff00, linewidth: 1 } );
+    var edges = new THREE.LineSegments( geometry, edge_material );
     // Plot BZ and edges
     scene.add(bz_mesh);
     scene.add(edges);
@@ -450,8 +450,14 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 function toScreenPosition(vector3D, camera)
 {
 	var devicePixelRatio = window.devicePixelRatio || 1;
-    var widthHalf = 0.5*renderer.context.canvas.width / devicePixelRatio;
-    var heightHalf = 0.5*renderer.context.canvas.height / devicePixelRatio;
+    if (use_svg_renderer) {
+        var widthHalf = 0.5*renderer.domElement.width.baseVal.value / devicePixelRatio;
+        var heightHalf = 0.5*renderer.domElement.height.baseVal.value / devicePixelRatio;
+    }
+    else {
+        var widthHalf = 0.5*renderer.context.canvas.width / devicePixelRatio;
+        var heightHalf = 0.5*renderer.context.canvas.height / devicePixelRatio;
+    }
 
     vector2D = vector3D.clone().project(camera);
 

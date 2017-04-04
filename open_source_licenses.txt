@@ -14,7 +14,7 @@ These include:
   - webservice/static/js/orig.Projector.js
   - webservice/static/js/orig/SVGRenderer.js
   - webservice/static/js/orig/dontautominify/three.js
-  - webservice/static/js/orig/dontautominify/OrbitControls.js  
+  - webservice/static/js/orig/OrbitControls.js  
   
 
 - Bootstrap:
