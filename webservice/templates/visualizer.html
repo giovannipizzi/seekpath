@@ -1,433 +1,417 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SeeK-path: the k-path finder and visualizer</title>
-    <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.1.12.1.min.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.1.12.1.min.css"/>
 
-    <link rel="stylesheet" type="text/css" href="../static/css/visualizer.min.css" />
-    <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/visualizer.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/visualizer_base.min.css"/>
     <script src="../static/js/three.min.js"></script>
     <script src="../static/js/OrbitControls.min.js"></script>
-    <script src="../static/js/jquery-3.1.0.min.js"></script>
-    <script src="../static/js/jquery-ui.1.12.1.min.js"></script>
-    <script src="../static/js/orig/BZVisualizer.min.js"></script>
+
+    <!-- Next two lines optional, only needed if we want to use the SVG renderer -->
+    <script src="../static/js/Projector.min.js"></script>
+    <script src="../static/js/SVGRenderer.min.js"></script>
+
+    <script src="../static/js/jquery-3.1.0.min.js"></script>        
+    <script src="../static/js/jquery-ui.1.12.1.min.js"></script>        
+    <script src="../static/js/BZVisualizer.min.js"></script>        
     <script src="../static/js/webglcheck.min.js"></script>
     <script src="../static/js/clipboard.min.js"></script>
     <script>
-        $(function() {
-            $("#accordion").accordion({
-                collapsible: true,
-                heightStyle: "content", // Avoid that all have the same height
-                //active: false  // Start all closed
-                active: -1 // Open the last one
-            });
-        });
+    $( function() {
+      $( "#accordion" ).accordion({
+        collapsible: true,
+        heightStyle: "content", // Avoid that all have the same height
+        //active: false  // Start all closed
+        active: -1  // Open the last one
+      });
+    });
     </script>
     <style>
-        .webgl-hidden {
-            display: none;
-        }
+    .webgl-hidden {
+      display: none;
+    }
     </style>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <link rel="stylesheet" href="../static/css/ChemDoodleWeb.min.css" type="text/css">
     <script type="text/javascript" src="../static/js/ChemDoodleWeb.min.js"></script>
 
     <script>
-        var jsondata = {
-            {
-                jsondata | safe
-            }
-        };
-        var json_content = {
-            {
-                json_content | safe
-            }
-        };
+    var jsondata = {{ jsondata|safe }};
+    var json_content = {{ json_content|safe }};
 
-        $(document).ready(function() {
-            load_BZ(canvasID = 'canvas3d', infoID = 'info', jsondata = jsondata);
-        });
+    $( document ).ready(function() {
+        load_BZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
+    });
 
-        // global variable
-        var structureviewer = null;
+    // global variable
+    var structureviewer = null;
 
 
-        var resize_canvases = function() {
-            resize_renderer(); // BZ visualizer
-            // resize structure viewer
-            if (structureviewer) {
-                parentcanvas = document.getElementById('structure');
-                the_width = parentcanvas.offsetWidth;
-                the_height = parentcanvas.offsetHeight;
-                structureviewer.resize(the_width, the_height);
-            }
+    var resize_canvases = function () {
+        resize_renderer(); // BZ visualizer
+        // resize structure viewer
+        if (structureviewer) {
+            parentcanvas = document.getElementById('structure');
+            the_width = parentcanvas.offsetWidth;
+            the_height = parentcanvas.offsetHeight;
+            structureviewer.resize(the_width, the_height);
         }
+    }
     </script>
 
     <script type="text/javascript">
-        startWebGLCheck();
+      startWebGLCheck();
     </script>
 
 </head>
-
 <body onresize='resize_canvases()'>
 
     <div id="above">
 
-        <div id="maintitle">
-            <h1><span style="font-weight: bold;">SeeK-path</span>: the <span style="font-style: italic">k</span>-path finder and visualizer</h1>
-        </div>
+      <div id="maintitle"><h1><span style="font-weight: bold;">SeeK-path</span>: the <span style="font-style: italic">k</span>-path finder and visualizer</h1></div>
 
-        <div id="quicklinks" style="text-align: center">
-            <p><a href="#downloadablecoords">Jump directly to downloadable coordinates</a></p>
-        </div>
+      <div id="quicklinks" style="text-align: center"><p><a href="#downloadablecoords">Jump directly to downloadable coordinates</a></p></div>
 
-        <div id="webglcheckwrapper">
-            <div id="support">
-                <div class="webgl-hidden" id="have-javascript">
-                    <div class="webgl-hidden webgl-div" id="webgl-yes">
-                        <div id="webgl-experimental">
-                            <div class="alert alert-warning">
-                                Your browser support for WebGL is marked as experimental. This means 3D content (Brillouin zone and crystal structure) may not be shown as expected.
-                                <br/> You may want to consider an <a href="http://get.webgl.org">upgrade of your browser</a>.
-                            </div>
-                        </div>
-                        <!-- <div>
+      <div id="webglcheckwrapper">
+        <div id="support">
+          <div class="webgl-hidden" id="have-javascript">
+            <div class="webgl-hidden webgl-div" id="webgl-yes">
+              <div id="webgl-experimental">
+                <div class="alert alert-warning">              
+                  Your browser support for WebGL is marked as
+                  experimental. This means
+                  3D content (Brillouin zone and crystal structure) may not be shown as expected.
+                  <br/>
+                  You may want to consider an <a href="http://get.webgl.org">upgrade of your browser</a>.
+                </div>
+              </div> 
+              <!-- <div>
                 WebGL detected, all good!
               </div> -->
-                        <div id="logo-container">
-                            <!-- Placeholder needed for testing -->
-                            <canvas id="webgl-logo" style="width: 1px; height: 1px;" /></canvas>
-                        </div>
-                    </div>
-                    <div class="webgl-hidden webgl-div" id="webgl-disabled">
-                        <div class="alert alert-danger">
-                            Your browser seems to support WebGL, but it is disabled or unavailable. If possible, please ensure that you are running the latest drivers for your video card, or enable WebGL in your browser settings.
-                            <br/><br/> For more help, please visit <a href="http://get.webgl.org/troubleshooting">this page</a>.
-                        </div>
-                    </div>
-                    <div class="webgl-hidden webgl-div" id="webgl-no">
-                        <div class="alert alert-danger">
-                            <p>We are sorry, but your browser does not seem to support WebGL, so we cannot show 3D objects like the Brillouin zone or the crystal structure.</p>
-                            <p>You may want to visit <a href="http://get.webgl.org">this page</a> to get a list of recent browsers that support WebGL.</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="no-javascript">
-                    <div class="alert alert-danger">
-                        PROBLEM DETECTED! <br/> You must enable JavaScript to use this web service, otherwise the content will not render properly.
-                    </div>
-                </div>
-                <script>
-                    // Hide div ASAP
-                    element = document.getElementById('no-javascript');
-                    element.className = element.className + " webgl-hidden";
-                </script>
+              <div id="logo-container">
+              <!-- Placeholder needed for testing -->
+              <canvas id="webgl-logo" style="width: 1px; height: 1px;" /></canvas>
+              </div>
             </div>
+            <div class="webgl-hidden webgl-div" id="webgl-disabled">
+              <div  class="alert alert-danger">
+                Your browser seems to support WebGL, but it is disabled or unavailable.  If possible, please ensure that you are running the latest drivers for your video card, or enable WebGL in your browser settings.
+                <br/><br/>
+                For more help, please visit <a href="http://get.webgl.org/troubleshooting">this page</a>.
+              </div>
+            </div>
+            <div class="webgl-hidden webgl-div" id="webgl-no">
+              <div  class="alert alert-danger"> 
+                <p>We are sorry, but your browser does not seem to support WebGL, so we cannot show 3D objects like the 
+                  Brillouin zone or the crystal structure.</p>
+                <p>You may want to visit <a href="http://get.webgl.org">this page</a> to get a list of 
+                  recent browsers that support WebGL.</p>
+              </div>
+            </div>
+          </div>
+          <div id="no-javascript">
+            <div  class="alert alert-danger">
+              PROBLEM DETECTED! <br/>
+
+              You must enable JavaScript to use this web service, otherwise the content will not render properly.
+            </div>
+          </div>
+          <script>
+            // Hide div ASAP
+            element = document.getElementById('no-javascript');
+            element.className = element.className + " webgl-hidden";
+          </script>
         </div>
+      </div>
     </div>
 
 
     <div id='aboveleft'>
-        <div id='canvas3dtitle'>
-            <h3>Brillouin zone (
-                <a href="#bz_coords">go to coordinates</a>)</h3>
-            <p><em>Drag to rotate, scroll to zoom</em></p>
-        </div>
-        <div id='canvas3dcontainer'>
-            <div id='canvas3d'></div>
-            <div id='info'></div>
-        </div>
+      <div id='canvas3dtitle'><h3>Brillouin zone 
+        (<a href="#bz_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom</em></p></div>
+      <div id='canvas3dcontainer'>
+          <div id='canvas3d'></div><div id='info'></div>
+      </div>
     </div>
 
     <div id='aboveright'>
-        <div id='structuretitle'>
-            <h3>Primitive structure (
-                <a href="#prim_coords">go to coordinates</a>)</h3>
-            <p><em>Drag to rotate, scroll to zoom</em></p>
-        </div>
-        <div id='structure'>
-            <script>
-                parentcanvas = document.getElementById('structure');
-                the_width = parentcanvas.offsetWidth;
-                the_height = parentcanvas.offsetHeight;
+      <div id='structuretitle'><h3>Primitive structure 
+        (<a href="#prim_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom</em></p></div>
+      <div id='structure'><script>
+        parentcanvas = document.getElementById('structure');
+        the_width = parentcanvas.offsetWidth;
+        the_height = parentcanvas.offsetHeight;
 
-                structureviewer = new ChemDoodle.TransformCanvas3D('structureviewer',
-                    the_width, the_height);
-                structureviewer.emptyMessage = 'Loading data...';
-                structureviewer.specs.set3DRepresentation('Ball and Stick');
-                structureviewer.specs.projectionPerspective_3D = false;
-                structureviewer.specs.backgroundColor = 'white';
-                structureviewer.specs.atoms_displayLabels_3D = true;
-                structureviewer.specs.shapes_color = '#111';
-                chemstructure = new ChemDoodle.io.JSONInterpreter().contentFrom(json_content);
-                new ChemDoodle.informatics.BondDeducer().deduceCovalentBonds(chemstructure['molecules'][0], 1);
-                structureviewer.center = function() {}; // Disable ChemDoodle recentering of molecule (not consistent with cell, uses different recenterings...)
+        structureviewer = new ChemDoodle.TransformCanvas3D('structureviewer', 
+          the_width, the_height);
+        structureviewer.emptyMessage = 'Loading data...';
+        structureviewer.specs.set3DRepresentation('Ball and Stick');
+        structureviewer.specs.projectionPerspective_3D = false;
+        structureviewer.specs.backgroundColor = 'white';
+        structureviewer.specs.atoms_displayLabels_3D = true;
+        structureviewer.specs.shapes_color = '#111';
+        chemstructure = new ChemDoodle.io.JSONInterpreter().contentFrom(json_content);
+        new ChemDoodle.informatics.BondDeducer().deduceCovalentBonds(chemstructure['molecules'][0], 1);
+        structureviewer.center = function () {}; // Disable ChemDoodle recentering of molecule (not consistent with cell, uses different recenterings...)
 
-                structureviewer.loadContent(chemstructure['molecules'], chemstructure['shapes']);
-                structureviewer.specs.projectionFrontCulling_3D = 0.01;
-                structureviewer.specs.projectionBackCulling_3D = 10000;
-                structureviewer.setupScene();
-            </script>
-        </div>
+        structureviewer.loadContent(chemstructure['molecules'], chemstructure['shapes']);
+        structureviewer.specs.projectionFrontCulling_3D = 0.01;
+        structureviewer.specs.projectionBackCulling_3D = 10000;
+        structureviewer.setupScene();
+      </script></div>
     </div>
 
 
 
 
+  </div>
+    
+  <div id='below'>  
+  <div id='groupbelow'>
+      <div id='tablekpoints'>
+        <a name="bz_coords"></a>
+        <h2>Reciprocal space and Brillouin-zone information</h2>
+        <h3>Reciprocal cell vectors (1/&#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">b</th>
+            <th style="text-align: center">x</th>
+            <th style="text-align: center">y</th>
+            <th style="text-align: center">z</th>
+          </thead>
+          <tbody>      
+            {% for b in reciprocal_primitive_vectors %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">b<sub>{{ b[0] }}</sub></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+
+        <h3>High-symmetry points (scaled units)</h3>
+        <table class="center">
+          <thead>
+            <th style="text-align: center">Label</th>
+            <th style="text-align: center">k<sub>1</sub></th>
+            <th style="text-align: center">k<sub>2</sub></th>
+            <th style="text-align: center">k<sub>3</sub></th>
+          </thead>
+
+          <tbody>      
+
+            {% for k in kpoints_rel %}
+            <tr>
+              <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+
+
+          </tbody>
+        </table> 
+
+        <h3>High-symmetry points (1/&#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="text-align: center">Label</th>
+            <th style="text-align: center">k<sub>x</sub></th>
+            <th style="text-align: center">k<sub>y</sub></th>
+            <th style="text-align: center">k<sub>z</sub></th>
+          </thead>
+
+          <tbody>      
+
+            {% for k in kpoints %}
+            <tr>
+              <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+
+
+          </tbody>
+        </table> 
+
+        <h3>Suggested path</h3>
+        <p>
+        {% for lab in suggested_path %}<script>document.write(prettify_label("{{ lab }}"));</script>{% endfor %}
+        </p>
+
+        {% if time_reversal_note %}
+        <p>
+        <span style="font-style: italic">Note on time reversal</span>: {{ time_reversal_note }}
+        </p>
+        {% endif %}
+
+
+      </div>
+      <div id='structureinfo'>
+        <a name="prim_coords"></a>
+        <h2>Structure information (primitive cell)</h2>
+
+        <h3>Crystal structure information</h3>
+        <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }}</p>
+        <p><span style="font-style: italic">Extended Bravais lattice symbol</span>: {{ bravais_lattice_extended }} ({{ with_without_time_reversal }} inversion symmetry)</p>
+        <p><span style="font-style: italic">Spacegroup</span>: {{ spacegroup_international }} (number {{ spacegroup_number }})</p>
+
+        <h3>Volume ratio between input structure and primitive structure</h3>
+        <p>The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>
+        <p>Note that the input structure had cell vectors (in &#8491;):<br>
+            {% for v in inputstructure_cell_vectors %}
+            v<sub>{{ v[0] }}</sub>: <code>{{ "%.10f" % v[1]|float }}, {{ "%.10f" % v[2]|float }}, {{ "%.10f" % v[3]|float }}</code><br>
+            {% endfor %}
+        </p>
+
+        <h3>Primitive cell vectors (&#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">v</th>
+            <th style="text-align: center">x</th>
+            <th style="text-align: center">y</th>
+            <th style="text-align: center">z</th>
+          </thead>
+          <tbody>      
+            {% for v in direct_vectors %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">v<sub>{{ v[0] }}</sub></td>
+              <td style="text-align: right"><code>{{ "%.10f" % v[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % v[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % v[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+ 
+        <h3>Atom coordinates (scaled)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">Element</th>
+            <th style="text-align: center">r<sub>1</sub></th>
+            <th style="text-align: center">r<sub>2</sub></th>
+            <th style="text-align: center">r<sub>3</sub></th>
+          </thead>
+          <tbody>      
+            {% for b in atoms_scaled %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+
+        <h3>Atom coordinates (Cartesian, &#8491;)</h3>
+        <table class="center">
+          <thead>
+            <th style="padding-right: 15px; text-align: center">Element</th>
+            <th style="text-align: center">x</th>
+            <th style="text-align: center">y</th>
+            <th style="text-align: center">z</th>
+          </thead>
+          <tbody>      
+            {% for b in atoms_cartesian %}
+            <tr>
+              <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+              <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+
+      </div>
+
     </div>
 
-    <div id='below'>
-        <div id='groupbelow'>
-            <div id='tablekpoints'>
-                <a name="bz_coords"></a>
-                <h2>Reciprocal space and Brillouin-zone information</h2>
-                <h3>Reciprocal cell vectors (1/&#8491;)</h3>
-                <table class="center">
-                    <thead>
-                        <th style="padding-right: 15px; text-align: center">b</th>
-                        <th style="text-align: center">x</th>
-                        <th style="text-align: center">y</th>
-                        <th style="text-align: center">z</th>
-                    </thead>
-                    <tbody>
-                        {% for b in reciprocal_primitive_vectors %}
-                        <tr>
-                            <td style="padding-right: 15px; text-align: center">b<sub>{{ b[0] }}</sub></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div id='citations'>
+        <h2>How to cite and acknowledgements</h2>
+        <p>If you use this tool, please cite the following work:
+        <ul>
+        <li><a name="hpkot"></a><a href="http://dx.doi.org/10.1016/j.commatsci.2016.10.015">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017). DOI: 10.1016/j.commatsci.2016.10.015</a>  (the "HPKOT" paper; arXiv version: <a href="https://arxiv.org/abs/1602.06402">arXiv:1602.06402</a>).
+        </li>
+        <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> 
+            that is an essential library used in the implementation.
+        </li>
+      	<li>
+      	  Some of the input parsers have been implemented either with the 
+      	     <a href="https://wiki.fysik.dtu.dk/ase/">ASE python library</a>
+      	     or using routines from 
+    	       <a href="http://www.aiida.net">AiiDA</a>.
+      	</li>
+        </ul>
+        </p>
+        <h2>Important note</h2>
+	<p>
+	  The structure visualized above is <span style="font-style: italic;">not</span>
+	  the structure you passed in input, but its primitive cell. 
+	  Moreover, the primitive cell has been standardized 
+	  (using the conventions of spglib).<br/>
 
-                <h3>High-symmetry points (scaled units)</h3>
-                <table class="center">
-                    <thead>
-                        <th style="text-align: center">Label</th>
-                        <th style="text-align: center">k<sub>1</sub></th>
-                        <th style="text-align: center">k<sub>2</sub></th>
-                        <th style="text-align: center">k<sub>3</sub></th>
-                    </thead>
-
-                    <tbody>
-
-                        {% for k in kpoints_rel %}
-                        <tr>
-                            <td style="text-align: center">
-                                <script>
-                                    document.write(prettify_label("{{ k[0] }}"));
-                                </script>
-                            </td>
-                            <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
-                        </tr>
-                        {% endfor %}
-
-
-                    </tbody>
-                </table>
-
-                <h3>High-symmetry points (1/&#8491;)</h3>
-                <table class="center">
-                    <thead>
-                        <th style="text-align: center">Label</th>
-                        <th style="text-align: center">k<sub>x</sub></th>
-                        <th style="text-align: center">k<sub>y</sub></th>
-                        <th style="text-align: center">k<sub>z</sub></th>
-                    </thead>
-
-                    <tbody>
-
-                        {% for k in kpoints %}
-                        <tr>
-                            <td style="text-align: center">
-                                <script>
-                                    document.write(prettify_label("{{ k[0] }}"));
-                                </script>
-                            </td>
-                            <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
-                        </tr>
-                        {% endfor %}
-
-
-                    </tbody>
-                </table>
-
-                <h3>Suggested path</h3>
-                <p>
-                    {% for lab in suggested_path %}
-                    <script>
-                        document.write(prettify_label("{{ lab }}"));
-                    </script>{% endfor %}
-                </p>
-
-                {% if time_reversal_note %}
-                <p>
-                    <span style="font-style: italic">Note on time reversal</span>: {{ time_reversal_note }}
-                </p>
-                {% endif %}
-
-
-            </div>
-            <div id='structureinfo'>
-                <a name="prim_coords"></a>
-                <h2>Structure information (primitive cell)</h2>
-
-                <h3>Crystal structure information</h3>
-                <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }}</p>
-                <p><span style="font-style: italic">Extended Bravais lattice symbol</span>: {{ bravais_lattice_extended }} ({{ with_without_time_reversal }} inversion symmetry)</p>
-                <p><span style="font-style: italic">Spacegroup</span>: {{ spacegroup_international }} (number {{ spacegroup_number }})</p>
-
-                <h3>Volume ratio between input structure and primitive structure</h3>
-                <p>The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>
-                <p>Note that the input structure had cell vectors (in &#8491;):<br> {% for v in inputstructure_cell_vectors %} v
-                    <sub>{{ v[0] }}</sub>: <code>{{ "%.10f" % v[1]|float }}, {{ "%.10f" % v[2]|float }}, {{ "%.10f" % v[3]|float }}</code><br> {% endfor %}
-                </p>
-
-                <h3>Primitive cell vectors (&#8491;)</h3>
-                <table class="center">
-                    <thead>
-                        <th style="padding-right: 15px; text-align: center">v</th>
-                        <th style="text-align: center">x</th>
-                        <th style="text-align: center">y</th>
-                        <th style="text-align: center">z</th>
-                    </thead>
-                    <tbody>
-                        {% for v in direct_vectors %}
-                        <tr>
-                            <td style="padding-right: 15px; text-align: center">v<sub>{{ v[0] }}</sub></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % v[1]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % v[2]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % v[3]|float }}</code></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-                <h3>Atom coordinates (scaled)</h3>
-                <table class="center">
-                    <thead>
-                        <th style="padding-right: 15px; text-align: center">Element</th>
-                        <th style="text-align: center">r<sub>1</sub></th>
-                        <th style="text-align: center">r<sub>2</sub></th>
-                        <th style="text-align: center">r<sub>3</sub></th>
-                    </thead>
-                    <tbody>
-                        {% for b in atoms_scaled %}
-                        <tr>
-                            <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-                <h3>Atom coordinates (Cartesian, &#8491;)</h3>
-                <table class="center">
-                    <thead>
-                        <th style="padding-right: 15px; text-align: center">Element</th>
-                        <th style="text-align: center">x</th>
-                        <th style="text-align: center">y</th>
-                        <th style="text-align: center">z</th>
-                    </thead>
-                    <tbody>
-                        {% for b in atoms_cartesian %}
-                        <tr>
-                            <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
-                            <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-
-        </div>
-
-        <div id='citations'>
-            <h2>How to cite and acknowledgements</h2>
-            <p>If you use this tool, please cite the following work:
-                <ul>
-                    <li>
-                        <a name="hpkot"></a><a href="http://dx.doi.org/10.1016/j.commatsci.2016.10.015">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017). DOI: 10.1016/j.commatsci.2016.10.015</a>                        (the "HPKOT" paper; arXiv version: <a href="https://arxiv.org/abs/1602.06402">arXiv:1602.06402</a>).
-                    </li>
-                    <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> that is an essential library used in the implementation.
-                    </li>
-                    <li>
-                        Some of the input parsers have been implemented either with the
-                        <a href="https://wiki.fysik.dtu.dk/ase/">ASE python library</a> or using routines from
-                        <a href="http://www.aiida.net">AiiDA</a>.
-                    </li>
-                </ul>
-            </p>
-            <h2>Important note</h2>
-            <p>
-                The structure visualized above is <span style="font-style: italic;">not</span> the structure you passed in input, but its primitive cell. Moreover, the primitive cell has been standardized (using the conventions of spglib).<br/>
-
-                <span style="font-weight: bold;">If you want to run a new simulation, 
+	 <span style="font-weight: bold;">If you want to run a new simulation, 
     and plan (now or later) to use the suggested path provided here, 
     please use the primitive cell above.</span>
+	</p>
+
+    </div>
+
+
+    <div id='rawcode'>
+      <h2><a name="downloadablecoords"></a>Data for copy-paste</h2>
+        <p>Clic on the header to open a section</p>
+        <div id="accordion">
+        <h3>Quantum ESPRESSO pw.x input</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#qepwdata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+             (Replace <code>&lt;...&gt;</code> with the actual content for your 
+            simulation</code>)
             </p>
-
+          <p><code id="qepwdata">{{ qe_pw|safe }}</code></p>
         </div>
-
-
-        <div id='rawcode'>
-            <h2>
-                <a name="downloadablecoords"></a>Data for copy-paste</h2>
-            <p>Clic on the header to open a section</p>
-            <div id="accordion">
-                <h3>Quantum ESPRESSO pw.x input</h3>
-                <div>
-                    <p>
-                        <button class="clipboardbtn" data-clipboard-target="#qepwdata">
-              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button> (Replace <code>&lt;...&gt;</code> with the actual content for your simulation
-                        </code>)
-                    </p>
-                    <p><code id="qepwdata">{{ qe_pw|safe }}</code></p>
-                </div>
-                <!--        <h3>Quantum ESPRESSO matdyn.x input</h3>
+<!--        <h3>Quantum ESPRESSO matdyn.x input</h3>
         <div>
           <p>To be used with <code>q_in_cryst_coord=.true.</code> in 
             the <code>&amp;INPUT</code> namelist.</p>
           <p><code>{{ qe_matdyn|safe }}</code></p>
         </div>-->
-                <h3>Raw data (JSON)</h3>
-                <div>
-                    <p>
-                        <button class="clipboardbtn" data-clipboard-target="#rawcodedata">
+        <h3>Raw data (JSON)</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#rawcodedata">
               <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
-                    </p>
+          </p>
 
-                    <p><code id="rawcodedata">{{ raw_code|safe }}</code></p>
-                </div>
-            </div>
+          <p><code id="rawcodedata">{{ raw_code|safe }}</code></p>
         </div>
-
-        <script>
-            // Activate clipboard buttons
-            var clipboard = new Clipboard('.clipboardbtn');
-        </script>
-
-        <div id='finalinfo'>
-            <p><span style="font-weight: bold;">Technical info</span>: Time spent to compute quantities: {{ '%.3f' % compute_time }} s. SeeK-path version: {{ seekpath_version }}. spglib version: {{ spglib_version }}.
-        </div>
-
+      </div>
     </div>
 
+    <script>
+        // Activate clipboard buttons
+        var clipboard = new Clipboard('.clipboardbtn');
+    </script>
+
+    <div id='finalinfo'>
+        <p><span style="font-weight: bold;">Technical info</span>: Time spent to compute quantities: {{ '%.3f' % compute_time }} s. SeeK-path version: {{ seekpath_version }}. spglib version: {{ spglib_version }}.
+    </div>
+
+    </div>
+    
 
 </body>
-
 </html>
