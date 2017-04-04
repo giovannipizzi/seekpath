@@ -7,7 +7,12 @@ These include:
   MIT license, from https://github.com/mrdoob/three.js
   Files involved:
   - webservice/static/js/OrbitControls.min.js
-  - webservice/static/js/three.js
+  - webservice/static/js/three.min.js
+  - webservice/static/js/three.min.js
+  - webservice/static/js/Projector.min.js
+  - webservice/static/js/SVGRenderer.min.js
+  - webservice/static/js/orig.Projector.js
+  - webservice/static/js/orig/SVGRenderer.js
   - webservice/static/js/orig/dontautominify/three.js
   - webservice/static/js/orig/dontautominify/OrbitControls.js  
   
