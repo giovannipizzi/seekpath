@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 */
 // Global variables
-var show_axes = false;
+var show_axes = true;
 var show_b_vectors = true;
 var show_pathpoints = false; // If you want to show the points of the explicit path
 
@@ -41,7 +41,7 @@ var show_pathpoints = false; // If you want to show the points of the explicit p
 // (both the svg renderer and the projector))
 // This is mainly useful if you want to get a vector image of the BZ
 // rather than a raster screenshot
-var use_svg_renderer = false;
+var use_svg_renderer = true;
 
 // strings to update
 var to_update = [];
@@ -54,14 +54,15 @@ var bz_material = new THREE.MeshBasicMaterial(
     //side: THREE.DoubleSide,
 });
 
-var edge_material = new THREE.MeshBasicMaterial(
+var edge_material = new THREE.LineBasicMaterial(
 {
     color: 0x333333,
     opacity: 1.,
     transparent: false,
+    linewidth: 1, 
 });
 
-var line_material = new THREE.MeshBasicMaterial(
+var line_material = new THREE.LineBasicMaterial(
 {
     color: 0x045add,
     opacity: 1.,
@@ -140,6 +141,44 @@ var resize_renderer = function() {
         }
         render();        
     }
+}
+
+var getText = function(label, color) {
+
+    color = typeof color !== 'undefined' ? color : '#000000';
+
+    if (use_svg_renderer) {
+        var textdiv = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        textdiv.setAttribute("y", -100);
+        textdiv.setAttribute("x", -100);
+        textdiv.setAttribute("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
+        textdiv.setAttribute("font-size", "24px");
+        textdiv.setAttribute('fill', color);
+        textdiv.innerHTML = label;
+    }
+    else
+    {    
+        // Return a text div with the given label, and not unselectable
+        var textdiv = document.createElement('div');
+        textdiv.style.position = 'absolute';
+        textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+        //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+        textdiv.style.color = color;
+        textdiv.style.width = 100;
+        textdiv.style.height = 100;
+        //text2.style.backgroundColor = "blue";
+        textdiv.innerHTML = label;
+        // out of view at the beginning
+        textdiv.style.top = -100 + 'px';
+        textdiv.style.left = -100 + 'px';
+        textdiv.style.userSelect = "none";
+        textdiv.style.userSelect = "none";
+        textdiv.style.webkitUserSelect = "none";
+        textdiv.style.MozUserSelect = "none";
+        textdiv.setAttribute("unselectable", "on");
+        textdiv.style.pointerEvents = "none"; 
+    }
+    return textdiv;
 }
 
 var load_BZ = function(canvasID, infoID, jsondata) {
@@ -234,43 +273,38 @@ var load_BZ = function(canvasID, infoID, jsondata) {
         scene.add(sphere);
 
         // Label
-        var textdiv = document.createElement('div');
-        textdiv.style.position = 'absolute';
-        textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-        //textdiv.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-        textdiv.style.width = 100;
-        textdiv.style.height = 100;
-        textdiv.style.backgroundColor = "transparent";
-
         // prettify label
-        label = prettify_label(label);
-
-        textdiv.innerHTML = label;
-        // disallow scrolling etc. so that it goes to the parent div
-        textdiv.style.pointerEvents = "none"; 
-        // next are to disallow selection
-        textdiv.style.userSelect = "none";
-        textdiv.style.userSelect = "none";
-        textdiv.style.webkitUserSelect = "none";
-        textdiv.style.MozUserSelect = "none";
-        textdiv.setAttribute("unselectable", "on");
-
-        // out of view at the beginning
-        textdiv.style.top = -100 + 'px';
-        textdiv.style.left = -100 + 'px';
-        canvas3d.appendChild(textdiv);
-
-        to_update.push([
-            new THREE.Vector3(pos[0], pos[1], pos[2]), 
-            textdiv]);
+        label = prettify_label(label);        
+        var textdiv = getText(label);
+        if (use_svg_renderer) {
+            renderer.domElement.appendChild(textdiv);
+            to_update.push([
+                new THREE.Vector3(pos[0], pos[1], pos[2]), 
+                label]);
+            
+        }
+        else {
+            canvas3d.appendChild(textdiv);        
+            to_update.push([
+                new THREE.Vector3(pos[0], pos[1], pos[2]), 
+                textdiv]);            
+        }
     }
 
     if (show_axes) {
         // AXES
         //var dir = new THREE.Vector3( 1, 0, 0 );
-        [[new THREE.Vector3( 1, 0, 0 ), '<span style="font-style: italic">x</span>'],
-        [new THREE.Vector3( 0, 1, 0 ), '<span style="font-style: italic">y</span>'],
-        [new THREE.Vector3( 0, 0, 1 ), '<span style="font-style: italic">z</span>']].forEach(
+        axesLabels = [[new THREE.Vector3( 1, 0, 0 ), '<span style="font-style: italic">x</span>'],
+            [new THREE.Vector3( 0, 1, 0 ), '<span style="font-style: italic">y</span>'],
+            [new THREE.Vector3( 0, 0, 1 ), '<span style="font-style: italic">z</span>']];
+
+        if (use_svg_renderer) {
+            axesLabels = [[new THREE.Vector3( 1, 0, 0 ), '<tspan style="font-style: italic">x</tspan>'],
+                [new THREE.Vector3( 0, 1, 0 ), '<tspan style="font-style: italic">y</tspan>'],
+                [new THREE.Vector3( 0, 0, 1 ), '<tspan style="font-style: italic">z</tspan>']];
+        }
+
+        axesLabels.forEach(
             function (data) {
                 dir = data[0];
                 label = data[1];
@@ -289,42 +323,39 @@ var load_BZ = function(canvasID, infoID, jsondata) {
                 scene.add( arrow );                
 
                 // Label
-                var textdiv = document.createElement('div');
-                textdiv.style.position = 'absolute';
-                textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-                //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-                textdiv.style.color = "#555555";
-                textdiv.style.width = 100;
-                textdiv.style.height = 100;
-                //text2.style.backgroundColor = "blue";
-                textdiv.innerHTML = label;
-                // out of view at the beginning
-                textdiv.style.top = -100 + 'px';
-                textdiv.style.left = -100 + 'px';
-                textdiv.style.userSelect = "none";
-                textdiv.style.userSelect = "none";
-                textdiv.style.webkitUserSelect = "none";
-                textdiv.style.MozUserSelect = "none";
-                textdiv.setAttribute("unselectable", "on");
-                textdiv.style.pointerEvents = "none"; 
-
-
-                canvas3d.appendChild(textdiv);
-
+                the_color = '#555555';
+                textdiv = getText(label, color=the_color);
                 pos = dir.clone();
                 pos.sub(origin);
                 pos.multiplyScalar(axeslength);
-                to_update.push([pos, textdiv]);
-
+                
+                if (use_svg_renderer) {
+                    renderer.domElement.appendChild(textdiv);
+                    to_update.push([
+                        pos, label, the_color]);
+                    
+                }
+                else {
+                    canvas3d.appendChild(textdiv);        
+                    to_update.push([
+                        pos, textdiv]);            
+                }
             });
     }
 
     // B vectors
     //var dir = new THREE.Vector3( 1, 0, 0 );
     var b_vectors = [[b1, '<span style="font-weight: bold">b</span><sub>1</sub>'],
-    [b2, '<span style="font-weight: bold">b</span><sub>2</sub>'],
-    [b3, '<span style="font-weight: bold">b</span><sub>3</sub>']
+        [b2, '<span style="font-weight: bold">b</span><sub>2</sub>'],
+        [b3, '<span style="font-weight: bold">b</span><sub>3</sub>']
     ];
+
+    if (use_svg_renderer) {
+        var b_vectors = [[b1, '<tspan style="font-weight: bold">b</tspan><tspan baseline-shift="sub">1</tspan>'],
+            [b2, '<tspan style="font-weight: bold">b</tspan><tspan baseline-shift="sub">2</tspan>'],
+            [b3, '<tspan style="font-weight: bold">b</tspan><tspan baseline-shift="sub">3</tspan>']
+       ];
+    }
 
     if (!show_b_vectors) {
         b_vectors = [];
@@ -356,31 +387,21 @@ var load_BZ = function(canvasID, infoID, jsondata) {
             scene.add( arrow );                
 
             // Label
-            var textdiv = document.createElement('div');
-            textdiv.style.position = 'absolute';
-            textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-            //textdiv.style.color = "#555555";
-            textdiv.style.width = 100;
-            textdiv.style.height = 100;
-            //text2.style.backgroundColor = "blue";
-            textdiv.innerHTML = label;
-            // out of view at the beginning
-            textdiv.style.top = -100 + 'px';
-            textdiv.style.left = -100 + 'px';
-            textdiv.style.userSelect = "none";
-            textdiv.style.userSelect = "none";
-            textdiv.style.webkitUserSelect = "none";
-            textdiv.style.MozUserSelect = "none";
-            textdiv.setAttribute("unselectable", "on");
-            textdiv.style.pointerEvents = "none"; 
-            canvas3d.appendChild(textdiv);
-
+            var textdiv = getText(label=label);
             pos = dir.clone();
             pos.sub(origin);
-            pos.multiplyScalar(b_length);
-            to_update.push([pos, textdiv]);
-
+            pos.multiplyScalar(b_length);            
+            if (use_svg_renderer) {
+                renderer.domElement.appendChild(textdiv);
+                to_update.push([
+                    pos, label]);
+                
+            }
+            else {
+                canvas3d.appendChild(textdiv);        
+                to_update.push([
+                    pos, textdiv]);            
+            }
         });
 
     // Load BZ
@@ -396,7 +417,6 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     var bz_mesh = new THREE.Mesh(brillouinzone, bz_material);
     // Create BZ edges
     geometry = new THREE.EdgesGeometry( bz_mesh.geometry );
-    var edgeMaterial = new THREE.LineBasicMaterial( { color: 0xffff00, linewidth: 1 } );
     var edges = new THREE.LineSegments( geometry, edge_material );
     // Plot BZ and edges
     scene.add(bz_mesh);
@@ -441,28 +461,33 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
     render();
 
-    if (use_svg_renderer) {
+    /*if (use_svg_renderer) {
         console.log('svg content:');
-        console.log(canvas3d.innerHTML.replace('/<path/g','\n<path'));
-    }
+        console.log(renderer.domElement.outerHTML.replace('/<path/g','\n<path'));
+    }*/
 }
 
 function toScreenPosition(vector3D, camera)
 {
+    var vector2D = vector3D.clone().project(camera);
+
+
 	var devicePixelRatio = window.devicePixelRatio || 1;
     if (use_svg_renderer) {
-        var widthHalf = 0.5*renderer.domElement.width.baseVal.value / devicePixelRatio;
-        var heightHalf = 0.5*renderer.domElement.height.baseVal.value / devicePixelRatio;
+        var widthHalf = 0.5 * renderer.domElement.viewBox.baseVal.width;
+        var heightHalf = 0.5 * renderer.domElement.viewBox.baseVal.height;
+        var widthOffset = renderer.domElement.viewBox.baseVal.x;
+        var heightOffset = renderer.domElement.viewBox.baseVal.y;
+        vector2D.x = ( vector2D.x * widthHalf ); 
+        vector2D.y = - ( vector2D.y * heightHalf );
+        
     }
     else {
         var widthHalf = 0.5*renderer.context.canvas.width / devicePixelRatio;
         var heightHalf = 0.5*renderer.context.canvas.height / devicePixelRatio;
+        vector2D.x = ( vector2D.x * widthHalf ) + widthHalf;
+        vector2D.y = - ( vector2D.y * heightHalf ) + heightHalf;
     }
-
-    vector2D = vector3D.clone().project(camera);
-
-    vector2D.x = ( vector2D.x * widthHalf ) + widthHalf;
-    vector2D.y = - ( vector2D.y * heightHalf ) + heightHalf;
 
     return { 
         left: vector2D.x,
@@ -476,11 +501,37 @@ function render() {
     //requestAnimationFrame( render );  // activate only if you want to loop and make an animation
     renderer.render( scene, camera ); 
     
-    to_update.forEach(function(data) {
-        pos = data[0];
-        text = data[1];
-        pos2d = toScreenPosition(pos,camera);
-        text.style.top = pos2d.top + 'px';
-        text.style.left = pos2d.left + 'px';
-    });
+    // IMPORTANT! In the case of the SVG renderer, I pass the string, rather
+    // than the <div>, and I recreate a new <text> in here. I think this is needed
+    // because <text> elements seem to be cleaned up (at least partially) in 
+    // the render function?
+
+    if (use_svg_renderer) {
+        to_update.forEach(function(data) {
+            // For SVG we don't use divs for text, but rather 
+            // <text> elements inside the SVG
+            pos = data[0];
+            textcontent = data[1];
+            if (data.length > 2) {
+                the_color = data[2];
+                t = getText(textcontent, the_color);
+            }
+            else {
+                t = getText(textcontent);
+            }
+            pos2d = toScreenPosition(pos,camera);
+            t.setAttribute("y", pos2d.top);
+            t.setAttribute("x", pos2d.left);
+            renderer.domElement.appendChild(t);
+        });
+    }
+    else {
+        to_update.forEach(function(data) {
+            pos = data[0];
+            text = data[1];
+            pos2d = toScreenPosition(pos,camera);
+            text.style.top = pos2d.top + 'px';
+            text.style.left = pos2d.left + 'px';
+        });
+    }
 }
