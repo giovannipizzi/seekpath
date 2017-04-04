@@ -41,7 +41,11 @@ var show_pathpoints = false; // If you want to show the points of the explicit p
 // (both the svg renderer and the projector))
 // This is mainly useful if you want to get a vector image of the BZ
 // rather than a raster screenshot
-var use_svg_renderer = true;
+// I tried to convert everything I use to work also with SVG (in particular,
+// the text is the trickiest). However, it's much slower. 
+// So leave by default to false unless you need to take a screenshot.
+// Known issue: in Firefox, with use_svg_renderer = True, scrolling does not work
+var use_svg_renderer = false;
 
 // strings to update
 var to_update = [];
@@ -152,7 +156,10 @@ var getText = function(label, color) {
         textdiv.setAttribute("y", -100);
         textdiv.setAttribute("x", -100);
         textdiv.setAttribute("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif");
-        textdiv.setAttribute("font-size", "24px");
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        // 12px, but needs to be rescaled with the device pixel ratio
+        console.log(devicePixelRatio);
+        textdiv.setAttribute("font-size", (devicePixelRatio * 12) + "px");
         textdiv.setAttribute('fill', color);
         textdiv.innerHTML = label;
     }
