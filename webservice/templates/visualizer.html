@@ -20,6 +20,7 @@
     <script src="../static/js/BZVisualizer.min.js"></script>        
     <script src="../static/js/webglcheck.min.js"></script>
     <script src="../static/js/clipboard.min.js"></script>
+    <script src="../static/js/download.min.js"></script>
     <script>
     $( function() {
       $( "#accordion" ).accordion({
@@ -138,6 +139,31 @@
       <div id='canvas3dcontainer'>
           <div id='canvas3d'></div><div id='info'></div>
       </div>
+      <p style="text-align: center">
+	<script>
+	  var download_bz = function() {
+	    if ( use_svg_renderer == true ) {
+              download(renderer.domElement.outerHTML, 
+              "seekpath-brillouinzone.svg", 
+              "image/svg+xml");
+            }
+            else {
+              download(renderer.domElement.toDataURL("image/png"), 
+             "seekpath-brillouinzone.png", 
+             "image/png");
+	    }
+          }
+        </script>
+	<!--<a id="download_link" href="#" onclick="download_bz()">Download Brillouin zone image</a>
+	<script>
+           if ( use_svg_renderer ) {
+             $("#download_link")[0].innerText += " (SVG)";
+           }
+           else {
+             $("#download_link")[0].innerText += " (PNG)";
+           }
+        </script>-->
+      </p>
     </div>
 
     <div id='aboveright'>
