@@ -67,6 +67,8 @@
       startWebGLCheck();
     </script>
 
+    <script src="../static/js/iframeResizer.contentwindow.min.js"></script>    
+
 </head>
 <body onresize='resize_canvases()'>
 
@@ -86,7 +88,7 @@
                   experimental. This means
                   3D content (Brillouin zone and crystal structure) may not be shown as expected.
                   <br/>
-                  You may want to consider an <a href="http://get.webgl.org">upgrade of your browser</a>.
+                  You may want to consider an <a href="http://get.webgl.org" target="_blank">upgrade of your browser</a>.
                 </div>
               </div> 
               <!-- <div>
@@ -101,14 +103,14 @@
               <div  class="alert alert-danger">
                 Your browser seems to support WebGL, but it is disabled or unavailable.  If possible, please ensure that you are running the latest drivers for your video card, or enable WebGL in your browser settings.
                 <br/><br/>
-                For more help, please visit <a href="http://get.webgl.org/troubleshooting">this page</a>.
+                For more help, please visit <a href="http://get.webgl.org/troubleshooting" target="_blank">this page</a>.
               </div>
             </div>
             <div class="webgl-hidden webgl-div" id="webgl-no">
               <div  class="alert alert-danger"> 
                 <p>We are sorry, but your browser does not seem to support WebGL, so we cannot show 3D objects like the 
                   Brillouin zone or the crystal structure.</p>
-                <p>You may want to visit <a href="http://get.webgl.org">this page</a> to get a list of 
+                <p>You may want to visit <a href="http://get.webgl.org" target="_blank">this page</a> to get a list of 
                   recent browsers that support WebGL.</p>
               </div>
             </div>
@@ -386,16 +388,16 @@
         <h2>How to cite and acknowledgements</h2>
         <p>If you use this tool, please cite the following work:
         <ul>
-        <li><a name="hpkot"></a><a href="http://dx.doi.org/10.1016/j.commatsci.2016.10.015">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017). DOI: 10.1016/j.commatsci.2016.10.015</a>  (the "HPKOT" paper; arXiv version: <a href="https://arxiv.org/abs/1602.06402">arXiv:1602.06402</a>).
+        <li><a name="hpkot"></a><a href="http://dx.doi.org/10.1016/j.commatsci.2016.10.015" target="_blank">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017). DOI: 10.1016/j.commatsci.2016.10.015</a>  (the "HPKOT" paper; arXiv version: <a href="https://arxiv.org/abs/1602.06402" target="_blank">arXiv:1602.06402</a>).
         </li>
-        <li>You should also cite <a href="http://atztogo.github.io/spglib/">Spglib</a> 
+        <li>You should also cite <a href="http://atztogo.github.io/spglib/" target="_blank">Spglib</a> 
             that is an essential library used in the implementation.
         </li>
       	<li>
       	  Some of the input parsers have been implemented either with the 
-      	     <a href="https://wiki.fysik.dtu.dk/ase/">ASE python library</a>
+      	     <a href="https://wiki.fysik.dtu.dk/ase/" target="_blank">ASE python library</a>
       	     or using routines from 
-    	       <a href="http://www.aiida.net">AiiDA</a>.
+    	       <a href="http://www.aiida.net" target="_blank">AiiDA</a>.
       	</li>
         </ul>
         </p>
@@ -456,7 +458,7 @@
     </div>
 
     </div>
-    
 
+<div style ="position: relative" data-iframe-height></div>
 </body>
 </html>
