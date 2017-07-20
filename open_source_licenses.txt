@@ -42,6 +42,12 @@ These include:
   Files involved:
   - webservice/static/js/clipboard.min.js
 
+- download.js:
+   MIT license, from https://github.com/rndme/download
+   Files involved:
+   - webservice/static/js/download.min.js
+   - webservice/static/js/orig/download.js
+
 
 ----
 

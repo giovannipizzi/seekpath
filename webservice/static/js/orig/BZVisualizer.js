@@ -87,6 +87,14 @@ var pointpath_material = new THREE.MeshBasicMaterial(
     transparent: false,
 });
 
+// Some parameters for taking screenshots - uncomment only for screenshots,
+// then comment again
+/*
+use_svg_renderer = true;
+show_axes = false;
+show_b_vectors = false;
+*/
+
 // need to be global in the current implementation
 var scene = null;
 var camera = null;
@@ -102,13 +110,12 @@ var load_BZ_ajax = function(url, canvasID, infoID) {
         console.log( "Request Failed: " + err );
         document.getElementById(infoID).innerHTML = "Request Failed: " + err;
     });
-}
+};
 
-var prettify_label = function(label) {
-        // Underscores
-        label = label.replace(/_(.)/gi,function (match, p1, offset, string) {
-            return '<sub>'+p1+'</sub>';
-        });
+var prettify_label = function(label, forSVG) {
+
+        forSVG = typeof forSVG !== 'undefined' ? forSVG : false;
+
         // Gamma
         label = label.replace(/GAMMA/gi,'&Gamma;');
         // Delta
@@ -118,6 +125,21 @@ var prettify_label = function(label) {
         // Lambda
         label = label.replace(/LAMBDA/gi,'&Lambda;');
         label = label.replace(/\-/gi, '&mdash;')
+
+        // Underscores
+        if (forSVG) {
+            label = label.replace(/_(.)/gi,
+                function (match, p1, offset, string) {
+		    return '<tspan baseline-shift="sub">'+p1+'</tspan>';
+            });
+        }
+        else {
+            label = label.replace(/_(.)/gi,
+                function (match, p1, offset, string) {
+                    return '<sub>'+p1+'</sub>';
+            });
+        }
+
         return label;
 }
 
@@ -221,7 +243,8 @@ var load_BZ = function(canvasID, infoID, jsondata) {
     else {
         renderer = new THREE.WebGLRenderer({ 
             alpha: true,
-            // antialias: true // much slower!
+	    preserveDrawingBuffer: true, // to allow taking screenshots
+            //antialias: true // could be much slower!
         });        
     }
     // white bg (not needed if I put alpha = true in WebGL)
@@ -280,7 +303,7 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
         // Label
         // prettify label
-        label = prettify_label(label);        
+        label = prettify_label(label,forSVG=use_svg_renderer);        
         var textdiv = getText(label);
         if (use_svg_renderer) {
             renderer.domElement.appendChild(textdiv);
