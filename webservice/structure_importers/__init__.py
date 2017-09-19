@@ -1,6 +1,11 @@
 import ase.io
 from ase.data import atomic_numbers
 
+
+class UnknownFormatError(ValueError):
+    pass
+
+
 def get_atomic_numbers(symbols):
     """
     Given a list of symbols, return the corresponding atomic numbers.
