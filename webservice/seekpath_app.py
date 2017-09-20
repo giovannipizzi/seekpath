@@ -132,6 +132,45 @@ except Exception:
         "Please create a SECRET_KEY file in {} with a random string "
         "of at least 16 characters".format(directory))
 
+class ReverseProxied(object):
+    '''Wrap the application in this middleware and configure the 
+    front-end server to add these headers, to let you quietly bind 
+    this to a URL other than / and to an HTTP scheme that is 
+    different than what is used locally.
+
+    Inspired by  http://flask.pocoo.org/snippets/35/
+
+    In apache: use the following reverse proxy (adapt where needed)
+    <Location /proxied>
+      ProxyPass http://localhost:4444/
+      ProxyPassReverse http://localhost:4444/
+      RequestHeader set X-Script-Name /proxied
+      RequestHeader set X-Scheme http
+    </Location>
+
+    :param app: the WSGI application
+    '''
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        script_name = environ.get('HTTP_X_SCRIPT_NAME', '')
+        if script_name:
+            environ['SCRIPT_NAME'] = script_name
+            path_info = environ['PATH_INFO']
+            if path_info.startswith(script_name):
+                environ['PATH_INFO'] = path_info[len(script_name):]
+
+        scheme = environ.get('HTTP_X_SCHEME', '')
+        if scheme:
+            environ['wsgi.url_scheme'] = scheme
+        server = environ.get('HTTP_X_FORWARDED_HOST', '')
+        if server:
+            environ['HTTP_HOST'] = server
+        return self.app(environ, start_response)
+
+app.wsgi_app = ReverseProxied(app.wsgi_app)
+
 logger.debug("Start")
 
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
