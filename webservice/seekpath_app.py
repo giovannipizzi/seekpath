@@ -107,9 +107,6 @@ valid_examples = {
     "tP1_noinv": ("tP1", False),
 }
 
-class UnknownFormatError(ValueError):
-    pass
-
 class ConfigurationError(Exception):
     pass
 
@@ -269,7 +266,7 @@ def process_structure_core(filecontent, fileformat, call_source=""):
     :return: this function calls directly flask methods and returns flask 
         objects
     """
-    from structure_importers import get_structure_tuple
+    from structure_importers import get_structure_tuple, UnknownFormatError
 
     start_time = time.time()
     fileobject = io.StringIO(str(filecontent))
