@@ -9,14 +9,16 @@ in README_DEPLOY.md to deploy on a Apache server.
 from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-from builtins import str
-from builtins import zip
+
+import datetime
 import flask
 import os
 
-import copy
-import numpy as np
-import time, datetime
+from seekpath_web_module import (
+    generate_log, 
+    FlaskRedirectException,
+    logme,
+    process_structure_core)
 
 import logging, logging.handlers
 logger = logging.getLogger("seekpath_server")
@@ -30,24 +32,8 @@ logHandler.setFormatter(formatter)
 logger.addHandler(logHandler) 
 logger.setLevel(logging.DEBUG) 
 
-from ase.data import chemical_symbols
-import json
-import io
-
-if __name__ == "__main__":
-    # If run manually (=> debug/development mode),
-    # use the local version of seekpath, not the installed one
-    import sys
-    sys.path.insert(0, os.path.join(
-        os.path.split(__file__)[0], os.pardir))
-
-import seekpath, seekpath.hpkot
-from seekpath.brillouinzone import brillouinzone
-import spglib # Mainly to get its version
-
-MAX_NUMBER_OF_ATOMS = 256
-time_reversal_note = ("The second half of the path is required only if "
-                      "the system does not have time-reversal symmetry")
+class ConfigurationError(Exception):
+    pass
 
 valid_examples = {
     "aP2_inv": ("aP2", True),
@@ -107,8 +93,16 @@ valid_examples = {
     "tP1_noinv": ("tP1", False),
 }
 
-class ConfigurationError(Exception):
-    pass
+if __name__ == "__main__":
+    # If run manually (=> debug/development mode),
+    # use the local version of seekpath, not the installed one
+    import sys
+    sys.path.insert(0, os.path.join(
+        os.path.split(__file__)[0], os.pardir))
+# Need to import all three, as they are used later when seekpath
+# is passed as a variable - otherwise, the function will not use it
+import seekpath, seekpath.hpkot, seekpath.brillouinzone, seekpath.brillouinzone.brillouinzone
+from seekpath.hpkot import SymmetryDetectionError
 
 static_folder = os.path.join(os.path.split(os.path.realpath(__file__))[0],
         'static')
@@ -183,358 +177,6 @@ def nocache(view):
         response.headers['Expires'] = '-1'
         return response
     return update_wrapper(no_cache, view) 
-
-def logme(filecontent, fileformat, request, call_source, reason, extra={}):
-    """
-    Given a string with the file content, a file format, a Flask request and 
-    a string identifying the reason for logging, stores the 
-    correct logs.
-
-    :param filecontent: a string with the file content
-    :param fileformat: string with the file format
-    :param request: a Flask request
-    :param call_source: a string identifying who called the function
-    :param reason: a string identifying the reason for this log
-    :param extra: additional data to add to the logged dictionary. 
-        NOTE! it must be JSON-serializable
-    """
-    # I don't know the fileformat
-    data = {'filecontent': filecontent, 'fileformat': fileformat}
-    
-    logdict =  {
-        'data': data, 'reason': reason,
-        'request': str(request.headers),
-        'call_source': call_source,
-        'source': request.headers.get(
-            'X-Forwarded-For', request.remote_addr),
-        'time': datetime.datetime.now().isoformat()
-        }
-    logdict.update(extra)
-    logger.debug(json.dumps(logdict))
-
-def get_json_for_visualizer(cell, relcoords, atomic_numbers):
-    system = (np.array(cell), np.array(relcoords), np.array(atomic_numbers))
-    res = seekpath.hpkot.get_path(system, with_time_reversal=False) 
-
-    real_lattice = res['primitive_lattice']
-    #rec_lattice = np.linalg.inv(real_lattice).T # Missing 2pi!
-    rec_lattice = np.array(
-        seekpath.hpkot.tools.get_reciprocal_cell_rows(real_lattice))
-    b1, b2, b3 = rec_lattice
-
-    faces_data = brillouinzone.get_BZ(
-        b1 = b1, b2=b2, b3=b3)
-
-    response = {}
-    response['faces_data'] = faces_data
-    response['b1'] = b1.tolist()
-    response['b2'] = b2.tolist()
-    response['b3'] = b3.tolist()
-    ## Convert to absolute
-    response['kpoints'] = {k: (v[0] * b1 + v[1] * b2 + v[2] * b3).tolist()
-        for k,v in res['point_coords'].items()}
-    response['kpoints_rel'] = {k: [v[0], v[1], v[2]]
-        for k,v in res['point_coords'].items()}
-    response['path'] = res['path']
-
-    # It should use the same logic, so give the same cell as above
-    res_explicit = seekpath.get_explicit_k_path(
-        system, with_time_reversal=False) 
-    for k in res_explicit:
-        if k == 'segments' or k.startswith('explicit_'):
-            if isinstance(res_explicit[k], np.ndarray):
-                response[k] = res_explicit[k].tolist()
-            else:
-                response[k] = res_explicit[k]
-
-    if np.sum(np.abs(np.array(res_explicit['reciprocal_primitive_lattice']) - 
-        np.array(res['reciprocal_primitive_lattice']))) > 1.e-7:
-        raise AssertionError("Got different reciprocal cells...")
-
-    # Response for JS, and path_results
-    return response, res
-
-def process_structure_core(filecontent, fileformat, call_source=""):
-    """
-    The main function that generates the data to be sent back to the view.
-    
-    :param filecontent: The file content (string)
-    :param fileformat: The file format (string), among the accepted formats
-    :param call_source: a string identifying the source (i.e., who called
-       this function). This is a string, mainly for logging reasons.
-
-    :return: this function calls directly flask methods and returns flask 
-        objects
-    """
-    from structure_importers import get_structure_tuple, UnknownFormatError
-
-    start_time = time.time()
-    fileobject = io.StringIO(str(filecontent))
-    try:
-        structure_tuple = get_structure_tuple(fileobject, fileformat)
-    except UnknownFormatError:
-        logme(filecontent, fileformat, flask.request, call_source,
-              reason = 'unknownformat')
-        # Message passed to the next page
-        flask.flash("Unknown format '{}'".format(fileformat))
-        return flask.redirect(flask.url_for('input_structure'))
-    except Exception:
-        # There was an exception...
-        import traceback
-        logme(filecontent, fileformat, flask.request, call_source,
-              reason = 'exception', extra = {
-                'traceback': traceback.format_exc()
-                })
-        flask.flash("I tried my best, but I wasn't able to load your "
-                "file in format '{}'...".format(fileformat))
-        return flask.redirect(flask.url_for('input_structure'))
-
-    if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
-        ## Structure too big
-        logme(filecontent, fileformat, flask.request, call_source,
-              reason = 'toolarge', extra={
-                'number_of_atoms': len(structure_tuple[1])
-                })
-        flask.flash("Sorry, this online visualizer is limited to {} atoms "
-            "in the input cell, while your structure has {} atoms."
-            "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
-        return flask.redirect(flask.url_for('input_structure'))
-
-    # Log the content in case of valid structure
-    logme(filecontent, fileformat, flask.request, call_source,
-          reason = 'OK', extra={
-            'number_of_atoms': len(structure_tuple[1])
-            })
-
-    try:
-        in_json_data = {
-            'cell': structure_tuple[0],
-            'scaled_coords': structure_tuple[1],
-            'atomic_numbers': structure_tuple[2]
-        }
-
-        out_json_data, path_results = get_json_for_visualizer(
-            in_json_data['cell'], 
-            in_json_data['scaled_coords'],
-            in_json_data['atomic_numbers'])
-
-        raw_code_dict = copy.copy(out_json_data)
-        for k in list(raw_code_dict.keys()):
-            if k.startswith('explicit_'):
-                raw_code_dict.pop(k)
-            if k == 'segments':
-                raw_code_dict.pop(k)
-        raw_code_dict.pop('faces_data')
-        raw_code_dict['primitive_lattice'] = path_results[
-            'primitive_lattice'].tolist()
-        raw_code_dict['primitive_positions'] = path_results[
-            'primitive_positions'].tolist()
-        primitive_positions_cartesian = np.dot(
-            np.array(path_results['primitive_positions']),
-            np.array(path_results['primitive_lattice']),
-            ).tolist()
-        primitive_positions_cartesian_refolded = np.dot(
-            np.array(path_results['primitive_positions'])%1.,
-            np.array(path_results['primitive_lattice']),
-            ).tolist()
-        raw_code_dict['primitive_positions_cartesian'] = \
-            primitive_positions_cartesian
-
-        # raw_code['primitive_types'] = path_results['primitive_types']
-        primitive_symbols = [chemical_symbols[num] for num 
-            in path_results['primitive_types']]
-        raw_code_dict['primitive_symbols'] = primitive_symbols
-
-        raw_code = json.dumps(raw_code_dict, indent=2)
-        ## I manually escape it to then add <br> and pass it to a filter with
-        ## |safe. I have to 'unicode' it otherwise it keeps escaping also the
-        ## next replaces
-        raw_code = str(flask.escape(raw_code)).replace(
-            '\n', '<br>').replace(' ', '&nbsp;')
-
-        kpoints = [[k, out_json_data['kpoints'][k][0], 
-            out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
-            for k in sorted(out_json_data['kpoints'])]
-        kpoints_rel = [[k, out_json_data['kpoints_rel'][k][0], 
-            out_json_data['kpoints_rel'][k][1], out_json_data['kpoints_rel'][k][2]] 
-            for k in sorted(out_json_data['kpoints_rel'])]
-
-        inputstructure_cell_vectors = [[idx, coords[0], coords[1], coords[2]]
-            for idx, coords in 
-            enumerate(in_json_data['cell'], start=1)
-        ]
-
-        direct_vectors = [[idx, coords[0], coords[1], coords[2]]
-            for idx, coords in 
-            enumerate(path_results['primitive_lattice'], start=1)
-        ]
-
-        reciprocal_primitive_vectors = [[idx, coords[0], coords[1], coords[2]]
-            for idx, coords in 
-            enumerate(path_results['reciprocal_primitive_lattice'], start=1)
-        ]
-
-        atoms_scaled = [[label, coords[0], coords[1], coords[2]]
-            for label, coords in 
-            zip(primitive_symbols, 
-                path_results['primitive_positions'])]
-
-        atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
-            for label, coords in 
-            zip(primitive_symbols, 
-                primitive_positions_cartesian)]
-
-        # Create extetically-nice looking path, with dashes and pipes
-        suggested_path = []
-        if path_results['path']:
-            suggested_path.append(path_results['path'][0][0])
-            suggested_path.append('-')
-            suggested_path.append(path_results['path'][0][1])
-            last = path_results['path'][0][1]
-        for p1, p2 in path_results['path'][1:]:
-            if p1 != last:
-                suggested_path.append('|')
-                suggested_path.append(p1)
-            suggested_path.append('-')
-            suggested_path.append(p2)
-            last = p2
-
-        primitive_lattice = path_results['primitive_lattice']
-        # Manual recenter of the structure
-        center = (primitive_lattice[0] + primitive_lattice[1] + 
-                  primitive_lattice[2])/2.
-        cell_json = {
-                "t": "UnitCell",
-                "i": "s0",
-                "o": (-center).tolist(),
-                "x": (primitive_lattice[0]-center).tolist(),
-                "y": (primitive_lattice[1]-center).tolist(),
-                "z": (primitive_lattice[2]-center).tolist(),
-                "xy": (primitive_lattice[0] + primitive_lattice[1] 
-                       - center).tolist(),
-                "xz": (primitive_lattice[0] + primitive_lattice[2] 
-                       - center).tolist(),
-                "yz": (primitive_lattice[1] + primitive_lattice[2] 
-                       - center).tolist(),
-                "xyz": (primitive_lattice[0] + primitive_lattice[1] 
-                        + primitive_lattice[2] - center).tolist(),
-            }
-        atoms_json = [ 
-                    {"l": label,
-                    "x": pos[0]-center[0],
-                    "y": pos[1]-center[1],
-                    "z": pos[2]-center[2]} 
-                    for label, pos in zip(
-                            primitive_symbols, 
-                            primitive_positions_cartesian_refolded)
-                    ]
-        # These will be passed to ChemDoodle
-        json_content = {"s": [cell_json], 
-                        "m": [{"a": atoms_json}]
-                        }
-
-        compute_time = time.time() - start_time        
-    except Exception:
-        import traceback
-        logme(filecontent, fileformat, flask.request, call_source,
-              reason = 'codeexception', extra={
-                'traceback': traceback.extract_stack()})
-        raise
-
-    qe_pw = str(flask.escape(
-        get_qe_pw(raw_code_dict, out_json_data))).replace(
-            '\n', '<br>').replace(' ', '&nbsp;')
-    qe_matdyn = str(flask.escape(
-        get_qe_matdyn(raw_code_dict, out_json_data))).replace(
-            '\n', '<br>').replace(' ', '&nbsp;')
-
-    return flask.render_template(
-        'visualizer.html', 
-        jsondata=json.dumps(out_json_data),
-        json_content=json.dumps(json_content),
-        volume_ratio_prim=int(round(path_results['volume_original_wrt_prim'])),
-        raw_code=raw_code,
-        kpoints=kpoints,
-        kpoints_rel=kpoints_rel,
-        bravais_lattice=path_results['bravais_lattice'],
-        bravais_lattice_extended=path_results['bravais_lattice_extended'],
-        spacegroup_number=path_results['spacegroup_number'],
-        spacegroup_international=path_results['spacegroup_international'],
-        direct_vectors=direct_vectors,
-        inputstructure_cell_vectors=inputstructure_cell_vectors,
-        atoms_scaled=atoms_scaled,
-        with_without_time_reversal= (
-            "with" if path_results['has_inversion_symmetry'] 
-            else "without"),
-        atoms_cartesian=atoms_cartesian,
-        reciprocal_primitive_vectors=reciprocal_primitive_vectors,
-        suggested_path=suggested_path,
-        qe_pw=qe_pw,
-        qe_matdyn=qe_matdyn,
-        compute_time=compute_time,
-        seekpath_version=seekpath.__version__,
-        spglib_version=spglib.__version__,
-        time_reversal_note = (
-            time_reversal_note if path_results['augmented_path'] 
-            else ""),
-        )
-
-
-def get_qe_pw(raw_data, out_json_data):
-    """
-    Return the data in format of the QE pw.x input
-    """
-    lines = []
-
-    lines.append("&CONTROL")
-    lines.append("    calculation = 'bands'")
-    lines.append("    <...>")
-    lines.append("/")
-    lines.append("&SYSTEM")
-    lines.append("    ibrav = 0")
-    lines.append("    nat = {}".format(
-        len(raw_data["primitive_symbols"])))
-    lines.append("    ntyp = {}".format(
-        len(set(raw_data["primitive_symbols"]))))
-    lines.append("    <...>")
-    lines.append("/")
-    lines.append("&ELECTRONS")
-    lines.append("    <...>")
-    lines.append("/")
-    lines.append("ATOMIC_SPECIES")
-    for s in sorted(set(
-        raw_data["primitive_symbols"])):
-        lines.append("{:4s} <MASS_HERE> <PSEUDO_HERE>.UPF".format(
-            s))
-
-    lines.append("ATOMIC_POSITIONS angstrom")
-    for s, p in zip(
-        raw_data["primitive_symbols"],
-        raw_data["primitive_positions_cartesian"]):
-        lines.append("{:4s} {:16.10f} {:16.10f} {:16.10f}".format(
-            s, p[0], p[1], p[2]))
-
-    lines.append("K_POINTS crystal")
-    kplines = []
-    for kp in out_json_data['explicit_kpoints_rel']:
-        kplines.append("{:16.10f} {:16.10f} {:16.10f} 1".format(
-            *kp))
-    lines.append("{}".format(len(kplines)))
-    lines += kplines
-
-    lines.append("CELL_PARAMETERS angstrom")
-    for v in raw_data['primitive_lattice']:
-        lines.append("{:16.10f} {:16.10f} {:16.10f}".format(
-            v[0], v[1], v[2]))
-
-
-    return "\n".join(lines)
-
-def get_qe_matdyn(raw_data, out_json_data):
-    """
-    Return the data in format of the QE matdyn.x input
-    """
-    return "Not implemented yet, sorry..."
 
 @app.route('/')
 def index():
@@ -615,10 +257,18 @@ def process_structure():
         filecontent = structurefile.read()
         
         try:
-            return process_structure_core(
+            data_for_template = process_structure_core(
                 filecontent=filecontent, fileformat=fileformat,
-                call_source="process_structure")
-        except seekpath.hpkot.SymmetryDetectionError:
+                seekpath_module=seekpath,
+                call_source="process_structure", logger=logger,
+                flask_request=flask.request)
+            return flask.render_template(
+                'visualizer.html',
+                **data_for_template)
+        except FlaskRedirectException as e:
+            flask.flash(e.message)
+            return flask.redirect(flask.url_for('input_structure'))
+        except SymmetryDetectionError:
             flask.flash(
                 "Unable to detect symmetry... "
                 "Maybe you have overlapping atoms?")
@@ -658,9 +308,20 @@ def process_example_structure():
                 ext_bravais, poscarfile)) as structurefile:
             filecontent = structurefile.read()
         
-        return process_structure_core(
-            filecontent=filecontent, fileformat=fileformat,
-            call_source="process_example_structure[{}]".format(examplestructure))
+        try:
+            data_for_template = process_structure_core(
+                filecontent=filecontent, fileformat=fileformat,
+                seekpath_module=seekpath,
+                call_source="process_example_structure[{}]".format(
+                    examplestructure),
+                logger=logger,
+                flask_request=flask.request)
+            return flask.render_template(
+                'visualizer.html',
+                **data_for_template)
+        except FlaskRedirectException as e:
+            flask.flash(e.message)
+            return flask.redirect(flask.url_for('input_structure'))
 
     else: # GET Request
         return flask.redirect(flask.url_for('input_structure'))
