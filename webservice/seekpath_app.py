@@ -27,7 +27,11 @@ from seekpath_web_module import (
 # Options:
 # - 'lite': simple version, not title, no info description, different CSS
 # - anything else: default
-style_version = os.environ.get("SEEKPATH_STYLE", "")
+#
+# How to pass: with Apache, when forwarding, in a ReverseProxy section, add 
+#   RequestHeader set X-Seekpath-Style lite
+def get_style_version(request):
+       return request.environ.get("HTTP_X_SEEKPATH_STYLE", "")
 
 import logging, logging.handlers
 logger = logging.getLogger("seekpath_server")
@@ -171,14 +175,14 @@ class ReverseProxied(object):
 
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
-def get_visualizer_select_template():
-    if style_version == 'lite':
+def get_visualizer_select_template(request):
+    if get_style_version(request) == 'lite':
         return 'visualizer_select_lite.html'
     else:
         return 'visualizer_select.html'
 
-def get_visualizer_template():
-    if style_version == 'lite':
+def get_visualizer_template(request):
+    if get_style_version(request) == 'lite':
         return 'visualizer_lite.html'
     else:
         return 'visualizer.html'
@@ -227,7 +231,7 @@ def input_structure():
     """
     Input structure selection
     """
-    return flask.render_template(get_visualizer_select_template())
+    return flask.render_template(get_visualizer_select_template(flask.request))
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
@@ -285,7 +289,7 @@ def process_structure():
                 call_source="process_structure", logger=logger,
                 flask_request=flask.request)
             return flask.render_template(
-                get_visualizer_template(),
+                get_visualizer_template(flask.request),
                 **data_for_template)
         except FlaskRedirectException as e:
             flask.flash(e.message)
@@ -339,7 +343,7 @@ def process_example_structure():
                 logger=logger,
                 flask_request=flask.request)
             return flask.render_template(
-                get_visualizer_template(),
+                get_visualizer_template(flask.request),
                 **data_for_template)
         except FlaskRedirectException as e:
             flask.flash(e.message)
