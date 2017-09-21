@@ -42,6 +42,7 @@ via your main Apache server.
    and the actual seekpath service runs on `localhost` at port `4444`; 
    of course, adapt as needed:
 
+   ```
         ProxyRequests off
         ProxyPreserveHost off
 
@@ -53,6 +54,7 @@ via your main Apache server.
           Order deny,allow
           Allow from all
         </Location>
+  ```
 
   For nginx, similar headers need to be set, see 
   http://flask.pocoo.org/snippets/35/ 
