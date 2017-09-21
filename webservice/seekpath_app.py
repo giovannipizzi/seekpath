@@ -4,7 +4,7 @@ Main Flask python function that manages the server backend
 
 If you just want to try it out, just run this file and connect to
 http://localhost:5000 from a browser. Otherwise, read the instructions
-in README_DEPLOY.txt to deploy on a Apache server.
+in README_DEPLOY.md to deploy on a Apache server.
 """
 from __future__ import unicode_literals
 from future import standard_library

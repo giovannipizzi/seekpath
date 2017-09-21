@@ -41,6 +41,9 @@ How to install
 To install, use ``pip install seekpath``. It works both in python 2.7 and 
 in python 3.5.
 
+In some distributions (e.g. OpenSuse Leap 42.2), some additional libraries
+might be needed, like `python3-devel` and `openblas-devel`.
+
 If you want to start everything with Docker, follow the instructions on the `docker hub`_ page.
 
 ==========
