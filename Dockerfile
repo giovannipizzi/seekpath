@@ -76,11 +76,17 @@ USER app
 # speed up the process)
 COPY ./.pipdockercache/ $HOME/.cache/pip/
 
+# debug
+RUN ls -lR $HOME/.cache/pip
+
 # Install SeeK-path
 # Note: if you want to deploy with python3, use 'pip3' instead of 'pip'
 WORKDIR /home/app/code/seekpath
 RUN pip install -U --user pip setuptools wheel && \
     pip install --user -U .[bz,webservice]
+
+# debug
+RUN ls -lR $HOME/.cache/pip/
 
 # Create a proper wsgi file file
 #
