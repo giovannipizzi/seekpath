@@ -43,17 +43,17 @@ via your main Apache server.
    of course, adapt as needed:
 
    ```
-        ProxyRequests off
-        ProxyPreserveHost off
+   ProxyRequests off
+   ProxyPreserveHost off
 
-	<Location /proxied>
-          ProxyPass http://localhost:4444/
-          ProxyPassReverse http://localhost:4444/
-          RequestHeader set X-Script-Name /proxied
-          RequestHeader set X-Scheme http
-          Order deny,allow
-          Allow from all
-        </Location>
+   <Location /proxied>
+       ProxyPass http://localhost:4444/
+       ProxyPassReverse http://localhost:4444/
+       RequestHeader set X-Script-Name /proxied
+       RequestHeader set X-Scheme http
+       Order deny,allow
+       Allow from all
+  </Location>
   ```
 
   For nginx, similar headers need to be set, see 
