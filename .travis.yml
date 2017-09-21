@@ -33,7 +33,7 @@ before_install:
 
 install:
     - if [ "$TEST_CODE" == "true" ] ; then pip install -r optional-requirements.txt --only-binary numpy,scipy && pip install -e . ; else echo "Testing of the code disabled for this build" ; fi
-    - if [ "$TEST_DOCKER" == "true" ] ; then cp -r ~/.cache/pip/* .pipdockercache && docker build -t seekpathdocker . && docker run -d -p 10080:80 seekpathdocker && docker ps ; else echo "Testing of the docker image disabled for this build" ; fi
+    - if [ "$TEST_DOCKER" == "true" ] ; then ls -lR ~/.cache/pip/ && cp -r ~/.cache/pip/* .pipdockercache && docker build -t seekpathdocker . && docker run -d -p 10080:80 seekpathdocker && docker ps ; else echo "Testing of the docker image disabled for this build" ; fi
 
 script:
     # Very minimal test for the time being; before starting, wait (up to 2 minutes) for the service to go up
