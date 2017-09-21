@@ -72,7 +72,7 @@ WORKDIR $HOME
 COPY ./.pipdockercache/ $HOME/.cache/pip/
 
 # Set proper permissions
-RUN chown -R app:app $HOME
+RUN chown -R app:app $HOME && chmod -R +rX $HOME/.cache/pip
 
 # install rest of the packages as normal user (app, provided by passenger)
 USER app
