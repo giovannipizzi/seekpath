@@ -53,8 +53,8 @@ via your main Apache server.
        RequestHeader set X-Scheme http
        Order deny,allow
        Allow from all
-  </Location>
-  ```
+   </Location>
+   ```
 
   For nginx, similar headers need to be set, see 
   http://flask.pocoo.org/snippets/35/ 
