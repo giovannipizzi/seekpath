@@ -394,22 +394,28 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
             # but some are necessary depending on ibrav
             # and will be matched here:
             if abs(ibrav) > 7:
-                i = 0
+                i = 0 # celldm(2)
                 b = length_conversion * get_fortfloat(keys_in_qeinput[i], txt)
             if abs(ibrav) > 3 and ibrav not in (-5, 5):
-                i = 1
+                i = 1 # celldm(3)
                 c = length_conversion * get_fortfloat(keys_in_qeinput[i], txt)
-            if ibrav in (12, 13, 14):
-                i = 2
+            if ibrav in (5, 12, 13):
+                i = 2 #celldm(4)
                 cosg = get_fortfloat(keys_in_qeinput[i], txt)
                 sing = np.sqrt(1. - cosg ** 2)
+            if ibrav in (5,):
+                cosa = cosg # in QE they call it cos(alpha), anyway all angles
+                            # are identical for trigonal R
             if ibrav in (-12, 14):
-                i = 3
+                i = 3 #celldm(5)
                 cosb = get_fortfloat(keys_in_qeinput[i], txt)
                 sinb = np.sqrt(1. - cosb ** 2)
-            if ibrav in (5, 14):
-                i = 4
+            if ibrav in (14,):
+                i = 2 #celldm(4)
                 cosa = 1. * get_fortfloat(keys_in_qeinput[i], txt)
+            if ibrav in (14,):
+                i = 4 #celldm(6)
+                cosg = 1. * get_fortfloat(keys_in_qeinput[i], txt)
                 # The multiplication with 1.
                 # raises Exception here if None was returned by get_fortfloat
         except Exception as e:
@@ -593,7 +599,7 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
         #     beta is the angle between axis a and c
         #    gamma is the angle between axis a and b
         cell = np.array([
-            [a, 0., -0.5 * c],
+            [a, 0., 0.],
             [b * cosg, b * sing, 0.],
             [
                 c * cosb,

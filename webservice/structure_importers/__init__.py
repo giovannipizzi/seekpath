@@ -1,6 +1,11 @@
 import ase.io
 from ase.data import atomic_numbers
 
+
+class UnknownFormatError(ValueError):
+    pass
+
+
 def get_atomic_numbers(symbols):
     """
     Given a list of symbols, return the corresponding atomic numbers.
@@ -14,6 +19,7 @@ def get_atomic_numbers(symbols):
         except KeyError:
             raise ValueError("Unknown symbol '{}'".format(s))
     return retlist
+
 
 def tuple_from_ase(asestructure):
     """
@@ -32,6 +38,7 @@ def tuple_from_ase(asestructure):
         atomic_numbers)
     return structure_tuple
 
+
 def get_structure_tuple(fileobject, fileformat):        
     """
     Given a file-like object (using StringIO or open()), and a string
@@ -44,25 +51,19 @@ def get_structure_tuple(fileobject, fileformat):
     :return: a structure tuple (cell, positions, numbers) as accepted
         by seekpath.
     """
-    if fileformat == 'vasp':
-        import ase.io.vasp
-        asestructure = ase.io.vasp.read_vasp(fileobject)
-        return tuple_from_ase(asestructure)
-    elif fileformat == 'xsf':
-        import ase.io.xsf
-        asestructure = ase.io.xsf.read_xsf(fileobject)
-        return tuple_from_ase(asestructure)
-    elif fileformat == 'castep':
-        import ase.io.castep
-        asestructure = ase.io.castep.read_castep_cell(fileobject)
+    ase_fileformats = {
+        'vasp': 'vasp',
+        'xsf': 'xsf',
+        'castep': 'castep-cell',
+        'pdb': 'proteindatabank',
+        # 'cif': 'cif', # currently broken in ASE: https://gitlab.com/ase/ase/issues/15
+        }
+    if fileformat in ase_fileformats.keys():
+        asestructure = ase.io.read(fileobject, format=ase_fileformats[fileformat])
         return tuple_from_ase(asestructure)
     elif fileformat == 'qe-inp':
         from .qeinp import read_qeinp
         structure_tuple = read_qeinp(fileobject)
         return structure_tuple
-    else:
-        raise UnknownFormatError(fileformat)
 
-    # I should never be here, I raise anyway a UnknownFormatError
-    raise UnknownFormatError(fileformat)    
-
+    raise UnknownFormatError(fileformat)

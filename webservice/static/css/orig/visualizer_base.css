@@ -14,7 +14,6 @@ html {
 }
 
 h1 {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 24px;
     font-style: normal;
     font-variant: normal;
@@ -22,7 +21,6 @@ h1 {
     line-height: 26px;
 }
 h2 {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 18px;
     font-style: normal;
     font-variant: normal;
@@ -30,7 +28,6 @@ h2 {
     line-height: 15px;
 }
 h3 {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 14px;
     font-style: normal;
     font-variant: normal;
@@ -38,7 +35,6 @@ h3 {
     line-height: 15px;
 }
 h4 {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 12px;
     font-style: normal;
     font-variant: normal;
@@ -46,7 +42,6 @@ h4 {
     line-height: 12px;
 }
 p, li, label, input, select {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 14px;
     font-style: normal;
     font-variant: normal;
@@ -54,7 +49,7 @@ p, li, label, input, select {
     line-height: 20px;
 }
 blockquote {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+/*    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; */
     font-size: 21px;
     font-style: normal;
     font-variant: normal;
@@ -62,7 +57,7 @@ blockquote {
     line-height: 30px;
 }
 pre {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+/*    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;  */
     font-size: 13px;
     font-style: normal;
     font-variant: normal;
