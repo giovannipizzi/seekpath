@@ -20,6 +20,15 @@ from seekpath_web_module import (
     logme,
     process_structure_core)
 
+# This (undocumented) flag changes the style of the webpage (CSS, etc.)
+# and decides whether some of the headers (e.g. the SeeK-path title) and the
+# description of what seekpath can do should appear or not
+#
+# Options:
+# - 'lite': simple version, not title, no info description, different CSS
+# - anything else: default
+style_version = os.environ.get("SEEKPATH_STYLE", "")
+
 import logging, logging.handlers
 logger = logging.getLogger("seekpath_server")
 
@@ -162,6 +171,19 @@ class ReverseProxied(object):
 
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
+def get_visualizer_select_template():
+    if style_version == 'lite':
+        return 'visualizer_select_lite.html'
+    else:
+        return 'visualizer_select.html'
+
+def get_visualizer_template():
+    if style_version == 'lite':
+        return 'visualizer_lite.html'
+    else:
+        return 'visualizer.html'
+
+
 logger.debug("Start")
 
 # From http://arusahni.net/blog/2014/03/flask-nocache.html
@@ -205,7 +227,7 @@ def input_structure():
     """
     Input structure selection
     """
-    return flask.render_template('visualizer_select.html')
+    return flask.render_template(get_visualizer_select_template())
 
 @app.route('/static/js/<path:path>')
 def send_js(path):
@@ -263,7 +285,7 @@ def process_structure():
                 call_source="process_structure", logger=logger,
                 flask_request=flask.request)
             return flask.render_template(
-                'visualizer.html',
+                get_visualizer_template(),
                 **data_for_template)
         except FlaskRedirectException as e:
             flask.flash(e.message)
@@ -317,7 +339,7 @@ def process_example_structure():
                 logger=logger,
                 flask_request=flask.request)
             return flask.render_template(
-                'visualizer.html',
+                get_visualizer_template(),
                 **data_for_template)
         except FlaskRedirectException as e:
             flask.flash(e.message)

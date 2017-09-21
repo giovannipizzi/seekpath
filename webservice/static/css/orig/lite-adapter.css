@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css?family=Assistant|Droid+Sans+Mono|Roboto');
+
+body {
+    margin: 0; 
+    font-family: 'Assistant', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    line-height: 1.43;
+}
+
+p, li, label, input, select {
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    /*font-weight: 300;*/
+    line-height: 1.43;
+}
+
+h1 {
+    color: rgb(13, 71, 161);
+    font-family: Roboto,sans-serif;
+    font-size: 30px;
+    font-weight: 300;
+    line-height: 44px;
+    margin-bottom: 11px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 22px;
+}
+h2 {
+color: rgb(13, 71, 161);
+font-family: Roboto,sans-serif;
+font-size: 26px;
+font-weight: 300;
+line-height: 35.2px;
+margin-bottom: 11px;
+margin-top: 22px;
+}
+h3 {
+    color: rgb(21, 101, 192);
+    font-family: Roboto,sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24.2px;
+    margin-bottom: 11px;
+    margin-top: 22px;
+}
+h4 {
+    color: rgb(21, 101, 192);
+    font-family: Roboto,sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 17.6px;
+    margin-bottom: 11px;
+    margin-top: 11px;
+}
+
+code {
+    font-family: 'Droid Sans Mono',monospace;
+    font-size: 14px;
+}
