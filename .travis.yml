@@ -13,6 +13,8 @@ matrix:
       services: 
       - docker
 
+cache: pip
+
 notifications:
     email:
         on_success: never
