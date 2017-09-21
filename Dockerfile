@@ -64,30 +64,17 @@ COPY ./MANIFEST.in MANIFEST.in
 COPY ./LICENSE.txt LICENSE.txt
 COPY ./run_tests.py run_tests.py
 
-WORKDIR $HOME
-# As a first step, we upload the pip cache
-# (by default empty in the repository, but can be populated
-# with a valid pip cache before running build if you want to
-# speed up the process)
-COPY ./.pipdockercache/ $HOME/.cache/pip/
-
 # Set proper permissions
-RUN chown -R app:app $HOME && chmod -R +rX $HOME/.cache/pip
+RUN chown -R app:app $HOME
 
 # install rest of the packages as normal user (app, provided by passenger)
 USER app
-
-# debug
-RUN ls -lR $HOME/.cache/pip
 
 # Install SeeK-path
 # Note: if you want to deploy with python3, use 'pip3' instead of 'pip'
 WORKDIR /home/app/code/seekpath
 RUN pip install -U --user pip setuptools wheel && \
     pip install --user -U .[bz,webservice]
-
-# debug
-RUN ls -lR $HOME/.cache/pip/
 
 # Create a proper wsgi file file
 #
