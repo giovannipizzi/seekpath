@@ -70,10 +70,16 @@ RUN chown -R app:app $HOME
 # install rest of the packages as normal user (app, provided by passenger)
 USER app
 
+# As a first step, we upload the pip cache
+# (by default empty in the repository, but can be populated
+# with a valid pip cache before running build if you want to
+# speed up the process)
+COPY ./.pipdockercache/ $HOME/.cache/pip/
+
 # Install SeeK-path
 # Note: if you want to deploy with python3, use 'pip3' instead of 'pip'
 WORKDIR /home/app/code/seekpath
-RUN pip install -U --user pip setuptools && \
+RUN pip install -U --user pip setuptools wheel && \
     pip install --user -U .[bz,webservice]
 
 # Create a proper wsgi file file
