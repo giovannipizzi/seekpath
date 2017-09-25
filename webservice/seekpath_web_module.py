@@ -323,6 +323,9 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
     qe_matdyn = str(jinja2.escape(
         get_qe_matdyn(raw_code_dict, out_json_data))).replace(
             '\n', '<br>').replace(' ', '&nbsp;')
+    cp2k = str(jinja2.escape(
+        get_cp2k(raw_code_dict))).replace(
+            '\n', '<br>').replace(' ', '&nbsp;')
 
     return dict(
         jsondata=json.dumps(out_json_data),
@@ -346,6 +349,7 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         suggested_path=suggested_path,
         qe_pw=qe_pw,
         qe_matdyn=qe_matdyn,
+        cp2k=cp2k,
         compute_time=compute_time,
         seekpath_version=seekpath_module.__version__,
         spglib_version=spglib.__version__,
@@ -411,3 +415,76 @@ def get_qe_matdyn(raw_data, out_json_data):
     """
     return "Not implemented yet, sorry..."
 
+
+def get_cp2k(raw_data):
+    """
+    Return the data in format of a CP2K input
+    """
+    template = jinja2.Template("""
+&GLOBAL
+   RUN_TYPE ENERGY
+   <...>
+&END GLOBAL
+
+&FORCE_EVAL
+   <...>
+
+   &DFT
+      <...>
+
+      &QS
+         EXTRAPOLATION USE_GUESS ! required for K-Point sampling
+      &END QS
+
+      &POISSON
+         PERIODIC XYZ
+      &END POISSON
+
+      &PRINT
+         &BAND_STRUCTURE
+            FILE_NAME <NAME_HERE>.bs
+
+            {% for s in raw.path -%}
+            &KPOINT_SET
+               UNITS B_VECTOR
+               SPECIAL_POINT {{ '%5s' % s[0] }} {%- for c in raw.kpoints_rel[s[0]] %} {{ '%16.10f' % c }}{% endfor %}
+               SPECIAL_POINT {{ '%5s' % s[1] }} {%- for c in raw.kpoints_rel[s[1]] %} {{ '%16.10f' % c }}{% endfor %}
+               NPOINTS 10
+            &END KPOINT_SET
+            {% endfor %}
+         &END BAND_STRUCTURE
+      &END PRINT
+
+      &KPOINTS
+         <...>
+      &END KPOINTS
+   &END DFT
+
+   &SUBSYS
+      ! Important: use the cell and coordinates provided here instead of the original ones
+      &CELL
+         {%- for s, v in zip(['A', 'B', 'C'], raw.primitive_lattice) %}
+         {{ '%4s' % s }} [angstrom] {%- for c in v %} {{ '%16.10f' % c }}{% endfor %}
+         {%- endfor %}
+         PERIODIC XYZ
+      &END CELL
+      &COORD
+         {%- for s, v in zip(raw.primitive_symbols, raw.primitive_positions_cartesian) %}
+         {{ '%4s' % s }} {%- for c in v %} {{ '%16.10f' % c }}{% endfor %}
+         {%- endfor %}
+      &END COORD
+
+      {% for s in set(raw.primitive_symbols) -%}
+      &KIND {{ s }}
+         ELEMENT {{ s }}
+         BASIS_SET <BS_NAME_HERE>
+         POTENTIAL <PP_NAME_HERE>
+      &END KIND
+      {% endfor %}
+   &END SUBSYS
+&END FORCE_EVAL
+""")
+    return template.render(
+        raw=raw_data,  # export the complete raw data to the template
+        zip=zip, set=set  # add zip and set to the template environment for some loops
+        )
