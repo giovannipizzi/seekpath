@@ -148,7 +148,7 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
     start_time = time.time()
     fileobject = io.StringIO(str(filecontent))
     try:
-        structure_tuple = get_structure_tuple(fileobject, fileformat)
+        structure_tuple = get_structure_tuple(fileobject, fileformat, extra_data=dict(flask_request.form))
     except UnknownFormatError:
         logme(logger, filecontent, fileformat, flask_request, call_source,
               reason = 'unknownformat')
