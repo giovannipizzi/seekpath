@@ -38,7 +38,7 @@ If you use this tool, please cite the following work:
 ============
 Contributors
 ============
-- Tiziano Mueller (UZH, Switzerland) for the CP2K input file generator
+- Tiziano Müller (UZH, Switzerland) for the CP2K input file generator
   and added a number of new input formats (XYZ, PDB, ...)
 
 ==============
