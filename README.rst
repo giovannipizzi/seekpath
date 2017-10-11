@@ -35,6 +35,12 @@ If you use this tool, please cite the following work:
 - You should also cite `spglib`_ that is an essential library used in the 
   implementation.
 
+============
+Contributors
+============
+- Tiziano Mueller (UZH, Switzerland) for the CP2K input file generator
+  and added a number of new input formats (XYZ, PDB, ...)
+
 ==============
 How to install
 ==============
