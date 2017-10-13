@@ -35,6 +35,12 @@ If you use this tool, please cite the following work:
 - You should also cite `spglib`_ that is an essential library used in the 
   implementation.
 
+============
+Contributors
+============
+- Tiziano Müller (UZH, Switzerland) for the CP2K input file generator
+  and added a number of new input formats (XYZ, PDB, ...)
+
 ==============
 How to install
 ==============
@@ -127,7 +133,7 @@ Online service/tool
 
 In this repository we also provide the code to deploy a online service for 
 the visualization of the band paths and primitive cells of the crystal 
-structures. A live demo is currently hosted on the `MaterialsCloud`_ web portal.
+structures. A live demo is currently hosted on the `Materials Cloud`_ web portal.
 
 The following is a screenshot of the selection window:
 
@@ -147,5 +153,5 @@ And the following is a screenshot of the main output window, showing the Brillou
 .. _JOURNAL LINK: http://dx.doi.org/10.1016/j.commatsci.2016.10.015
 .. _arXiv link: https://arxiv.org/abs/1602.06402
 .. _spglib: http://atztogo.github.io/spglib/
-.. _MaterialsCloud: http://www.materialscloud.org/tools/seekpath/
+.. _Materials Cloud: http://www.materialscloud.org/tools/seekpath/
 .. _docker hub: https://hub.docker.com/r/giovannipizzi/seekpath/
