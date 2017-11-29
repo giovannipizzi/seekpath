@@ -210,6 +210,65 @@ var getText = function(label, color) {
     return textdiv;
 }
 
+var getDoubleClickText = function(the_class) {
+    
+        // Return a text div with the given label, and not unselectable
+        var textdiv = document.createElement('div');
+        textdiv.classList.add(the_class);
+        textdiv.style.position = 'absolute';
+        textdiv.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+        textdiv.style.zIndex = 1;    
+        textdiv.style.width = "100%";
+        textdiv.style.height = "100%";
+        textdiv.style.display = "table";
+        textdiv.style.top = '0px';
+        textdiv.style.left = '0px';
+        textdiv.style.textAlign = "center";
+        textdiv.style.verticalAlign = "middle";
+
+        textdiv.style.userSelect = "none";
+        textdiv.style.userSelect = "none";
+        textdiv.style.webkitUserSelect = "none";
+        textdiv.style.MozUserSelect = "none";
+        textdiv.setAttribute("unselectable", "on");
+        //textdiv.style.pointerEvents = "none"; 
+
+        var textspan = document.createElement('span');
+        // start visible, anyway
+        textspan.innerHTML = "Double click to toggle interaction";
+        textspan.style.color = "rgb(80, 80, 80)";
+        textspan.style.fontSize = "24px";
+        textspan.style.fontWeight = "bold";
+        textspan.style.backgroundColor = "rgba(230,230,230,0.5)";        
+        textspan.style.display = "table-cell";
+        textspan.style.verticalAlign = "middle";
+        textspan.style.lineHeight = "normal";
+        textspan.style.userSelect = "none";
+        textspan.style.userSelect = "none";
+        textspan.style.webkitUserSelect = "none";
+        textspan.style.MozUserSelect = "none";
+        textspan.setAttribute("unselectable", "on");
+        //textspan.style.pointerEvents = "none"; 
+
+        textspan.onmouseover = function() 
+        {
+            this.style.backgroundColor = "rgba(230,230,230,0.5)";
+            this.innerHTML = "Double click to toggle interaction";
+            console.log('over');
+        }
+        textspan.onmouseleave = function() 
+        {
+            // 0.0 for alpha doesn't work properly, apparently
+            this.style.backgroundColor = "rgba(255,255,255,0.01)";
+            this.innerHTML = "";
+            console.log('leave');
+        }
+
+        textdiv.appendChild(textspan);
+
+        return textdiv;
+    }
+
 var load_BZ = function(canvasID, infoID, jsondata) {
     // to be used by resize_renderer
     current_canvas_id = canvasID;
@@ -490,17 +549,33 @@ var load_BZ = function(canvasID, infoID, jsondata) {
 
     render();
 
-    var bz_switch_enable = function(event){ 
-        controls.enabled = !controls.enabled;
-        if (controls.enabled) {
-            scene.background = new THREE.Color( 0xffffff );
-            render();
+    var bz_switch_enable = function(event, force_status){ 
+        if (typeof force_status == "undefined") {
+            var the_status = !controls.enabled;
         }
         else {
-            scene.background = new THREE.Color( 0xeeeeee );
-            render();
+            var the_status = force_status;
+        }
+        
+        controls.enabled = the_status;
+
+        elems = canvas3d.getElementsByClassName("BZDoubleClickText");
+        for (var i=0; i < elems.length; i++) {
+            canvas3d.removeChild(elems[i]);    
+        }
+        if (the_status) {
+            //scene.background = new THREE.Color( 0xffffff );
+            //render();
+        }
+        else {
+            //scene.background = new THREE.Color( 0xeeeeee );
+            //render();
+            canvas3d.appendChild(getDoubleClickText("BZDoubleClickText"));            
         }
     }
+
+    // Default status: disabled
+    bz_switch_enable(force_status=false);
 
     canvas3d.addEventListener('dblclick', bz_switch_enable);
 
@@ -562,6 +637,8 @@ var load_BZ = function(canvasID, infoID, jsondata) {
         console.log('svg content:');
         console.log(renderer.domElement.outerHTML.replace('/<path/g','\n<path'));
     }*/
+
+
 }
 
 function toScreenPosition(vector3D, camera)

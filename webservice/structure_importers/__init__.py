@@ -1,6 +1,8 @@
 import ase.io
 from ase.data import atomic_numbers
-
+from seekpath.util import atoms_num_dict
+import qe_tools
+import numpy as np
 
 class UnknownFormatError(ValueError):
     pass
@@ -74,8 +76,18 @@ def get_structure_tuple(fileobject, fileformat, extra_data=None):
 
         return tuple_from_ase(asestructure)
     elif fileformat == 'qe-inp':
-        from .qeinp import read_qeinp
-        structure_tuple = read_qeinp(fileobject)
+        pwfile = qe_tools.PwInputFile(fileobject)
+        pwparsed = pwfile.get_structure_from_qeinput()
+
+        cell = pwparsed['cell']
+        rel_position = np.dot(pwparsed['positions'], np.linalg.inv(cell)).tolist()
+        numbers = [atoms_num_dict[sym] for sym in pwparsed['atom_names']]
+
+        structure_tuple = (
+            cell,
+            rel_position, 
+            numbers)
+        print(structure_tuple)
         return structure_tuple
 
     raise UnknownFormatError(fileformat)

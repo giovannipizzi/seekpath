@@ -26,7 +26,7 @@ class FlaskRedirectException(Exception):
     """
     pass
 
-MAX_NUMBER_OF_ATOMS = 256
+MAX_NUMBER_OF_ATOMS = 1000
 time_reversal_note = ("The second half of the path is required only if "
                       "the system does not have time-reversal symmetry")
 
@@ -147,18 +147,22 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
 
     start_time = time.time()
     fileobject = io.StringIO(str(filecontent))
+    form_data = dict(flask_request.form)
     try:
-        structure_tuple = get_structure_tuple(fileobject, fileformat, extra_data=dict(flask_request.form))
+        structure_tuple = get_structure_tuple(fileobject, fileformat, extra_data=form_data)
     except UnknownFormatError:
         logme(logger, filecontent, fileformat, flask_request, call_source,
-              reason = 'unknownformat')
+            reason = 'unknownformat', extra={
+            'form_data': form_data,
+            })
         raise FlaskRedirectException("Unknown format '{}'".format(fileformat))
     except Exception:
         # There was an exception...
         import traceback
         logme(logger, filecontent, fileformat, flask_request, call_source,
               reason = 'exception', extra = {
-                'traceback': traceback.format_exc()
+                'traceback': traceback.format_exc(),
+                'form_data': form_data,
                 })
         raise FlaskRedirectException(
             "I tried my best, but I wasn't able to load your "
@@ -168,7 +172,8 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         ## Structure too big
         logme(logger, filecontent, fileformat, flask_request, call_source,
               reason = 'toolarge', extra={
-                'number_of_atoms': len(structure_tuple[1])
+                'number_of_atoms': len(structure_tuple[1]),
+                'form_data': form_data,
                 })
         raise FlaskRedirectException(
             "Sorry, this online visualizer is limited to {} atoms "
@@ -178,7 +183,8 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
     # Log the content in case of valid structure
     logme(logger, filecontent, fileformat, flask_request, call_source,
           reason = 'OK', extra={
-            'number_of_atoms': len(structure_tuple[1])
+            'number_of_atoms': len(structure_tuple[1]),
+            'form_data': form_data,
             })
 
     try:
@@ -314,7 +320,9 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         import traceback
         logme(logger, filecontent, fileformat, flask_request, call_source,
               reason = 'codeexception', extra={
-                'traceback': traceback.extract_stack()})
+                'traceback': traceback.extract_stack(),
+                'form_data': form_data,
+                })
         raise
 
     qe_pw = str(jinja2.escape(
