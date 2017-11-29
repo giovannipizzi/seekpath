@@ -36,10 +36,10 @@ def get_style_version(request):
 import logging, logging.handlers
 logger = logging.getLogger("seekpath_server")
 
-logHandler = logging.handlers.RotatingFileHandler(
+logHandler = logging.handlers.TimedRotatingFileHandler(
     os.path.join(
         os.path.split(os.path.realpath(__file__))[0],
-        'requests.log'), maxBytes=50000000)
+        'requests.log'), when='D', interval=1)
 formatter = logging.Formatter('[%(asctime)s]%(levelname)s-%(funcName)s ^ %(message)s') 
 logHandler.setFormatter(formatter) 
 logger.addHandler(logHandler) 

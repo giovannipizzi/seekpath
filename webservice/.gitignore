@@ -1,4 +1,5 @@
 requests.log
+requests.log.*
 SECRET_KEY
 seekpath_app.wsgi
 seekpath-site.conf
