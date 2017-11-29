@@ -1,6 +1,7 @@
 import ase.io
 from ase.data import atomic_numbers
 from seekpath.util import atoms_num_dict
+import pymatgen
 import qe_tools
 import numpy as np
 
@@ -40,6 +41,22 @@ def tuple_from_ase(asestructure):
         atomic_numbers)
     return structure_tuple
 
+def tuple_from_pymatgen(pmgstructure):
+    """
+    Given a pymatgen structure, return a structure tuple as expected from seekpath
+
+    :param pmgstructure: a pymatgen Structure object
+    
+    :return: a structure tuple (cell, positions, numbers) as accepted
+        by seekpath.
+    """
+    frac_coords = [site.frac_coords.tolist() for site in pmgstructure.sites]
+    structure_tuple = (
+        pmgstructure.lattice.matrix.tolist(),
+        frac_coords,
+        pmgstructure.atomic_numbers)
+    return structure_tuple
+
 
 def get_structure_tuple(fileobject, fileformat, extra_data=None):
     """
@@ -54,17 +71,17 @@ def get_structure_tuple(fileobject, fileformat, extra_data=None):
         by seekpath.
     """
     ase_fileformats = {
-        'vasp': 'vasp',
-        'xsf': 'xsf',
-        'castep': 'castep-cell',
-        'pdb': 'proteindatabank',
-        'xyz': 'xyz',
-        # 'cif': 'cif', # currently broken in ASE: https://gitlab.com/ase/ase/issues/15
+        'vasp-ase': 'vasp',
+        'xsf-ase': 'xsf',
+        'castep-ase': 'castep-cell',
+        'pdb-ase': 'proteindatabank',
+        'xyz-ase': 'xyz',
+        'cif-ase': 'cif', # currently broken in ASE: https://gitlab.com/ase/ase/issues/15
         }
     if fileformat in ase_fileformats.keys():
         asestructure = ase.io.read(fileobject, format=ase_fileformats[fileformat])
 
-        if fileformat == 'xyz':
+        if fileformat == 'xyz-ase':
             # XYZ does not contain cell information, add them back from the additional form data
             try:
                 cell = list(tuple(float(extra_data['xyzCellVec'+v+a][0]) for a in 'xyz') for v in 'ABC')
@@ -75,7 +92,12 @@ def get_structure_tuple(fileobject, fileformat, extra_data=None):
             asestructure.set_cell(cell)
 
         return tuple_from_ase(asestructure)
-    elif fileformat == 'qe-inp':
+    elif fileformat == "cif-pymatgen":
+    	from pymatgen.io.cif import CifParser
+    	# Only get the first structure, if more than one
+    	pmgstructure = CifParser(fileobject).get_structures()[0]
+        return tuple_from_pymatgen(pmgstructure)        
+    elif fileformat == 'qeinp-qetools':
         pwfile = qe_tools.PwInputFile(fileobject)
         pwparsed = pwfile.get_structure_from_qeinput()
 

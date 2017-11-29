@@ -31,7 +31,7 @@
       });
 
       $( "#fileformatSelect" ).change(function() {
-        if ( $(this).val() == "xyz" )
+        if ( $(this).val() == "xyz-ase" )
           $( "#xyzFormatFields" ).show();
         else
           $( "#xyzFormatFields" ).hide();
@@ -126,12 +126,14 @@ standard in the field in crystallography: the <em>International Tables of Crysta
 	</div> 
 	<div class='col-sm-6'>
 	  <select name="fileformat" id="fileformatSelect">
-            <option value="qe-inp">Quantum ESPRESSO input</option>
-            <option value="vasp">VASP POSCAR</option>
-            <option value="xsf">XCrySDen (.xsf)</option>
-            <option value="castep">CASTEP (.cell)</option>
-	    <option value="pdb">Protein Data Bank format (.pdb)</option>
-	    <option value="xyz">XYZ File (.xyz)</option>
+        <option value="qeinp-qetools">Quantum ESPRESSO input [parser: qe-tools]</option>
+        <option value="vasp-ase">VASP POSCAR [parser: ase]</option>
+        <option value="xsf-ase">XCrySDen (.xsf) [parser: ase]</option>
+        <option value="castep-ase">CASTEP (.cell) [parser: ase]</option>
+	      <option value="pdb-ase">Protein Data Bank format (.pdb) [parser: ase]</option>
+	      <option value="xyz-ase">XYZ File (.xyz) [parser: ase]</option>
+        <option value="cif-ase">CIF File (.cif) [parser: ase]</option>
+        <option value="cif-pymatgen">CIF File (.cif) [parser: pymatgen]</option>
 	  </select>
 	</div> 
       </div>
