@@ -45,8 +45,9 @@
     var json_content = {{ json_content|safe }};
 
     $( document ).ready(function() {
-        load_BZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
-    });
+        mainBZVisualizer = new BZVisualizer();
+        mainBZVisualizer.loadBZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
+      });
 
     // global variable
     var structureviewer = null;
@@ -241,7 +242,6 @@
         }
         structureviewer.dblclick = structure_switch_activate;
         structureviewer.dbltap = structure_switch_activate;
-
       </script></div>
     </div>
 
