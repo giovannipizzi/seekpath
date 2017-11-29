@@ -315,7 +315,7 @@ def process_example_structure():
     """
     if flask.request.method == 'POST':
         examplestructure = flask.request.form.get('examplestructure', '<none>')
-        fileformat = "vasp"
+        fileformat = "vasp-ase"
 
         try:
             ext_bravais, withinv = valid_examples[examplestructure]

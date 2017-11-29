@@ -24,8 +24,8 @@ CMD ["/sbin/my_init"]
 # for features. Uncomment the features you want:
 #
     #   Build system and git.
-RUN /pd_build/utilities.sh && \
     #   Python support (2.7 and 3.x - it is 3.5.x in this ubuntu 16.04)
+RUN /pd_build/utilities.sh && \
     /pd_build/python.sh 
 
 ##########################################
