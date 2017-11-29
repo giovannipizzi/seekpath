@@ -31,6 +31,37 @@ THE SOFTWARE.
 
 */
 
+var prettifyLabel = function(label, forSVG) {
+
+        forSVG = typeof forSVG !== 'undefined' ? forSVG : false;
+
+        // Gamma
+        label = label.replace(/GAMMA/gi,'&Gamma;');
+        // Delta
+        label = label.replace(/DELTA/gi,'&Delta;');
+        // Sigma
+        label = label.replace(/SIGMA/gi,'&Sigma;');
+        // Lambda
+        label = label.replace(/LAMBDA/gi,'&Lambda;');
+        label = label.replace(/\-/gi, '&mdash;')
+
+        // Underscores
+        if (forSVG) {
+            label = label.replace(/_(.)/gi,
+                function (match, p1, offset, string) {
+            return '<tspan baseline-shift="sub">'+p1+'</tspan>';
+            });
+        }
+        else {
+            label = label.replace(/_(.)/gi,
+                function (match, p1, offset, string) {
+                    return '<sub>'+p1+'</sub>';
+            });
+        }
+
+        return label;
+}
+
 var BZVisualizer = function(showAxes, showBVectors, showPathpoints, useSVGRenderer) {
     // Global variables
     showAxes = (typeof showAxes !== 'undefined') ?  showAxes : true;
@@ -115,38 +146,7 @@ var BZVisualizer = function(showAxes, showBVectors, showPathpoints, useSVGRender
         });
     };
 
-    var prettify_label = function(label, forSVG) {
-
-            forSVG = typeof forSVG !== 'undefined' ? forSVG : false;
-
-            // Gamma
-            label = label.replace(/GAMMA/gi,'&Gamma;');
-            // Delta
-            label = label.replace(/DELTA/gi,'&Delta;');
-            // Sigma
-            label = label.replace(/SIGMA/gi,'&Sigma;');
-            // Lambda
-            label = label.replace(/LAMBDA/gi,'&Lambda;');
-            label = label.replace(/\-/gi, '&mdash;')
-
-            // Underscores
-            if (forSVG) {
-                label = label.replace(/_(.)/gi,
-                    function (match, p1, offset, string) {
-                return '<tspan baseline-shift="sub">'+p1+'</tspan>';
-                });
-            }
-            else {
-                label = label.replace(/_(.)/gi,
-                    function (match, p1, offset, string) {
-                        return '<sub>'+p1+'</sub>';
-                });
-            }
-
-            return label;
-    }
-
-    var resize_renderer = function() {
+    this.resizeRenderer = function() {
         if (current_canvas_id) {
             var canvas3d = document.getElementById(current_canvas_id);
 
@@ -271,7 +271,7 @@ var BZVisualizer = function(showAxes, showBVectors, showPathpoints, useSVGRender
         }
 
     this.loadBZ = function(canvasID, infoID, jsondata) {
-        // to be used by resize_renderer
+        // to be used by resizeRenderer
         current_canvas_id = canvasID;
         var canvas3d = document.getElementById(canvasID);
 
@@ -324,7 +324,7 @@ var BZVisualizer = function(showAxes, showBVectors, showPathpoints, useSVGRender
         // Now is commented, needs to be called by hand
         // var doc = canvas3d.ownerDocument;
         // var win = doc.defaultView || doc.parentWindow;
-        // win.addEventListener("resize", resize_renderer);
+        // win.addEventListener("resize", resizeRenderer);
 
         controls = new THREE.OrbitControls( camera, renderer.domElement );
         controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
@@ -363,7 +363,7 @@ var BZVisualizer = function(showAxes, showBVectors, showPathpoints, useSVGRender
 
             // Label
             // prettify label
-            label = prettify_label(label,forSVG=useSVGRenderer);        
+            label = prettifyLabel(label,forSVG=useSVGRenderer);        
             var textdiv = getText(label);
             if (useSVGRenderer) {
                 renderer.domElement.appendChild(textdiv);

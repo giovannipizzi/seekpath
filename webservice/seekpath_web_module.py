@@ -211,6 +211,10 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
             'primitive_lattice'].tolist()
         raw_code_dict['primitive_positions'] = path_results[
             'primitive_positions'].tolist()
+        inputstructure_positions_cartesian = np.dot(
+            np.array(in_json_data['scaled_coords']),
+            np.array(in_json_data['cell']),
+            ).tolist()
         primitive_positions_cartesian = np.dot(
             np.array(path_results['primitive_positions']),
             np.array(path_results['primitive_lattice']),
@@ -245,6 +249,15 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
             for idx, coords in 
             enumerate(in_json_data['cell'], start=1)
         ]
+        inputstructure_symbols = [chemical_symbols[num] for num 
+            in in_json_data['atomic_numbers']]
+        inputstructure_atoms_scaled = [[label, coords[0], coords[1], coords[2]]
+            for label, coords in zip(
+                inputstructure_symbols,in_json_data['scaled_coords'])]
+        inputstructure_atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
+            for label, coords in 
+            zip(inputstructure_symbols, 
+                inputstructure_positions_cartesian)]
 
         direct_vectors = [[idx, coords[0], coords[1], coords[2]]
             for idx, coords in 
@@ -348,6 +361,8 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         spacegroup_international=path_results['spacegroup_international'],
         direct_vectors=direct_vectors,
         inputstructure_cell_vectors=inputstructure_cell_vectors,
+        inputstructure_atoms_scaled=inputstructure_atoms_scaled,
+        inputstructure_atoms_cartesian=inputstructure_atoms_cartesian,
         atoms_scaled=atoms_scaled,
         with_without_time_reversal= (
             "with" if path_results['has_inversion_symmetry'] 
