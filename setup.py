@@ -40,7 +40,7 @@ setup(
     ],
     extras_require = {
         "bz": ["scipy>=0.17"],
-        "webservice": ["Flask", "ase>=3.9"],
+        "webservice": ["Flask", "ase>=3.9", "qe-tools"],
         },
     packages=find_packages(),
     # Needed to include some static files declared in MANIFEST.in
