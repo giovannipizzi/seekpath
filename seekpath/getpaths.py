@@ -4,9 +4,21 @@ This module contains the main functions to get a path and an explicit path.
 from builtins import range
 
 
-def get_explicit_from_implicit(seekpath_output):
+def get_explicit_from_implicit(seekpath_output, reference_distance):
     """
+    Given the output of ``get_path`` by seekpath, compute an "explicit" path,
+    i.e. instead of just giving the endpoints and their coordinates, compute 
+    a full list of kpoints
+
+    :param seekpath_output: a dictionary, the output of ``seekpath.get_path``
+
+    :param reference_distance: a reference target distance between neighboring
+        k-points in the path, in units of 1/ang. The actual value will be as
+        close as possible to this value, to have an integer number of points in
+        each path.
     """
+    import numpy as np
+
     retdict = {}
     retdict['has_inversion_symmetry'] = seekpath_output['has_inversion_symmetry']
     retdict['augmented_path'] = seekpath_output['augmented_path']
@@ -288,8 +300,6 @@ def get_explicit_k_path(structure, with_time_reversal=True,
           and typically in a graphical representation they are shown at the 
           same coordinate, with a label "R|X").
     """
-    import numpy as np
-
     if recipe == 'hpkot':
         from . import hpkot
         res = hpkot.get_path(
@@ -303,4 +313,4 @@ def get_explicit_k_path(structure, with_time_reversal=True,
         raise ValueError("value for 'recipe' not recognized. The only value "
                          "currently accepted is 'hpkot'.")
 
-    return get_explicit_from_implicit(res)
+    return get_explicit_from_implicit(res, reference_distance=reference_distance)
