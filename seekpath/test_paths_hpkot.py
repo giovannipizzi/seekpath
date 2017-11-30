@@ -64,6 +64,51 @@ class TestPaths3D_HPKOT_Supercell(unittest.TestCase):
         self.assertEqual(res['volume_original_wrt_conv'], 2)
         self.assertEqual(res['volume_original_wrt_prim'], 4)
 
+class TestSpglibSymprec(unittest.TestCase):
+    """
+    Tests to check if the symprec is properly passed
+    """
+    def basic_test(self, cell, positions, atomic_numbers,
+                   check_bravais_lattice, symprec=None):
+        """
+        Given a cell, the positions and the atomic numbers, checks
+        that the bravais lattice is the expected one.
+
+        :param cell: 3x3 list of lattice vectors
+        :param positions: Nx3 list of (scaled) positions
+        :param atomic_number: list of length N with the atomic numbers
+        :param check_bravais_lattice: a string with the expected Bravais lattice 
+            (e.g., 'tI', 'oF', ...)
+        :param symprec: if specified, pass also the symprec to the code
+        """
+        import warnings
+
+        from seekpath import hpkot
+
+        system = (cell, positions, atomic_numbers)
+
+        if symprec is None:
+            res = hpkot.get_path(system, with_time_reversal=False)
+        else:
+            res = hpkot.get_path(system, with_time_reversal=False, symprec=symprec)
+        # Checks
+        self.assertEqual(res['bravais_lattice'], check_bravais_lattice)
+
+    def test_symprec(self):
+        """
+        Test the edge case for tI.
+        """
+        cell = [[4., 0., 0.], [0., 4., 0.], [0., 0., 4.00001]]
+        positions = [[0., 0., 0.]]
+        atomic_numbers = [6]
+
+        self.basic_test(cell, positions, atomic_numbers,
+                        check_bravais_lattice='tP',symprec=1.e-8)
+
+        self.basic_test(cell, positions, atomic_numbers,
+                        check_bravais_lattice='cP', symprec=1.e-3)
+
+
 
 class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
     """
@@ -71,7 +116,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
     """
 
     def basic_test(self, cell, positions, atomic_numbers,
-                   check_bravais_lattice, check_string=None):
+                   check_bravais_lattice, check_string=None, symprec=None):
         """
         Given a cell, the positions and the atomic numbers, checks that
         (only one) warning is issued, of type hpkot.EdgeCaseWarning,
@@ -82,10 +127,11 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         :param cell: 3x3 list of lattice vectors
         :param positions: Nx3 list of (scaled) positions
         :param atomic_number: list of length N with the atomic numbers
-        :check_bravais_lattice: a string with the expected Bravais lattice 
+        :param check_bravais_lattice: a string with the expected Bravais lattice 
             (e.g., 'tI', 'oF', ...)
-        :check_string: if specified, this should be contained in the warning
+        :param check_string: if specified, this should be contained in the warning
             message
+        :param symprec: if specified, pass also the symprec to the code
         """
         import warnings
 
@@ -94,7 +140,10 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         system = (cell, positions, atomic_numbers)
 
         with warnings.catch_warnings(record=True) as w:
-            res = hpkot.get_path(system, with_time_reversal=False)
+            if symprec is None:
+                res = hpkot.get_path(system, with_time_reversal=False)
+            else:
+                res = hpkot.get_path(system, with_time_reversal=False, symprec=symprec)
             # Checks
             self.assertEqual(res['bravais_lattice'], check_bravais_lattice)
             # Checks on issued warnings

@@ -53,7 +53,8 @@ class SymmetryDetectionError(Exception):
     pass
 
 
-def get_path(structure, with_time_reversal=True, threshold=1.e-7):
+def get_path(structure, with_time_reversal=True, threshold=1.e-7,
+    symprec=1e-05, angle_tolerance=-1.0):
     """
     Return the kpoint path for band structure given a crystal structure,
     using the paths proposed in the HPKOT paper: 
@@ -87,6 +88,10 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is 
         issued. Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB   
 
     :return: a dictionary with the following 
       keys:
@@ -158,7 +163,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
     # Symmetry analysis by SPGlib, get crystallographic lattice,
     # and cell parameters for this lattice
-    dataset = spglib.get_symmetry_dataset(structure_internal)
+    dataset = spglib.get_symmetry_dataset(structure_internal, 
+        symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
         raise SymmetryDetectionError(
             "Spglib could not detect the symmetry of the system")
