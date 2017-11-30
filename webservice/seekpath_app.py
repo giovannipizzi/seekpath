@@ -39,7 +39,7 @@ logger = logging.getLogger("seekpath_server")
 logHandler = logging.handlers.TimedRotatingFileHandler(
     os.path.join(
         os.path.split(os.path.realpath(__file__))[0],
-        'requests.log'), when='D', interval=1)
+        'requests.log'), when='midnight')
 formatter = logging.Formatter('[%(asctime)s]%(levelname)s-%(funcName)s ^ %(message)s') 
 logHandler.setFormatter(formatter) 
 logger.addHandler(logHandler) 
