@@ -143,7 +143,7 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
 
 def get_explicit_k_path(structure, with_time_reversal=True,
                         reference_distance=0.025, recipe='hpkot',
-                        threshold=1.e-7):
+                        threshold=1.e-7, symprec=1e-05, angle_tolerance=-1.0):
     """
     Return the kpoint path for band structure (in scaled and absolute 
     coordinates), given a crystal structure,
@@ -177,6 +177,10 @@ def get_explicit_k_path(structure, with_time_reversal=True,
         in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued.
         Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB   
 
     :return: a dictionary with the following 
         keys:
@@ -227,7 +231,15 @@ def get_explicit_k_path(structure, with_time_reversal=True,
 
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
 
-    retdict = _raw_explicit_path(struc_tuple)
+    retdict = _raw_explicit_path(
+        structure=struc_tuple,
+        with_time_reversal=with_time_reversal, 
+        reference_distance=reference_distance,
+        recipe=recipe,
+        threshold=threshold, 
+        symprec=symprec, 
+        angle_tolerance=angle_tolerance        
+        )
 
     # Replace primitive structure with AiiDA StructureData
     primitive_lattice = retdict.pop('primitive_lattice')
@@ -258,8 +270,8 @@ def get_explicit_k_path(structure, with_time_reversal=True,
 
 
 def get_path(structure, with_time_reversal=True,
-             reference_distance=0.025, recipe='hpkot',
-             threshold=1.e-7):
+             recipe='hpkot',
+             threshold=1.e-7, symprec=1e-05, angle_tolerance=-1.0):
     """
     Return the kpoint path information for band structure given a 
     crystal structure, using the paths from the chosen recipe/reference.
@@ -286,11 +298,15 @@ def get_path(structure, with_time_reversal=True,
        diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
        DOI: 10.1016/j.commatsci.2016.10.015
 
-   :param threshold: the threshold to use to verify if we are in 
+    :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
         in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
         Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB   
 
     :return: a dictionary with the following 
       keys:
@@ -333,7 +349,14 @@ def get_path(structure, with_time_reversal=True,
 
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
 
-    retdict = _raw_get_path(struc_tuple)
+    retdict = _raw_get_path(
+        structure=struc_tuple,
+        with_time_reversal=with_time_reversal, 
+        recipe=recipe,
+        threshold=threshold, 
+        symprec=symprec, 
+        angle_tolerance=angle_tolerance        
+        )
 
     # Replace conv structure with AiiDA StructureData
     conv_lattice = retdict.pop('conv_lattice')

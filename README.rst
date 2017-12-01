@@ -57,7 +57,7 @@ How to use
 ==========
 The main interface of the code is the python function 
 
-    seekpath.get_path(structure, with_time_reversal, recipe, threshold)
+    seekpath.get_path(structure, with_time_reversal, recipe, threshold, symprec, angle_tolerance)
 
 You need to pass a crystal structure, a boolean flag (``with_time_reversal``) to say if time-reversal symmetry is present or not, and optionally, a recipe (currently only the string "HPKOT" is supported) and a numerical threshold.
 
@@ -73,7 +73,8 @@ where (if ``N`` is the number of atoms):
 - ``numbers`` is a length-``N`` list with integers identifying uniquely the atoms in the cell.
 
 The output of the function is a dictionary containing, among other quantities, the k-vector coefficients, the suggested band path, whether the system has inversion symmetry, the crystallographic primitive lattice, the reciprocal primitive lattice.
-A detailed description of all output information and their format can be found in the function docstring.
+A detailed description of all output information and their format can be found in the function docstring. (Note that the ``threshold`` is the one used by seekpath to identify
+e.g. the order of axes in an orthorhombic cell; instead ``symprec`` and ``angle_tolerance`` are just passed to spglib).
 
 ---------------------------------------------------------------
 A warning on how to use (and crystal structure standardization)

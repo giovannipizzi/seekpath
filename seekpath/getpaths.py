@@ -4,8 +4,84 @@ This module contains the main functions to get a path and an explicit path.
 from builtins import range
 
 
+def get_explicit_from_implicit(seekpath_output, reference_distance):
+    """
+    Given the output of ``get_path`` by seekpath, compute an "explicit" path,
+    i.e. instead of just giving the endpoints and their coordinates, compute 
+    a full list of kpoints
+
+    :param seekpath_output: a dictionary, the output of ``seekpath.get_path``
+
+    :param reference_distance: a reference target distance between neighboring
+        k-points in the path, in units of 1/ang. The actual value will be as
+        close as possible to this value, to have an integer number of points in
+        each path.
+    """
+    import numpy as np
+
+    retdict = {}
+    retdict['has_inversion_symmetry'] = seekpath_output['has_inversion_symmetry']
+    retdict['augmented_path'] = seekpath_output['augmented_path']
+    retdict['primitive_lattice'] = seekpath_output['primitive_lattice']
+    retdict['primitive_positions'] = seekpath_output['primitive_positions']
+    retdict['primitive_types'] = seekpath_output['primitive_types']
+    retdict['reciprocal_primitive_lattice'] = seekpath_output[
+        'reciprocal_primitive_lattice']
+    retdict['volume_original_wrt_prim'] = seekpath_output[
+        'volume_original_wrt_prim']
+
+    kpoints_rel = []
+    kpoints_labels = []
+    kpoints_linearcoord = []
+    previous_linearcoord = 0.
+    segments = []
+    for start_label, stop_label in seekpath_output['path']:
+        start_coord = np.array(seekpath_output['point_coords'][start_label])
+        stop_coord = np.array(seekpath_output['point_coords'][stop_label])
+        start_coord_abs = np.dot(start_coord,
+                                 retdict['reciprocal_primitive_lattice'])
+        stop_coord_abs = np.dot(stop_coord,
+                                retdict['reciprocal_primitive_lattice'])
+        segment_length = np.linalg.norm(stop_coord_abs - start_coord_abs)
+        num_points = max(2, int(segment_length / reference_distance))
+        segment_linearcoord = np.linspace(0., segment_length, num_points)
+        segment_start = len(kpoints_labels)
+        for i in range(num_points):
+            # Skip the first point if it's the same as the last one of
+            # the previous segment
+            if i == 0:
+                if kpoints_labels:
+                    if kpoints_labels[-1] == start_label:
+                        segment_start -= 1
+                        continue
+
+            kpoints_rel.append(start_coord +
+                               (stop_coord - start_coord) * float(i) / float(num_points - 1))
+            if i == 0:
+                kpoints_labels.append(start_label)
+            elif i == num_points - 1:
+                kpoints_labels.append(stop_label)
+            else:
+                kpoints_labels.append('')
+            kpoints_linearcoord.append(
+                previous_linearcoord + segment_linearcoord[i])
+        previous_linearcoord += segment_length
+        segment_end = len(kpoints_labels)
+        segments.append((segment_start, segment_end))
+
+    retdict['explicit_kpoints_rel'] = np.array(kpoints_rel)
+    retdict['explicit_kpoints_linearcoord'] = np.array(kpoints_linearcoord)
+    retdict['explicit_kpoints_labels'] = kpoints_labels
+    retdict['explicit_kpoints_abs'] = np.dot(
+        retdict['explicit_kpoints_rel'],
+        retdict['reciprocal_primitive_lattice'])
+    retdict['segments'] = segments
+
+    return retdict
+
+
 def get_path(structure, with_time_reversal=True, recipe='hpkot',
-             threshold=1.e-7):
+             threshold=1.e-7, symprec=1e-05, angle_tolerance=-1.0):
     """
     Return the kpoint path information for band structure given a 
     crystal structure, using the paths from the chosen recipe/reference.
@@ -40,11 +116,16 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
        diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
        DOI: 10.1016/j.commatsci.2016.10.015
 
-   :param threshold: the threshold to use to verify if we are in 
+    :param threshold: the threshold to use to verify if we are in 
         and edge case (e.g., a tetragonal cell, but a==c). For instance, 
         in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
         Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB   
+
 
     :return: a dictionary with the following 
       keys:
@@ -92,17 +173,22 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
     """
     if recipe == 'hpkot':
         from . import hpkot
-        res = hpkot.get_path(structure, with_time_reversal, threshold)
+        res = hpkot.get_path(
+            structure=structure, 
+            with_time_reversal=with_time_reversal, 
+            threshold=threshold, 
+            symprec=symprec, 
+            angle_tolerance=angle_tolerance)
 
-        return res
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
                          "currently accepted is 'hpkot'.")
+    return res
 
 
 def get_explicit_k_path(structure, with_time_reversal=True,
                         reference_distance=0.025, recipe='hpkot',
-                        threshold=1.e-7):
+                        threshold=1.e-7, symprec=1e-05, angle_tolerance=-1.0):
     """
     Return the kpoint path for band structure (in scaled and absolute 
     coordinates), given a crystal structure,
@@ -153,6 +239,10 @@ def get_explicit_k_path(structure, with_time_reversal=True,
         in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
         Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB   
 
     :return: a dictionary with the following 
         keys:
@@ -210,71 +300,17 @@ def get_explicit_k_path(structure, with_time_reversal=True,
           and typically in a graphical representation they are shown at the 
           same coordinate, with a label "R|X").
     """
-    import numpy as np
-
     if recipe == 'hpkot':
         from . import hpkot
-        res = hpkot.get_path(structure, with_time_reversal, threshold)
+        res = hpkot.get_path(
+            structure=structure, 
+            with_time_reversal=with_time_reversal, 
+            threshold=threshold, 
+            symprec=symprec, 
+            angle_tolerance=angle_tolerance)
 
-        retdict = {}
-        retdict['has_inversion_symmetry'] = res['has_inversion_symmetry']
-        retdict['augmented_path'] = res['augmented_path']
-        retdict['primitive_lattice'] = res['primitive_lattice']
-        retdict['primitive_positions'] = res['primitive_positions']
-        retdict['primitive_types'] = res['primitive_types']
-        retdict['reciprocal_primitive_lattice'] = res[
-            'reciprocal_primitive_lattice']
-        retdict['volume_original_wrt_prim'] = res[
-            'volume_original_wrt_prim']
-
-        kpoints_rel = []
-        kpoints_labels = []
-        kpoints_linearcoord = []
-        previous_linearcoord = 0.
-        segments = []
-        for start_label, stop_label in res['path']:
-            start_coord = np.array(res['point_coords'][start_label])
-            stop_coord = np.array(res['point_coords'][stop_label])
-            start_coord_abs = np.dot(start_coord,
-                                     retdict['reciprocal_primitive_lattice'])
-            stop_coord_abs = np.dot(stop_coord,
-                                    retdict['reciprocal_primitive_lattice'])
-            segment_length = np.linalg.norm(stop_coord_abs - start_coord_abs)
-            num_points = max(2, int(segment_length / reference_distance))
-            segment_linearcoord = np.linspace(0., segment_length, num_points)
-            segment_start = len(kpoints_labels)
-            for i in range(num_points):
-                # Skip the first point if it's the same as the last one of
-                # the previous segment
-                if i == 0:
-                    if kpoints_labels:
-                        if kpoints_labels[-1] == start_label:
-                            segment_start -= 1
-                            continue
-
-                kpoints_rel.append(start_coord +
-                                   (stop_coord - start_coord) * float(i) / float(num_points - 1))
-                if i == 0:
-                    kpoints_labels.append(start_label)
-                elif i == num_points - 1:
-                    kpoints_labels.append(stop_label)
-                else:
-                    kpoints_labels.append('')
-                kpoints_linearcoord.append(
-                    previous_linearcoord + segment_linearcoord[i])
-            previous_linearcoord += segment_length
-            segment_end = len(kpoints_labels)
-            segments.append((segment_start, segment_end))
-
-        retdict['explicit_kpoints_rel'] = np.array(kpoints_rel)
-        retdict['explicit_kpoints_linearcoord'] = np.array(kpoints_linearcoord)
-        retdict['explicit_kpoints_labels'] = kpoints_labels
-        retdict['explicit_kpoints_abs'] = np.dot(
-            retdict['explicit_kpoints_rel'],
-            retdict['reciprocal_primitive_lattice'])
-        retdict['segments'] = segments
-
-        return retdict
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
                          "currently accepted is 'hpkot'.")
+
+    return get_explicit_from_implicit(res, reference_distance=reference_distance)
