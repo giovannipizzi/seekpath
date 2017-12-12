@@ -22,6 +22,8 @@ def get_explicit_from_implicit(seekpath_output, reference_distance):
     retdict = {}
     retdict['has_inversion_symmetry'] = seekpath_output['has_inversion_symmetry']
     retdict['augmented_path'] = seekpath_output['augmented_path']
+    retdict['bravais_lattice'] = seekpath_output['bravais_lattice']
+    retdict['bravais_lattice_extended'] = seekpath_output['bravais_lattice_extended']
     retdict['primitive_lattice'] = seekpath_output['primitive_lattice']
     retdict['primitive_positions'] = seekpath_output['primitive_positions']
     retdict['primitive_types'] = seekpath_output['primitive_types']
