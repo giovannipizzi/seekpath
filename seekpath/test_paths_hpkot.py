@@ -109,6 +109,38 @@ class TestSpglibSymprec(unittest.TestCase):
                         check_bravais_lattice='cP', symprec=1.e-3)
 
 
+class TestExplicitPaths(unittest.TestCase):
+    def test_keys(self):
+        """
+        Test the edge case for tI.
+        """
+        import seekpath
+
+        cell = [[4., 0., 0.], [0., 4., 0.], [0., 0., 4.]]
+        positions = [[0., 0., 0.], [0.5, 0.5, 0.5]]
+        atomic_numbers = [6, 6]
+
+        system = (cell, positions, atomic_numbers)
+
+        res = seekpath.get_explicit_k_path(system, recipe='hpkot')
+
+        known_keys = set(['augmented_path', 'bravais_lattice', 
+            'bravais_lattice_extended', 'conv_lattice', 
+            'conv_positions', 'conv_types', 
+            'explicit_kpoints_abs', 'explicit_kpoints_labels', 
+            'explicit_kpoints_linearcoord', 'explicit_kpoints_rel', 
+            'explicit_segments', 'has_inversion_symmetry', 
+            'inverse_primitive_transformation_matrix', 'path', 
+            'point_coords', 'primitive_lattice', 
+            'primitive_positions', 'primitive_transformation_matrix', 
+            'primitive_types', 'reciprocal_primitive_lattice', 
+            'spacegroup_international', 'spacegroup_number', 
+            'volume_original_wrt_conv', 'volume_original_wrt_prim'])
+
+        missing_known_keys = known_keys - set(res.keys())
+        if missing_known_keys:
+            raise AssertionError("Some keys are not returned from the "
+                "get_explicit_k_path function: {}".format(', '.join(missing_known_keys)))
 
 class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
     """
