@@ -20,6 +20,8 @@ if has_aiida():
     from aiida.orm.data.structure import Kind, StructureData, Site
 from seekpath.aiidawrappers import get_explicit_k_path, get_path
 
+def to_list_of_lists(lofl):
+    return [[el for el in l] for l in lofl]
 
 class TestConversion(unittest.TestCase):
     @unittest.skipIf(not has_aiida(), "No AiiDA available")
@@ -221,34 +223,40 @@ class TestAiiDAExplicitPath(unittest.TestCase):
     def test_simple(self):
         import numpy as np
         from aiida.orm import DataFactory
-        s = DataFactory('structure')(cell=[
+        structure = DataFactory('structure')(cell=[
                 [4,0,0],
                 [0,4,0],
                 [0,0,6]])
-        s.append_atom(symbols='Ba', position=[0,0,0])
-        s.append_atom(symbols='Ti', position=[2,2,3])
-        s.append_atom(symbols='O', position=[2,2,0])
-        s.append_atom(symbols='O', position=[2,0,3])
-        s.append_atom(symbols='O', position=[0,2,3])
+        structure.append_atom(symbols='Ba', position=[0,0,0])
+        structure.append_atom(symbols='Ti', position=[2,2,3])
+        structure.append_atom(symbols='O', position=[2,2,0])
+        structure.append_atom(symbols='O', position=[2,0,3])
+        structure.append_atom(symbols='O', position=[0,2,3])
         
-        retdict = get_explicit_k_path(s, with_time_reversal=True,
-                                      reference_distance=0.025,
-                                      recipe='hpkot', threshold=1.e-7)
+        params = DataFactory('parameter')(dict={
+            'with_time_reversal': True,
+            'reference_distance': 0.025,
+            'recipe': 'hpkot', 
+            'threshold': 1.e-7
+        })
+
+        return_value = get_explicit_k_path(structure, params)
+        retdict = return_value['seekpath_parameters'].get_dict()
 
         self.assertTrue(retdict['has_inversion_symmetry'])
         self.assertFalse(retdict['augmented_path'])
         self.assertAlmostEqual(retdict['volume_original_wrt_prim'], 1.0)
         self.assertEqual(
-            retdict['segments'], 
-            [(0, 31), (30, 61), (60, 104), (103, 123), (122, 153), (152, 183),
-             (182, 226), (226, 246), (246, 266)])
-        ret_s = retdict['primitive_structure']
-        ret_k = retdict['explicit_kpoints']
+            to_list_of_lists(retdict['explicit_segments']), 
+            [[0, 31], [30, 61], [60, 104], [103, 123], [122, 153], [152, 183],
+             [182, 226], [226, 246], [246, 266]])
+
+        ret_k = return_value['explicit_kpoints']
         self.assertEqual(
-            ret_k.labels,
-            [(0, 'GAMMA'), (30, 'X'), (60, 'M'), (103, 'GAMMA'), (122, 'Z'), 
-             (152, 'R'), (182, 'A'), (225, 'Z'), (226, 'X'), (245, 'R'), 
-             (246, 'M'), (265, 'A')])
+            to_list_of_lists(ret_k.labels),
+            [[0, 'GAMMA'], [30, 'X'], [60, 'M'], [103, 'GAMMA'], [122, 'Z'], 
+             [152, 'R'], [182, 'A'], [225, 'Z'], [226, 'X'], [245, 'R'], 
+             [246, 'M'], [265, 'A']])
         kpts = ret_k.get_kpoints(cartesian=False)
         highsympoints_relcoords = [kpts[idx] for idx, label in ret_k.labels]
         self.assertAlmostEqual(np.sum(np.abs(
@@ -268,15 +276,27 @@ class TestAiiDAExplicitPath(unittest.TestCase):
                             ]) -
                     np.array(highsympoints_relcoords))), 0.)
                              
+        ret_prims = return_value['primitive_structure']
+        ret_convs = return_value['conv_structure']
         # The primitive structure should be the same as the one I input
         self.assertAlmostEqual(np.sum(np.abs(
-                    np.array(s.cell) - np.array(ret_s.cell)
+                    np.array(structure.cell) - np.array(ret_prims.cell)
                     )), 0.)
-        self.assertEqual([_.kind_name for _ in s.sites],
-                         [_.kind_name for _ in ret_s.sites])
+        self.assertEqual([_.kind_name for _ in structure.sites],
+                         [_.kind_name for _ in ret_prims.sites])
         self.assertEqual(np.sum(np.abs(
-                    np.array([_.position for _ in s.sites]) - 
-                    np.array([_.position for _ in ret_s.sites]))), 0.)
+                    np.array([_.position for _ in structure.sites]) - 
+                    np.array([_.position for _ in ret_prims.sites]))), 0.)
+
+        # Also the conventional structure should be the same as the one I input
+        self.assertAlmostEqual(np.sum(np.abs(
+                    np.array(structure.cell) - np.array(ret_convs.cell)
+                    )), 0.)
+        self.assertEqual([_.kind_name for _ in structure.sites],
+                         [_.kind_name for _ in ret_convs.sites])
+        self.assertEqual(np.sum(np.abs(
+                    np.array([_.position for _ in structure.sites]) - 
+                    np.array([_.position for _ in ret_convs.sites]))), 0.)
 
 
 class TestAiiDAPath(unittest.TestCase):
@@ -284,19 +304,24 @@ class TestAiiDAPath(unittest.TestCase):
     def test_simple(self):
         import numpy as np
         from aiida.orm import DataFactory
-        s = DataFactory('structure')(cell=[
+        structure = DataFactory('structure')(cell=[
                 [4,0,0],
                 [0,4,0],
                 [0,0,6]])
-        s.append_atom(symbols='Ba', position=[0,0,0])
-        s.append_atom(symbols='Ti', position=[2,2,3])
-        s.append_atom(symbols='O', position=[2,2,0])
-        s.append_atom(symbols='O', position=[2,0,3])
-        s.append_atom(symbols='O', position=[0,2,3])
+        structure.append_atom(symbols='Ba', position=[0,0,0])
+        structure.append_atom(symbols='Ti', position=[2,2,3])
+        structure.append_atom(symbols='O', position=[2,2,0])
+        structure.append_atom(symbols='O', position=[2,0,3])
+        structure.append_atom(symbols='O', position=[0,2,3])
         
-        retdict = get_path(s, with_time_reversal=True,
-                                      reference_distance=0.025,
-                                      recipe='hpkot', threshold=1.e-7)
+        params = DataFactory('parameter')(dict={
+            'with_time_reversal': True,
+            'recipe': 'hpkot', 
+            'threshold': 1.e-7
+        })
+
+        return_value = get_path(structure, params)
+        retdict = return_value['seekpath_parameters'].get_dict()
 
         self.assertTrue(retdict['has_inversion_symmetry'])
         self.assertFalse(retdict['augmented_path'])
@@ -305,9 +330,9 @@ class TestAiiDAPath(unittest.TestCase):
         self.assertEqual(retdict['bravais_lattice'], 'tP')
         self.assertEqual(retdict['bravais_lattice_extended'], 'tP1')
         self.assertEqual(
-            retdict['path'], 
-            [('GAMMA', 'X'), ('X', 'M'), ('M', 'GAMMA'), ('GAMMA', 'Z'), 
-             ('Z', 'R'), ('R', 'A'), ('A', 'Z'), ('X', 'R'), ('M', 'A')])
+            to_list_of_lists(retdict['path']), 
+            [['GAMMA', 'X'], ['X', 'M'], ['M', 'GAMMA'], ['GAMMA', 'Z'], 
+             ['Z', 'R'], ['R', 'A'], ['A', 'Z'], ['X', 'R'], ['M', 'A']])
 
         self.assertEqual(retdict['point_coords'], {
                 'A': [0.5, 0.5, 0.5], 
@@ -324,26 +349,26 @@ class TestAiiDAPath(unittest.TestCase):
                    [0, 1, 0],
                    [0, 0, 1]]))), 0.)
 
-        ret_prims = retdict['primitive_structure']
-        ret_convs = retdict['conv_structure']
+        ret_prims = return_value['primitive_structure']
+        ret_convs = return_value['conv_structure']
         # The primitive structure should be the same as the one I input
         self.assertAlmostEqual(np.sum(np.abs(
-                    np.array(s.cell) - np.array(ret_prims.cell)
+                    np.array(structure.cell) - np.array(ret_prims.cell)
                     )), 0.)
-        self.assertEqual([_.kind_name for _ in s.sites],
+        self.assertEqual([_.kind_name for _ in structure.sites],
                          [_.kind_name for _ in ret_prims.sites])
         self.assertEqual(np.sum(np.abs(
-                    np.array([_.position for _ in s.sites]) - 
+                    np.array([_.position for _ in structure.sites]) - 
                     np.array([_.position for _ in ret_prims.sites]))), 0.)
 
         # Also the conventional structure should be the same as the one I input
         self.assertAlmostEqual(np.sum(np.abs(
-                    np.array(s.cell) - np.array(ret_convs.cell)
+                    np.array(structure.cell) - np.array(ret_convs.cell)
                     )), 0.)
-        self.assertEqual([_.kind_name for _ in s.sites],
+        self.assertEqual([_.kind_name for _ in structure.sites],
                          [_.kind_name for _ in ret_convs.sites])
         self.assertEqual(np.sum(np.abs(
-                    np.array([_.position for _ in s.sites]) - 
+                    np.array([_.position for _ in structure.sites]) - 
                     np.array([_.position for _ in ret_convs.sites]))), 0.)
 
 

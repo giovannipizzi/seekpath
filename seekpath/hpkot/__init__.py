@@ -3,77 +3,51 @@ The seekpath.hpkot module contains routines to get automatically the
 path in a 3D Brillouin zone to plot band structures according to the 
 HPKOT paper (see references below).
 
-Author: Giovanni Pizzi, EPFL (2016)
+Author: Giovanni Pizzi, EPFL
 
-Licence: MIT License
+Licence: MIT License, see LICENSE.txt
 
-Copyright (c), 2016, ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE
-(Theory and Simulation of Materials (THEOS) and National Centre for 
-Computational Design and Discovery of Novel Materials (NCCR MARVEL)). 
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-Note: the list of point coordinates and example POSCAR files in 
+.. note:: the list of point coordinates and example POSCAR files in 
   the band_path_data subfolder have been provided by Yoyo Hinuma,
   Kyoto University, Japan. The POSCARs have been retrieved from
   the Materials Project (http://materialsproject.org).
-
 """
 
 
 class EdgeCaseWarning(RuntimeWarning):
     """
     A warning issued when the cell is an edge case (e.g. orthorhombic
-    symmetry, but a==b==c.
+    symmetry, but ``a==b==c``.
     """
     pass
 
 
 class SymmetryDetectionError(Exception):
     """
-    Error raised if spglib could not detect the symmetry
+    Error raised if spglib could not detect the symmetry.
     """
     pass
 
 
 def get_path(structure, with_time_reversal=True, threshold=1.e-7,
     symprec=1e-05, angle_tolerance=-1.0):
-    """
-    Return the kpoint path for band structure given a crystal structure,
-    using the paths proposed in the HPKOT paper: 
-    Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
-    diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
-    DOI: 10.1016/j.commatsci.2016.10.015
+    r"""
+    Return the kpoint path information for band structure given a 
+    crystal structure, using the paths from the chosen recipe/reference.
 
-    If you use this module, please cite the paper above.
+    If you use this module, please cite the paper of the corresponding 
+    recipe (see parameter below).
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be a tuple in the format
-        accepted by spglib: (cell, positions, numbers), where 
+        accepted by spglib: ``(cell, positions, numbers)``, where 
         (if N is the number of atoms):
 
-        - cell is a 3x3 list of floats (cell[0] is the first lattice 
+        - ``cell`` is a :math:`3 \times 3` list of floats (``cell[0]`` is the first lattice 
           vector, ...)
-        - positions is a Nx3 list of floats with the atomic coordinates
+        - ``positions`` is a :math:`N \times 3` list of floats with the atomic coordinates
           in scaled coordinates (i.e., w.r.t. the cell vectors)
-        - numbers is a length-N list with integers identifying uniquely
+        - ``numbers`` is a length-:math:`N` list with integers identifying uniquely
           the atoms in the cell (e.g., the Z number of the atom, but 
           any other positive non-zero integer will work - e.g. if you
           want to distinguish two Carbon atoms, you can set one number
@@ -83,61 +57,69 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
         symmetry, additional lines are returned as described in the HPKOT
         paper.
 
+    :param recipe: choose the reference publication that defines the special
+       points and paths.
+       Currently, the following value is implemented:
+       
+       - ``hpkot``: HPKOT paper: 
+         Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+         diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+         DOI: 10.1016/j.commatsci.2016.10.015
+
     :param threshold: the threshold to use to verify if we are in 
-        and edge case (e.g., a tetragonal cell, but a==c). For instance, 
-        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is 
-        issued. Note that depending on the bravais lattice, the meaning of the 
+        and edge case (e.g., a tetragonal cell, but ``a==c``). For instance, 
+        in the tI lattice, if ``abs(a-c) < threshold``, a 
+        :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued. 
+        Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
 
     :param symprec: the symmetry precision used internally by SPGLIB
 
     :param angle_tolerance: the angle_tolerance used internally by SPGLIB   
 
+
     :return: a dictionary with the following 
       keys:
 
-        - point_coords: a dictionary with label -> float coordinates
-        - path: a list of length-2 tuples, with the labels of the starting
+        - ``point_coords``: a dictionary with label -> float coordinates
+        - ``path``: a list of length-2 tuples, with the labels of the starting
           and ending point of each label section
-        - has_inversion_symmetry: True or False, depending on whether the
+        - ``has_inversion_symmetry``: True or False, depending on whether the
           input crystal structure has inversion symmetry or not.
-        - augmented_path: if True, it means that the path was
-          augmented with the -k points (this happens if both 
+        - ``augmented_path``: if True, it means that the path was
+          augmented with the :math:`-k` points (this happens if both 
           has_inversion_symmetry is False, and the user set 
           with_time_reversal=False in the input)
-        - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
-        - bravais_lattice_extended: the specific case used to define labels and
-          coordinates (like 'cP1', 'tI2', ...)
-        - conv_lattice: three real-space vectors for the crystallographic 
-          conventional cell (conv_lattice[0,:] is the first vector)
-        - conv_positions: fractional coordinates of atoms in the 
+        - ``bravais_lattice``: the Bravais lattice string (like ``cP``, ``tI``, ...)
+        - ``bravais_lattice_extended``: the specific case used to define labels and
+          coordinates (like ``cP1``, ``tI2``, ...)
+        - ``cont_lattice``: three real-space vectors for the crystallographic
+          conventional cell (``conv_lattice[0,:]`` is the first vector)
+        - ``conv_positions``: fractional coordinates of atoms in the 
           crystallographic conventional cell 
-        - conv_types: list of integer types of the atoms in the 
-          crystallographic conventional cell (typically, the atomic numbers)
-        - primitive_lattice: three real-space vectors for the crystallographic 
-          primitive cell (primitive_lattice[0,:] is the first vector)
-        - primitive_positions: fractional coordinates of atoms in the 
+        - ``conv_types``: list of integer types of the atoms in the crystallographic
+          conventional cell (typically, the atomic numbers)
+        - ``primitive_lattice``: three real-space vectors for the crystallographic 
+          primitive cell (``primitive_lattice[0,:]`` is the first vector)
+        - ``primitive_positions``: fractional coordinates of atoms in the 
           crystallographic primitive cell 
-        - primitive_types: list of integer types of the atoms in the 
-          crystallographic conventional cell (typically, the atomic numbers)
-        - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
-          primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
+        - ``primitive_types``: list of integer types of the atoms in the 
+          crystallographic primitive cell (typically, the atomic numbers)
+        - ``reciprocal_primitive_lattice``: reciprocal-cell vectors for the 
+          primitive cell (vectors are rows: ``reciprocal_primitive_lattice[0,:]``
           is the first vector)
-        - primitive_transformation_matrix: the transformation matrix P between
+        - ``primitive_transformation_matrix``: the transformation matrix :math:`P` between
           the conventional and the primitive cell 
-        - inverse_primitive_transformation_matrix: the inverse of the matrix P
+        - ``inverse_primitive_transformation_matrix``: the inverse of the matrix :math:`P`
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
-        - volume_original_wrt_conv: volume ratio of the user-provided cell
+        - ``volume_original_wrt_conv``: volume ratio of the user-provided cell
           with respect to the the crystallographic conventional cell 
-        - volume_original_wrt_prim: volume ratio of the user-provided cell
-          with respect to the the crystallographic primitive cell 
-        - spacegroup_number: Number from 1 to 230 of the spacegroup of the 
-          crystal
-        - spacegroup_international: International name of the spacegroup 
-          of the crystal
+        - ``volume_original_wrt_prim``: volume ratio of the user-provided cell
+          with respect to the the crystalloraphic primitive cell 
 
-    :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
+    :note: An :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued for 
+        edge cases (e.g. if ``a==b==c`` for
         orthorhombic systems). In this case, still one of the valid cases
         is picked.
     """

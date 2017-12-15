@@ -88,7 +88,9 @@ def pgnum_from_pgint(pgint):
 def get_spgroup_data():
     """
     Return a dictionary that has the spacegroup number as key, and a tuple 
-    as value, with (crystal family letter, centering, has_inversion).
+    as value, with content::
+      
+      (crystal family letter, centering, has_inversion).
 
     It loads if from a table in the source code for efficiency.
     """
@@ -99,7 +101,10 @@ def get_spgroup_data():
 def get_spgroup_data_realtime():
     """
     Return a dictionary that has the spacegroup number as key, and a tuple 
-    as value, with (crystal family letter, centering, has_inversion),
+    as value, with content::
+    
+       (crystal family letter, centering, has_inversion),
+
     got in real time using spglib methods.
     """
     import json
@@ -124,30 +129,27 @@ def get_spgroup_data_realtime():
 
 
 def get_P_matrix(bravais_lattice):
-    """
+    r"""
     Return a tuple of length 2 with the P matrix and its inverse::
 
       (P, invP)
 
-    with invP = P^-1.
+    with :math:`invP = P^{-1}`.
 
-    These P matrices are obtained from Table 3 of the HPKOT 
+    These :math:`P` matrices are obtained from Table 3 of the HPKOT 
     paper.
 
-    The P matrix is a 3x3 matrix is the matrix that converts
+    The P matrix is a :math:`3\times 3` matrix is the matrix that converts
     the lattice vectors from crystallographic conventional
-    (a,b,c) to crystallographic primitive (a_P, b_P, c_P)
-    as follows::
+    :math:`(a,b,c)` to crystallographic primitive :math:`(a_P, b_P, c_P)`
+    as follows: :math:`(a_P, b_P, c_P) = (a,b,c) P`
 
-      (a_P, b_P, c_P) = (a,b,c) P
+    The change of (real space) coordinate triples follows instead: 
+    :math:`(x_P, y_P, z_P)^T = (P^{-1}) (x,y,z)^T`
 
-    The change of (real space) coordinate triples follows instead:
-
-       (x_P, y_P, z_P)^T = (P^-1) (x,y,z)^T
-
-    .. note:: the invP = P^-1 matrix is always integer (with values
-        only -1,0,1) while P is rational (non-integer values can be
-        +/- 1/2 and +/- 1/3).
+    .. note:: the :math:`invP = P^{-1}` matrix is always integer (with values
+        only :math:`-1, 0, 1`) while :math:`P` is rational (non-integer values can be
+        :math:`\pm \frac 1 2` and :math:`\pm \frac 1 3`).
     """
     import numpy as np
 
@@ -241,28 +243,28 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
 
     :param structure: should be a tuple of the form
       (lattice, positions, types) and it MUST be already a conventional
-      crystallographic cell (i.e. as returned by spglib with the 'std_'
+      crystallographic cell (i.e. as returned by spglib with the ``std_``
       prefix).
 
     :param bravais_lattice: a string with the information of the
       Bravais lattice of the input structure.
 
     :param wrap_to_zero_one: if True, wrap the scaled coordinates to the
-       [0,1[ interval. Otherwise, the scaled coordinates will not be
-       changed and can be outside of the [0,1[ range; the advantage is that
+       :math:`[0,1[` interval. Otherwise, the scaled coordinates will not be
+       changed and can be outside of the :math:`[0,1[` range; the advantage is that
        the Cartesian coordinates of each atom returned in the primitive 
        cell will match with one of the atoms in the input structure if this
        variable is False.
 
     :return: a tuple of length three: the first element is the primitive 
         structure, also in the format (lattice, positions, types); the second
-        is a tuple with the (P, invP) matrices as returned by get_P_matrix; the
+        is a tuple with the ``(P, invP)`` matrices as returned by :py:func:`get_P_matrix`; the
         third is an array with the mapping from the atoms in the conventional
         cell to the atoms in the primitive cell (e.g. if the conventional cell
         has four atoms and twice the volume than the primitive, and the first 
         and third atoms in the conventional map to the first of the primitive,
         while the second and the fourth map to the second of the primitive,
-        this array will be [0,1,0,1]).
+        this array will be :math:`[0,1,0,1]`).
     """
     import numpy as np
     from collections import Counter

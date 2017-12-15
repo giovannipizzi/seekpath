@@ -4,7 +4,7 @@ import numpy.linalg
 
 def eval_expr_simple(expr, kparam):
     """
-    To evaluate expressions tha only require kparams and not a,b,c,...
+    To evaluate expressions tha only require kparams and not a, b, c, ...
     """
     if expr == "0":
         return 0.
@@ -35,7 +35,7 @@ def eval_expr_simple(expr, kparam):
 
 def extend_kparam(kparam):
     """
-    Extend the list of kparam with also expressions like 1-x, ...
+    Extend the list of kparam with also expressions like :math:`1-x`, ...
 
     :param kparam: a dictionary where the key is the expression as a string and
        the value is the numerical value
@@ -54,25 +54,25 @@ def extend_kparam(kparam):
 
 
 def eval_expr(expr, a, b, c, cosalpha, cosbeta, cosgamma, kparam):
-    """
-    Given a string expression as a function of the parameters a,b,c (lengths of the 
-    cell lattice vectors) and cosalpha,cosbeta,cosgamma (the cosines of the three
+    r"""
+    Given a string expression as a function of the parameters ``a``, ``b``, ``c`` (lengths of the 
+    cell lattice vectors) and ``cosalpha``, ``cosbeta``, ``cosgamma`` (the cosines of the three
     angles between lattice vectors) returns the numerical value of the expression.
 
     :param a: length of the first lattice vector
     :param b: length of the second lattice vector
     :param c: length of the third lattice vector
-    :param cosalpha: cosine of the alpha angle (between lattice vectors 2 and 3)
-    :param cosbeta: cosine of the beta angle (between lattice vectors 1 and 3)
-    :param cosgamma: cosine of the gamma angle (between lattice vectors 1 and 2)
+    :param cosalpha: cosine of the :math:`\alpha` angle (between lattice vectors 2 and 3)
+    :param cosbeta: cosine of the :math:`\beta` angle (between lattice vectors 1 and 3)
+    :param cosgamma: cosine of the :math:`\gamma` angle (between lattice vectors 1 and 2)
     :param kparam: a dictionary that associates the value to expressions as a function 
-        of the a,b,c,cosalpha,cosbeta,cosgamma parameters
+        of the ``a, b, c, cosalpha, cosbeta, cosgamma`` parameters
 
     :return: the value of the expression for the given values of the cell parameters
 
-    :note: To evaluate expressions, I hardcode a table of existing expressions in the
+    .. note::  To evaluate expressions, I hardcode a table of existing expressions in the
         DB rather than parsing the string (to avoid additional dependencies and 
-        avoid the use of 'eval').
+        avoid the use of ``eval``).
     """
     from math import sqrt
     sinalpha = sqrt(1. - cosalpha**2)
@@ -221,9 +221,10 @@ def check_spglib_version():
 
 
 def get_cell_params(cell):
-    """
-    Return (a,b,c,cosalpha,cosbeta,cosgamma) given a 3x3 cell
-    :note: Rows are vectors: v1 = cell[0], v2 = cell[1], v3 = cell[3]
+    r"""
+    Return (a,b,c,cosalpha,cosbeta,cosgamma) given a :math:`3\times 3` cell
+   
+    .. note:: Rows are vectors: ``v1 = cell[0]``, ``v2 = cell[1]``, ``v3 = cell[3]``
     """
     import numpy
     from math import sqrt
@@ -240,14 +241,14 @@ def get_cell_params(cell):
 
 
 def get_reciprocal_cell_rows(real_space_cell):
-    """
+    r"""
     Given the cell in real space (3x3 matrix, vectors as rows, 
     return the reciprocal-space cell where again the G vectors are 
     rows, i.e. satisfying 
-    dot(real_space_cell, reciprocal_space_cell.T) = 2pi * I,
-    where I is the 3x3 identity matrix.
+    ``dot(real_space_cell, reciprocal_space_cell.T)`` = :math:`2 \pi I`,
+    where :math:`I` is the :math:`3\times 3` identity matrix.
 
-    :return: the 3x3 list of reciprocal lattice vectors where each row is 
+    :return: the :math:`3\times 3` list of reciprocal lattice vectors where each row is 
         one vector.
     """
     reciprocal_space_columns = 2. * numpy.pi * \
@@ -256,16 +257,16 @@ def get_reciprocal_cell_rows(real_space_cell):
 
 
 def get_real_cell_from_reciprocal_rows(reciprocal_space_rows):
-    """
+    r"""
     Given the cell in reciprocal space (3x3 matrix, G vectors as rows, 
     return the real-space cell where again the R vectors are 
     rows, i.e. satisfying 
-    dot(real_space_cell, reciprocal_space_cell.T) = 2pi * I,
-    where I is the 3x3 identity matrix.
+    ``dot(real_space_cell, reciprocal_space_cell.T)`` = :math:`2 \pi I`,
+    where :math:`I` is the :math:`3\times 3` identity matrix.
 
-    :note: This is actually the same as get_reciprocal_cell_rows.
+    .. note::  This is actually the same as :py:func:`get_reciprocal_cell_rows`.
 
-    :return: the 3x3 list of real lattice vectors where each row is 
+    :return: the :math:`3\times 3` list of real lattice vectors where each row is 
         one vector.
     """
     real_space_columns = 2. * numpy.pi * \
@@ -281,13 +282,13 @@ def get_path_data(ext_bravais):
 
     :param ext_bravais: a string among the allowed etended Bravais lattices 
         defined in HPKOT.
-    :return: a tuple (kparam_def, points_def, path) where the
+    :return: a tuple ``(kparam_def, points_def, path)`` where the
         first element is the list with the definition of the
         k-point parameters, the second is the dictionary with the 
         definition of the k-points, and the third is the list
         with the suggested paths.
 
-    :note: kparam_def has to be a list and not a dictionary
+    .. note:: ``kparam_def`` has to be a list and not a dictionary
         because the order matters (later k-parameters can be defined
         in terms of previous ones)
     """
