@@ -1,7 +1,6 @@
 from builtins import zip
-from seekpath import (
-    get_explicit_k_path as _raw_explicit_path,
-    get_path as _raw_get_path)
+from seekpath import (get_explicit_k_path as _raw_explicit_path, get_path as
+                      _raw_get_path)
 
 
 def _aiida_to_tuple(aiida_structure):
@@ -57,7 +56,8 @@ def _aiida_to_tuple(aiida_structure):
                 number = realnumber
             kind_numbers[kind.name] = number
         else:
-            number = get_new_number(list(kind_numbers.values()), start_from=200000)
+            number = get_new_number(
+                list(kind_numbers.values()), start_from=200000)
             kind_numbers[kind.name] = number
 
     numbers = [kind_numbers[s.kind_name] for s in aiida_structure.sites]
@@ -99,8 +99,9 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
             # For each site
             symbols = [elements[num]['symbol'] for num in numbers]
         except KeyError as e:
-            raise ValueError("You did not pass kind_info, but at least one number "
-                             "is not a valid Z number: {}".format(e.message))
+            raise ValueError(
+                "You did not pass kind_info, but at least one number "
+                "is not a valid Z number: {}".format(e.message))
 
         _kind_info = {elements[num]['symbol']: num for num in set(numbers)}
         # Get the default kinds
@@ -115,11 +116,13 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     mapping_num_kindname = {v: k for k, v in _kind_info.items()}
     # Create the actual mapping
     try:
-        mapping_to_kinds = {num: _kinds_dict[kindname] for num, kindname
-                            in mapping_num_kindname.items()}
+        mapping_to_kinds = {
+            num: _kinds_dict[kindname]
+            for num, kindname in mapping_num_kindname.items()
+        }
     except KeyError as e:
-        raise ValueError(
-            "Unable to find '{}' in the kinds list".format(e.message))
+        raise ValueError("Unable to find '{}' in the kinds list".format(
+            e.message))
 
     try:
         site_kinds = [mapping_to_kinds[num] for num in numbers]
@@ -132,8 +135,9 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
         out_structure.append_kind(k)
     abs_pos = np.dot(rel_pos, cell)
     if len(abs_pos) != len(site_kinds):
-        raise ValueError("The length of the positions array is different from the "
-                         "length of the element numbers")
+        raise ValueError(
+            "The length of the positions array is different from the "
+            "length of the element numbers")
 
     for kind, pos in zip(site_kinds, abs_pos):
         out_structure.append_site(Site(kind_name=kind.name, position=pos))
@@ -189,9 +193,7 @@ def get_explicit_k_path(structure, parameters):
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
 
     retdict = {}
-    rawdict = _raw_explicit_path(
-        structure=struc_tuple,
-        **parameters.get_dict())
+    rawdict = _raw_explicit_path(structure=struc_tuple, **parameters.get_dict())
 
     # Replace primitive structure with AiiDA StructureData
     primitive_lattice = rawdict.pop('primitive_lattice')
@@ -216,13 +218,11 @@ def get_explicit_k_path(structure, parameters):
     kpoints_labels = rawdict.pop('explicit_kpoints_labels')
     # Expects something of the type [[0,'X'],[34,'L'],...]
     # So I generate it, skipping empty labels
-    labels = [[idx, label] for idx, label in enumerate(kpoints_labels)
-              if label]
+    labels = [[idx, label] for idx, label in enumerate(kpoints_labels) if label]
 
     kpoints = KpointsData()
     kpoints.set_cell_from_structure(primitive_structure)
-    kpoints.set_kpoints(
-        kpoints_abs, cartesian=True, labels=labels)
+    kpoints.set_kpoints(kpoints_abs, cartesian=True, labels=labels)
     retdict['explicit_kpoints'] = kpoints
     retdict['seekpath_parameters'] = ParameterData(dict=rawdict)
 
@@ -271,9 +271,7 @@ def get_path(structure, parameters):
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
 
     retdict = {}
-    rawdict = _raw_get_path(
-        structure=struc_tuple,
-        **parameters.get_dict())
+    rawdict = _raw_get_path(structure=struc_tuple, **parameters.get_dict())
 
     # Replace conv structure with AiiDA StructureData
     conv_lattice = rawdict.pop('conv_lattice')

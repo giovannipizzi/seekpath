@@ -29,8 +29,8 @@ def get_explicit_from_implicit(seekpath_output, reference_distance):
     for start_label, stop_label in seekpath_output['path']:
         start_coord = np.array(seekpath_output['point_coords'][start_label])
         stop_coord = np.array(seekpath_output['point_coords'][stop_label])
-        start_coord_abs = np.dot(start_coord,
-                                 seekpath_output['reciprocal_primitive_lattice'])
+        start_coord_abs = np.dot(
+            start_coord, seekpath_output['reciprocal_primitive_lattice'])
         stop_coord_abs = np.dot(stop_coord,
                                 seekpath_output['reciprocal_primitive_lattice'])
         segment_length = np.linalg.norm(stop_coord_abs - start_coord_abs)
@@ -46,8 +46,8 @@ def get_explicit_from_implicit(seekpath_output, reference_distance):
                         segment_start -= 1
                         continue
 
-            kpoints_rel.append(start_coord +
-                               (stop_coord - start_coord) * float(i) / float(num_points - 1))
+            kpoints_rel.append(start_coord + (
+                stop_coord - start_coord) * float(i) / float(num_points - 1))
             if i == 0:
                 kpoints_labels.append(start_label)
             elif i == num_points - 1:
@@ -64,14 +64,18 @@ def get_explicit_from_implicit(seekpath_output, reference_distance):
     retdict['kpoints_linearcoord'] = np.array(kpoints_linearcoord)
     retdict['kpoints_labels'] = kpoints_labels
     retdict['kpoints_abs'] = np.dot(
-        retdict['kpoints_rel'],
-        seekpath_output['reciprocal_primitive_lattice'])
+        retdict['kpoints_rel'], seekpath_output['reciprocal_primitive_lattice'])
     retdict['segments'] = segments
 
     return retdict
 
-def get_path(structure, with_time_reversal=True, recipe='hpkot',
-             threshold=1.e-7, symprec=1e-05, angle_tolerance=-1.0):
+
+def get_path(structure,
+             with_time_reversal=True,
+             recipe='hpkot',
+             threshold=1.e-7,
+             symprec=1e-05,
+             angle_tolerance=-1.0):
     r"""
     Return the kpoint path information for band structure given a 
     crystal structure, using the paths from the chosen recipe/reference.
@@ -167,10 +171,10 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
     if recipe == 'hpkot':
         from . import hpkot
         res = hpkot.get_path(
-            structure=structure, 
-            with_time_reversal=with_time_reversal, 
-            threshold=threshold, 
-            symprec=symprec, 
+            structure=structure,
+            with_time_reversal=with_time_reversal,
+            threshold=threshold,
+            symprec=symprec,
             angle_tolerance=angle_tolerance)
 
     else:
@@ -179,9 +183,13 @@ def get_path(structure, with_time_reversal=True, recipe='hpkot',
     return res
 
 
-def get_explicit_k_path(structure, with_time_reversal=True,
-                        reference_distance=0.025, recipe='hpkot',
-                        threshold=1.e-7, symprec=1e-05, angle_tolerance=-1.0):
+def get_explicit_k_path(structure,
+                        with_time_reversal=True,
+                        reference_distance=0.025,
+                        recipe='hpkot',
+                        threshold=1.e-7,
+                        symprec=1e-05,
+                        angle_tolerance=-1.0):
     r"""
     Return the kpoint path for band structure (in scaled and absolute 
     coordinates), given a crystal structure,
@@ -285,17 +293,18 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     if recipe == 'hpkot':
         from . import hpkot
         res = hpkot.get_path(
-            structure=structure, 
-            with_time_reversal=with_time_reversal, 
-            threshold=threshold, 
-            symprec=symprec, 
+            structure=structure,
+            with_time_reversal=with_time_reversal,
+            threshold=threshold,
+            symprec=symprec,
             angle_tolerance=angle_tolerance)
 
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
                          "currently accepted is 'hpkot'.")
 
-    explicit_res = get_explicit_from_implicit(res, reference_distance=reference_distance)
+    explicit_res = get_explicit_from_implicit(
+        res, reference_distance=reference_distance)
     for k, v in explicit_res.items():
-      res['explicit_{}'.format(k)] = v
+        res['explicit_{}'.format(k)] = v
     return res
