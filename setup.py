@@ -48,6 +48,10 @@ setup(
         "bz": ["scipy>=0.17"],
         "webservice":
         ["Flask>=0.12", "ase>=3.15.0", "qe-tools>=1.0.0", "pymatgen>=2017.7"],
+        "dev_precommit": [
+            'pre-commit>=1.4', 'yapf>=0.20.0', 'prospector>=0.12.7',
+            'pylint>=1.8'
+        ]
     },
     packages=find_packages(),
     # Needed to include some static files declared in MANIFEST.in
