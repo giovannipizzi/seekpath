@@ -18,7 +18,8 @@ import json
 import io
 
 import jinja2
-import spglib # Mainly to get its version
+import spglib  # Mainly to get its version
+
 
 class FlaskRedirectException(Exception):
     """
@@ -26,9 +27,11 @@ class FlaskRedirectException(Exception):
     """
     pass
 
+
 MAX_NUMBER_OF_ATOMS = 1000
 time_reversal_note = ("The second half of the path is required only if "
                       "the system does not have time-reversal symmetry")
+
 
 def logme(logger, *args, **kwargs):
     """
@@ -43,8 +46,12 @@ def logme(logger, *args, **kwargs):
         logger.debug(generate_log(*args, **kwargs))
 
 
-def generate_log(filecontent, fileformat, request, 
-    call_source, reason, extra={}):
+def generate_log(filecontent,
+                 fileformat,
+                 request,
+                 call_source,
+                 reason,
+                 extra={}):
     """
     Given a string with the file content, a file format, a Flask request and 
     a string identifying the reason for logging, stores the 
@@ -60,17 +67,18 @@ def generate_log(filecontent, fileformat, request,
     """
     # I don't know the fileformat
     data = {'filecontent': filecontent, 'fileformat': fileformat}
-    
-    logdict =  {
-        'data': data, 'reason': reason,
+
+    logdict = {
+        'data': data,
+        'reason': reason,
         'request': str(request.headers),
         'call_source': call_source,
-        'source': request.headers.get(
-            'X-Forwarded-For', request.remote_addr),
+        'source': request.headers.get('X-Forwarded-For', request.remote_addr),
         'time': datetime.datetime.now().isoformat()
-        }
+    }
     logdict.update(extra)
     return json.dumps(logdict)
+
 
 def get_json_for_visualizer(cell, relcoords, atomic_numbers, seekpath_module):
     #from seekpath_module import hpkot, brillouinzone
@@ -78,16 +86,14 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers, seekpath_module):
     brillouinzone = seekpath_module.brillouinzone
 
     system = (np.array(cell), np.array(relcoords), np.array(atomic_numbers))
-    res = hpkot.get_path(system, with_time_reversal=False) 
+    res = hpkot.get_path(system, with_time_reversal=False)
 
     real_lattice = res['primitive_lattice']
     #rec_lattice = np.linalg.inv(real_lattice).T # Missing 2pi!
-    rec_lattice = np.array(
-        hpkot.tools.get_reciprocal_cell_rows(real_lattice))
+    rec_lattice = np.array(hpkot.tools.get_reciprocal_cell_rows(real_lattice))
     b1, b2, b3 = rec_lattice
 
-    faces_data = brillouinzone.brillouinzone.get_BZ(
-        b1 = b1, b2=b2, b3=b3)
+    faces_data = brillouinzone.brillouinzone.get_BZ(b1=b1, b2=b2, b3=b3)
 
     response = {}
     response['faces_data'] = faces_data
@@ -95,15 +101,19 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers, seekpath_module):
     response['b2'] = b2.tolist()
     response['b3'] = b3.tolist()
     ## Convert to absolute
-    response['kpoints'] = {k: (v[0] * b1 + v[1] * b2 + v[2] * b3).tolist()
-        for k,v in res['point_coords'].items()}
-    response['kpoints_rel'] = {k: [v[0], v[1], v[2]]
-        for k,v in res['point_coords'].items()}
+    response['kpoints'] = {
+        k: (v[0] * b1 + v[1] * b2 + v[2] * b3).tolist()
+        for k, v in res['point_coords'].items()
+    }
+    response['kpoints_rel'] = {
+        k: [v[0], v[1], v[2]]
+        for k, v in res['point_coords'].items()
+    }
     response['path'] = res['path']
 
     # It should use the same logic, so give the same cell as above
     res_explicit = seekpath_module.get_explicit_k_path(
-        system, with_time_reversal=False) 
+        system, with_time_reversal=False)
     for k in res_explicit:
         if k == 'segments' or k.startswith('explicit_'):
             if isinstance(res_explicit[k], np.ndarray):
@@ -111,15 +121,22 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers, seekpath_module):
             else:
                 response[k] = res_explicit[k]
 
-    if np.sum(np.abs(np.array(res_explicit['reciprocal_primitive_lattice']) - 
-        np.array(res['reciprocal_primitive_lattice']))) > 1.e-7:
+    if np.sum(
+            np.abs(
+                np.array(res_explicit['reciprocal_primitive_lattice']) -
+                np.array(res['reciprocal_primitive_lattice']))) > 1.e-7:
         raise AssertionError("Got different reciprocal cells...")
 
     # Response for JS, and path_results
     return response, res
 
-def process_structure_core(filecontent, fileformat, seekpath_module,
-                           call_source="", logger=None, flask_request=None):
+
+def process_structure_core(filecontent,
+                           fileformat,
+                           seekpath_module,
+                           call_source="",
+                           logger=None,
+                           flask_request=None):
     """
     The main function that generates the data to be sent back to the view.
     
@@ -149,43 +166,68 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
     fileobject = io.StringIO(str(filecontent))
     form_data = dict(flask_request.form)
     try:
-        structure_tuple = get_structure_tuple(fileobject, fileformat, extra_data=form_data)
+        structure_tuple = get_structure_tuple(
+            fileobject, fileformat, extra_data=form_data)
     except UnknownFormatError:
-        logme(logger, filecontent, fileformat, flask_request, call_source,
-            reason = 'unknownformat', extra={
-            'form_data': form_data,
+        logme(
+            logger,
+            filecontent,
+            fileformat,
+            flask_request,
+            call_source,
+            reason='unknownformat',
+            extra={
+                'form_data': form_data,
             })
         raise FlaskRedirectException("Unknown format '{}'".format(fileformat))
     except Exception:
         # There was an exception...
         import traceback
-        logme(logger, filecontent, fileformat, flask_request, call_source,
-              reason = 'exception', extra = {
+        logme(
+            logger,
+            filecontent,
+            fileformat,
+            flask_request,
+            call_source,
+            reason='exception',
+            extra={
                 'traceback': traceback.format_exc(),
                 'form_data': form_data,
-                })
+            })
         raise FlaskRedirectException(
             "I tried my best, but I wasn't able to load your "
             "file in format '{}'...".format(fileformat))
 
     if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
         ## Structure too big
-        logme(logger, filecontent, fileformat, flask_request, call_source,
-              reason = 'toolarge', extra={
+        logme(
+            logger,
+            filecontent,
+            fileformat,
+            flask_request,
+            call_source,
+            reason='toolarge',
+            extra={
                 'number_of_atoms': len(structure_tuple[1]),
                 'form_data': form_data,
-                })
+            })
         raise FlaskRedirectException(
             "Sorry, this online visualizer is limited to {} atoms "
             "in the input cell, while your structure has {} atoms."
             "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
 
     # Log the content in case of valid structure
-    logme(logger, filecontent, fileformat, flask_request, call_source,
-          reason = 'OK', extra={
+    logme(
+        logger,
+        filecontent,
+        fileformat,
+        flask_request,
+        call_source,
+        reason='OK',
+        extra={
             'number_of_atoms': len(structure_tuple[1]),
             'form_data': form_data,
-            })
+        })
 
     try:
         in_json_data = {
@@ -195,7 +237,7 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         }
 
         out_json_data, path_results = get_json_for_visualizer(
-            in_json_data['cell'], 
+            in_json_data['cell'],
             in_json_data['scaled_coords'],
             in_json_data['atomic_numbers'],
             seekpath_module=seekpath_module)
@@ -214,70 +256,78 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         inputstructure_positions_cartesian = np.dot(
             np.array(in_json_data['scaled_coords']),
             np.array(in_json_data['cell']),
-            ).tolist()
+        ).tolist()
         primitive_positions_cartesian = np.dot(
             np.array(path_results['primitive_positions']),
             np.array(path_results['primitive_lattice']),
-            ).tolist()
+        ).tolist()
         primitive_positions_cartesian_refolded = np.dot(
-            np.array(path_results['primitive_positions'])%1.,
+            np.array(path_results['primitive_positions']) % 1.,
             np.array(path_results['primitive_lattice']),
-            ).tolist()
+        ).tolist()
         raw_code_dict['primitive_positions_cartesian'] = \
             primitive_positions_cartesian
 
         # raw_code['primitive_types'] = path_results['primitive_types']
-        primitive_symbols = [chemical_symbols[num] for num 
-            in path_results['primitive_types']]
+        primitive_symbols = [
+            chemical_symbols[num] for num in path_results['primitive_types']
+        ]
         raw_code_dict['primitive_symbols'] = primitive_symbols
 
         raw_code = json.dumps(raw_code_dict, indent=2)
         ## I manually escape it to then add <br> and pass it to a filter with
         ## |safe. I have to 'unicode' it otherwise it keeps escaping also the
         ## next replaces
-        raw_code = str(jinja2.escape(raw_code)).replace(
-            '\n', '<br>').replace(' ', '&nbsp;')
+        raw_code = str(jinja2.escape(raw_code)).replace('\n', '<br>').replace(
+            ' ', '&nbsp;')
 
-        kpoints = [[k, out_json_data['kpoints'][k][0], 
-            out_json_data['kpoints'][k][1], out_json_data['kpoints'][k][2]] 
-            for k in sorted(out_json_data['kpoints'])]
-        kpoints_rel = [[k, out_json_data['kpoints_rel'][k][0], 
-            out_json_data['kpoints_rel'][k][1], out_json_data['kpoints_rel'][k][2]] 
-            for k in sorted(out_json_data['kpoints_rel'])]
+        kpoints = [[
+            k, out_json_data['kpoints'][k][0], out_json_data['kpoints'][k][1],
+            out_json_data['kpoints'][k][2]
+        ] for k in sorted(out_json_data['kpoints'])]
+        kpoints_rel = [[
+            k, out_json_data['kpoints_rel'][k][0],
+            out_json_data['kpoints_rel'][k][1],
+            out_json_data['kpoints_rel'][k][2]
+        ] for k in sorted(out_json_data['kpoints_rel'])]
 
-        inputstructure_cell_vectors = [[idx, coords[0], coords[1], coords[2]]
-            for idx, coords in 
-            enumerate(in_json_data['cell'], start=1)
+        inputstructure_cell_vectors = [[
+            idx, coords[0], coords[1], coords[2]
+        ] for idx, coords in enumerate(in_json_data['cell'], start=1)]
+        inputstructure_symbols = [
+            chemical_symbols[num] for num in in_json_data['atomic_numbers']
         ]
-        inputstructure_symbols = [chemical_symbols[num] for num 
-            in in_json_data['atomic_numbers']]
-        inputstructure_atoms_scaled = [[label, coords[0], coords[1], coords[2]]
-            for label, coords in zip(
-                inputstructure_symbols,in_json_data['scaled_coords'])]
-        inputstructure_atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
-            for label, coords in 
-            zip(inputstructure_symbols, 
-                inputstructure_positions_cartesian)]
+        inputstructure_atoms_scaled = [
+            [label, coords[0], coords[1], coords[2]]
+            for label, coords in zip(inputstructure_symbols, in_json_data[
+                'scaled_coords'])
+        ]
+        inputstructure_atoms_cartesian = [
+            [label, coords[0], coords[1], coords[2]]
+            for label, coords in zip(inputstructure_symbols,
+                                     inputstructure_positions_cartesian)
+        ]
 
         direct_vectors = [[idx, coords[0], coords[1], coords[2]]
-            for idx, coords in 
-            enumerate(path_results['primitive_lattice'], start=1)
+                          for idx, coords in enumerate(
+                              path_results['primitive_lattice'], start=1)]
+
+        reciprocal_primitive_vectors = [
+            [idx, coords[0], coords[1], coords[2]]
+            for idx, coords in enumerate(
+                path_results['reciprocal_primitive_lattice'], start=1)
         ]
 
-        reciprocal_primitive_vectors = [[idx, coords[0], coords[1], coords[2]]
-            for idx, coords in 
-            enumerate(path_results['reciprocal_primitive_lattice'], start=1)
+        atoms_scaled = [
+            [label, coords[0], coords[1], coords[2]]
+            for label, coords in zip(primitive_symbols, path_results[
+                'primitive_positions'])
         ]
-
-        atoms_scaled = [[label, coords[0], coords[1], coords[2]]
-            for label, coords in 
-            zip(primitive_symbols, 
-                path_results['primitive_positions'])]
 
         atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
-            for label, coords in 
-            zip(primitive_symbols, 
-                primitive_positions_cartesian)]
+                           for label, coords in zip(
+                               primitive_symbols, primitive_positions_cartesian)
+                          ]
 
         # Create extetically-nice looking path, with dashes and pipes
         suggested_path = []
@@ -296,57 +346,64 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
 
         primitive_lattice = path_results['primitive_lattice']
         # Manual recenter of the structure
-        center = (primitive_lattice[0] + primitive_lattice[1] + 
-                  primitive_lattice[2])/2.
+        center = (
+            primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2]
+        ) / 2.
         cell_json = {
-                "t": "UnitCell",
-                "i": "s0",
-                "o": (-center).tolist(),
-                "x": (primitive_lattice[0]-center).tolist(),
-                "y": (primitive_lattice[1]-center).tolist(),
-                "z": (primitive_lattice[2]-center).tolist(),
-                "xy": (primitive_lattice[0] + primitive_lattice[1] 
-                       - center).tolist(),
-                "xz": (primitive_lattice[0] + primitive_lattice[2] 
-                       - center).tolist(),
-                "yz": (primitive_lattice[1] + primitive_lattice[2] 
-                       - center).tolist(),
-                "xyz": (primitive_lattice[0] + primitive_lattice[1] 
-                        + primitive_lattice[2] - center).tolist(),
+            "t":
+            "UnitCell",
+            "i":
+            "s0",
+            "o": (-center).tolist(),
+            "x": (primitive_lattice[0] - center).tolist(),
+            "y": (primitive_lattice[1] - center).tolist(),
+            "z": (primitive_lattice[2] - center).tolist(),
+            "xy":
+            (primitive_lattice[0] + primitive_lattice[1] - center).tolist(),
+            "xz":
+            (primitive_lattice[0] + primitive_lattice[2] - center).tolist(),
+            "yz":
+            (primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
+            "xyz": (primitive_lattice[0] + primitive_lattice[1] +
+                    primitive_lattice[2] - center).tolist(),
+        }
+        atoms_json = [
+            {
+                "l": label,
+                "x": pos[0] - center[0],
+                "y": pos[1] - center[1],
+                "z": pos[2] - center[2]
             }
-        atoms_json = [ 
-                    {"l": label,
-                    "x": pos[0]-center[0],
-                    "y": pos[1]-center[1],
-                    "z": pos[2]-center[2]} 
-                    for label, pos in zip(
-                            primitive_symbols, 
-                            primitive_positions_cartesian_refolded)
-                    ]
+            for label, pos in zip(primitive_symbols,
+                                  primitive_positions_cartesian_refolded)
+        ]
         # These will be passed to ChemDoodle
-        json_content = {"s": [cell_json], 
-                        "m": [{"a": atoms_json}]
-                        }
+        json_content = {"s": [cell_json], "m": [{"a": atoms_json}]}
 
-        compute_time = time.time() - start_time        
+        compute_time = time.time() - start_time
     except Exception:
         import traceback
-        logme(logger, filecontent, fileformat, flask_request, call_source,
-              reason = 'codeexception', extra={
+        logme(
+            logger,
+            filecontent,
+            fileformat,
+            flask_request,
+            call_source,
+            reason='codeexception',
+            extra={
                 'traceback': traceback.extract_stack(),
                 'form_data': form_data,
-                })
+            })
         raise
 
-    qe_pw = str(jinja2.escape(
-        get_qe_pw(raw_code_dict, out_json_data))).replace(
-            '\n', '<br>').replace(' ', '&nbsp;')
-    qe_matdyn = str(jinja2.escape(
-        get_qe_matdyn(raw_code_dict, out_json_data))).replace(
-            '\n', '<br>').replace(' ', '&nbsp;')
-    cp2k = str(jinja2.escape(
-        get_cp2k(raw_code_dict))).replace(
-            '\n', '<br>').replace(' ', '&nbsp;')
+    qe_pw = str(jinja2.escape(get_qe_pw(raw_code_dict, out_json_data))).replace(
+        '\n', '<br>').replace(' ', '&nbsp;')
+    qe_matdyn = str(jinja2.escape(get_qe_matdyn(raw_code_dict,
+                                                out_json_data))).replace(
+                                                    '\n', '<br>').replace(
+                                                        ' ', '&nbsp;')
+    cp2k = str(jinja2.escape(get_cp2k(raw_code_dict))).replace(
+        '\n', '<br>').replace(' ', '&nbsp;')
 
     return dict(
         jsondata=json.dumps(out_json_data),
@@ -364,9 +421,9 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         inputstructure_atoms_scaled=inputstructure_atoms_scaled,
         inputstructure_atoms_cartesian=inputstructure_atoms_cartesian,
         atoms_scaled=atoms_scaled,
-        with_without_time_reversal= (
-            "with" if path_results['has_inversion_symmetry'] 
-            else "without"),
+        with_without_time_reversal=("with"
+                                    if path_results['has_inversion_symmetry']
+                                    else "without"),
         atoms_cartesian=atoms_cartesian,
         reciprocal_primitive_vectors=reciprocal_primitive_vectors,
         suggested_path=suggested_path,
@@ -376,10 +433,9 @@ def process_structure_core(filecontent, fileformat, seekpath_module,
         compute_time=compute_time,
         seekpath_version=seekpath_module.__version__,
         spglib_version=spglib.__version__,
-        time_reversal_note = (
-            time_reversal_note if path_results['augmented_path'] 
-            else ""),
-        )
+        time_reversal_note=(time_reversal_note
+                            if path_results['augmented_path'] else ""),
+    )
 
 
 def get_qe_pw(raw_data, out_json_data):
@@ -394,8 +450,7 @@ def get_qe_pw(raw_data, out_json_data):
     lines.append("/")
     lines.append("&SYSTEM")
     lines.append("    ibrav = 0")
-    lines.append("    nat = {}".format(
-        len(raw_data["primitive_symbols"])))
+    lines.append("    nat = {}".format(len(raw_data["primitive_symbols"])))
     lines.append("    ntyp = {}".format(
         len(set(raw_data["primitive_symbols"]))))
     lines.append("    <...>")
@@ -404,33 +459,28 @@ def get_qe_pw(raw_data, out_json_data):
     lines.append("    <...>")
     lines.append("/")
     lines.append("ATOMIC_SPECIES")
-    for s in sorted(set(
-        raw_data["primitive_symbols"])):
-        lines.append("{:4s} <MASS_HERE> <PSEUDO_HERE>.UPF".format(
-            s))
+    for s in sorted(set(raw_data["primitive_symbols"])):
+        lines.append("{:4s} <MASS_HERE> <PSEUDO_HERE>.UPF".format(s))
 
     lines.append("ATOMIC_POSITIONS angstrom")
-    for s, p in zip(
-        raw_data["primitive_symbols"],
-        raw_data["primitive_positions_cartesian"]):
+    for s, p in zip(raw_data["primitive_symbols"],
+                    raw_data["primitive_positions_cartesian"]):
         lines.append("{:4s} {:16.10f} {:16.10f} {:16.10f}".format(
             s, p[0], p[1], p[2]))
 
     lines.append("K_POINTS crystal")
     kplines = []
     for kp in out_json_data['explicit_kpoints_rel']:
-        kplines.append("{:16.10f} {:16.10f} {:16.10f} 1".format(
-            *kp))
+        kplines.append("{:16.10f} {:16.10f} {:16.10f} 1".format(*kp))
     lines.append("{}".format(len(kplines)))
     lines += kplines
 
     lines.append("CELL_PARAMETERS angstrom")
     for v in raw_data['primitive_lattice']:
-        lines.append("{:16.10f} {:16.10f} {:16.10f}".format(
-            v[0], v[1], v[2]))
-
+        lines.append("{:16.10f} {:16.10f} {:16.10f}".format(v[0], v[1], v[2]))
 
     return "\n".join(lines)
+
 
 def get_qe_matdyn(raw_data, out_json_data):
     """
@@ -509,5 +559,6 @@ def get_cp2k(raw_data):
 """)
     return template.render(
         raw=raw_data,  # export the complete raw data to the template
-        zip=zip, set=set  # add zip and set to the template environment for some loops
-        )
+        zip=zip,
+        set=set  # add zip and set to the template environment for some loops
+    )

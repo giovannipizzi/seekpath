@@ -28,9 +28,10 @@ def eval_expr_simple(expr, kparam):
         try:
             return kparam[expr]
         except KeyError as e:
-            raise ValueError("Asking for evaluation of symbol '{}' in "
-                             "eval_expr_simple but this has not been defined or not "
-                             "yet computed".format(e.message))
+            raise ValueError(
+                "Asking for evaluation of symbol '{}' in "
+                "eval_expr_simple but this has not been defined or not "
+                "yet computed".format(e.message))
 
 
 def extend_kparam(kparam):
@@ -81,7 +82,8 @@ def eval_expr(expr, a, b, c, cosalpha, cosbeta, cosgamma, kparam):
 
     try:
         if expr == "(a*a/b/b+(1+a/c*cosbeta)/sinbeta/sinbeta)/4":
-            return (a * a / b / b + (1. + a / c * cosbeta) / sinbeta / sinbeta) / 4.
+            return (a * a / b / b +
+                    (1. + a / c * cosbeta) / sinbeta / sinbeta) / 4.
         elif expr == "1-Z*b*b/a/a":
             Z = kparam['Z']
             return 1. - Z * b * b / a / a
@@ -97,7 +99,8 @@ def eval_expr(expr, a, b, c, cosalpha, cosbeta, cosgamma, kparam):
             return 2. * F - Z
         elif expr == "c/2/a/cosbeta*(1-4*U+a*a*sinbeta*sinbeta/b/b)":
             U = kparam['U']
-            return c / 2. / a / cosbeta * (1. - 4. * U + a * a * sinbeta * sinbeta / b / b)
+            return c / 2. / a / cosbeta * (
+                1. - 4. * U + a * a * sinbeta * sinbeta / b / b)
         elif expr == "-1/4+W/2-Z*c*cosbeta/a":
             W = kparam['W']
             Z = kparam['Z']
@@ -184,7 +187,8 @@ def eval_expr(expr, a, b, c, cosalpha, cosbeta, cosgamma, kparam):
                              '            return {0}'.format(expr))
     except KeyError as e:
         raise ValueError("Asking for evaluation of symbol '{}' but this has "
-                         "not been defined or not yet computed".format(e.message))
+                         "not been defined or not yet computed".format(
+                             e.message))
 
 
 def check_spglib_version():
@@ -320,17 +324,20 @@ def get_path_data(ext_bravais):
     for label, kPx, kPy, kPz in points_raw:
         if label in points_def:
             raise ValueError("Internal error! Point {} defined multiple times "
-                             "for Bravais lattice {}".format(label, ext_bravais))
+                             "for Bravais lattice {}".format(
+                                 label, ext_bravais))
         points_def[label] = (kPx, kPy, kPz)
     path = [(_[0], _[1]) for _ in path_raw]
 
     # check path is valid
     for p1, p2 in path:
         if p1 not in points_def:
-            raise ValueError("Point {} found in path (for {}) but undefined!".format(
-                p1, ext_bravais))
+            raise ValueError(
+                "Point {} found in path (for {}) but undefined!".format(
+                    p1, ext_bravais))
         if p2 not in points_def:
-            raise ValueError("Point {} found in path (for {}) but undefined!".format(
-                p2, ext_bravais))
+            raise ValueError(
+                "Point {} found in path (for {}) but undefined!".format(
+                    p2, ext_bravais))
 
     return (kparam_def, points_def, path)

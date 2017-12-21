@@ -29,8 +29,11 @@ class SymmetryDetectionError(Exception):
     pass
 
 
-def get_path(structure, with_time_reversal=True, threshold=1.e-7,
-    symprec=1e-05, angle_tolerance=-1.0):
+def get_path(structure,
+             with_time_reversal=True,
+             threshold=1.e-7,
+             symprec=1e-05,
+             angle_tolerance=-1.0):
     r"""
     Return the kpoint path information for band structure given a 
     crystal structure, using the paths from the chosen recipe/reference.
@@ -129,24 +132,23 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
 
     import numpy as np
 
-    from .tools import (
-        check_spglib_version, extend_kparam, eval_expr, eval_expr_simple,
-        get_cell_params, get_path_data, get_reciprocal_cell_rows,
-        get_real_cell_from_reciprocal_rows)
+    from .tools import (check_spglib_version, extend_kparam, eval_expr,
+                        eval_expr_simple, get_cell_params, get_path_data,
+                        get_reciprocal_cell_rows,
+                        get_real_cell_from_reciprocal_rows)
     from .spg_mapping import (get_spgroup_data, get_primitive)
 
     # I check if the SPGlib version is recent enough (raises ValueError)
     # otherwise
     spglib = check_spglib_version()
 
-    structure_internal = (np.array(structure[0]),
-                          np.array(structure[1]),
+    structure_internal = (np.array(structure[0]), np.array(structure[1]),
                           np.array(structure[2]))
 
     # Symmetry analysis by SPGlib, get crystallographic lattice,
     # and cell parameters for this lattice
-    dataset = spglib.get_symmetry_dataset(structure_internal, 
-        symprec=symprec, angle_tolerance=angle_tolerance)
+    dataset = spglib.get_symmetry_dataset(
+        structure_internal, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
         raise SymmetryDetectionError(
             "Spglib could not detect the symmetry of the system")
@@ -236,8 +238,10 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
         else:
             ext_bravais = "oA2"
     elif bravais_lattice == "hP":
-        if spgrp_num in [143, 144, 145, 146, 147, 148, 149, 151, 153, 157,
-                         159, 160, 161, 162, 163]:
+        if spgrp_num in [
+                143, 144, 145, 146, 147, 148, 149, 151, 153, 157, 159, 160, 161,
+                162, 163
+        ]:
             ext_bravais = "hP1"
         else:
             ext_bravais = "hP2"
@@ -258,8 +262,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
         if b < a * sqrt(1. - cosbeta**2):
             ext_bravais = "mC1"
         else:
-            if abs(-a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2
-                   - 1.) < threshold:
+            if abs(-a * cosbeta / c + a**2 *
+                   (1. - cosbeta**2) / b**2 - 1.) < threshold:
                 warnings.warn("mC lattice, but -a*cos(beta)/c + "
                               "a^2*sin(beta)^2/b^2 almost equal to 1",
                               EdgeCaseWarning)
@@ -286,18 +290,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
             abs(ka2 * kb2 * coskgamma2)
         ])
         M2_matrices = [
-            np.array([
-                [0, 0, 1],
-                [1, 0, 0],
-                [0, 1, 0]]),
-            np.array([
-                [0, 1, 0],
-                [0, 0, 1],
-                [1, 0, 0]]),
-            np.array([
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]])
+            np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]),
+            np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]),
+            np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         ]
         # TODO: manage edge cases
         smallest_condition = np.argsort(conditions)[0]
@@ -320,52 +315,28 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
         # explained in HPKOT
         # Note: cos > 0 => angle < 90deg
         if coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 > 0.:  # 1a
-            M3 = np.array([
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 <= 0.:  # 1b
-            M3 = np.array([
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 <= 0.:  # 2a
-            M3 = np.array([
-                [1, 0, 0],
-                [0, -1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
         elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 > 0.:  # 2b
-            M3 = np.array([
-                [1, 0, 0],
-                [0, -1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
         elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 <= 0.:  # 3a
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, 1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
         elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 > 0.:  # 3b
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, 1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
         elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 > 0.:  # 4a
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, -1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
         elif coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 <= 0.:  # 4b
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, -1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
         else:
             raise ValueError("Problem identifying M3 matrix in aP lattice!"
                              "Sign of cosines: cos(kalpha3){}0, "
                              "cos(kbeta3){}0, cos(kgamma3){}0".format(
-                                 ">=" if coskalpha3 >= 0 else "<",
-                                 ">=" if coskbeta3 >= 0 else "<",
-                                 ">=" if coskgamma3 >= 0 else "<"))
+                                 ">=" if coskalpha3 >= 0 else "<", ">="
+                                 if coskbeta3 >= 0 else "<", ">="
+                                 if coskgamma3 >= 0 else "<"))
 
         real_cell_final = np.dot(real_cell3.T, M3).T
         reciprocal_cell_final = get_reciprocal_cell_rows(real_cell_final)
@@ -379,12 +350,12 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
             # all-acute
             ext_bravais = "aP3"
         else:
-            raise ValueError("Unexpected aP triclinic lattice, it neither "
-                             "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
-                             "cos(kbeta){}0, cos(kgamma){}0".format(
-                                 ">=" if coskalpha >= 0 else "<",
-                                 ">=" if coskbeta >= 0 else "<",
-                                 ">=" if coskgamma >= 0 else "<"))
+            raise ValueError(
+                "Unexpected aP triclinic lattice, it neither "
+                "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
+                "cos(kbeta){}0, cos(kgamma){}0".format(
+                    ">=" if coskalpha >= 0 else "<", ">="
+                    if coskbeta >= 0 else "<", ">=" if coskgamma >= 0 else "<"))
 
         # Get absolute positions
         conv_pos_abs = np.dot(conv_positions, conv_lattice)
@@ -421,8 +392,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
     # parameters, as far as they are returned in the
     kparam = {}
     for kparam_name, kparam_expr in kparam_def:
-        kparam[kparam_name] = eval_expr(
-            kparam_expr, a, b, c, cosalpha, cosbeta, cosgamma, kparam)
+        kparam[kparam_name] = eval_expr(kparam_expr, a, b, c, cosalpha, cosbeta,
+                                        cosgamma, kparam)
 
     # Extend kparam with additional simple expressions (like 1-a, ...)
     kparam_extended = extend_kparam(kparam)
@@ -446,7 +417,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7,
             if pointname == 'GAMMA':
                 continue
             points["{}'".format(pointname)] = [
-                -coords[0], -coords[1], -coords[2]]
+                -coords[0], -coords[1], -coords[2]
+            ]
         old_path = copy.deepcopy(path)
         for start_p, end_p in old_path:
             if start_p == "GAMMA":
