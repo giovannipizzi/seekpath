@@ -2,11 +2,16 @@ from builtins import zip
 from . import (get_explicit_k_path as _raw_explicit_path, get_path as
                _raw_get_path)
 
+DEPRECATION_DOCS_URL = "http://seekpath.readthedocs.io/en/latest/maindoc.html#aiida-integration"
+
 
 def _aiida_to_tuple(aiida_structure):
     """
     Convert an AiiDA structure to a tuple of the format
     (cell, scaled_positions, element_numbers).
+
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
 
     :param aiida_structure: the AiiDA structure
     :return: (structure_tuple, kind_info, kinds) where structure_tuple
@@ -16,6 +21,11 @@ def _aiida_to_tuple(aiida_structure):
        the Z number of the element, otherwise it uses numbers > 1000;
        kinds is a list of the kinds of the structure.
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     import numpy as np
     from aiida.common.constants import elements
 
@@ -74,11 +84,19 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     you should pass both kind_info and kinds, with the same format as returned
     by get_tuple_from_aiida_structure.
 
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
+
     :param structure_tuple: the structure in format (structure_tuple, kind_info)
     :param kind_info: a dictionary mapping the kind_names to
        the numbers used in element_numbers. If not provided, assumes {element_name: element_Z}
     :param kinds: a list of the kinds of the structure.
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     from aiida.common.constants import elements
     from aiida.orm.data.structure import Kind, Site, StructureData
     import numpy as np
@@ -159,6 +177,9 @@ def get_explicit_k_path(structure,
     input and returned as AiiDA structures rather than tuples, and similarly
     k-points-related information as a AiiDA KpointsData class.
 
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
+
     :param structure: The AiiDA StructureData for which we want to obtain
         the suggested path. 
 
@@ -228,6 +249,11 @@ def get_explicit_k_path(structure,
           graphical representation they are shown at the same coordinate, 
           with a label "R|X").
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     import copy
     from aiida.orm import DataFactory
 
@@ -273,9 +299,11 @@ def get_path(structure,
     as get get_path in __init__, but here all structures are
     input and returned as AiiDA structures rather than tuples.
 
-
     If you use this module, please cite the paper of the corresponding 
     recipe (see parameter below).
+
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be an AiiDA StructureData object.
@@ -334,6 +362,11 @@ def get_path(structure,
         orthorhombic systems). In this case, still one of the valid cases
         is picked.
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     import copy
     from aiida.orm import DataFactory
 
