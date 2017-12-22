@@ -20,3 +20,11 @@ The HPKOT module
 
 .. automodule:: seekpath.hpkot.tools
    :members:
+
+
+Legacy AiiDA wrappers
+---------------------
+
+.. automodule:: seekpath.aiidawrappers
+   :members:
+
