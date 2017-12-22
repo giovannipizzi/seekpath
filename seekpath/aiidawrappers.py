@@ -1,6 +1,6 @@
 from builtins import zip
-from seekpath import (get_explicit_k_path as _raw_explicit_path, get_path as
-                      _raw_get_path)
+from . import (get_explicit_k_path as _raw_explicit_path, get_path as
+               _raw_get_path)
 
 
 def _aiida_to_tuple(aiida_structure):
@@ -145,7 +145,11 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     return out_structure
 
 
-def get_explicit_k_path(structure, parameters):
+def get_explicit_k_path(structure,
+                        with_time_reversal=True,
+                        reference_distance=0.025,
+                        recipe='hpkot',
+                        threshold=1.e-7):
     """
     Return the kpoint path for band structure (in scaled and absolute 
     coordinates), given a crystal structure,
@@ -158,64 +162,93 @@ def get_explicit_k_path(structure, parameters):
     :param structure: The AiiDA StructureData for which we want to obtain
         the suggested path. 
 
-    :param parameters: A ParameterData. Its key-value pairs are passed as
-        additional kwargs to the ``seekpath.get_explicit_k_path`` function.
+    :param with_time_reversal: if False, and the group has no inversion 
+        symmetry, additional lines are returned.
 
-    :return: A dictionary with four
-        nodes:
-        - ``seekpath_parameters``: a ParameterData, whose content is
-          the same dictionary as returned by the ``seekpath.get_explicit_k_path`` function,
-          except that:
+    :param reference_distance: a reference target distance between neighboring
+        k-points in the path, in units of 1/ang. The actual value will be as
+        close as possible to this value, to have an integer number of points in
+        each path.
 
-          - ``conv_lattice``, ``conv_positions``, ``conv_types``
-            are removed and replaced by the ``conv_structure`` output node
+    :param recipe: choose the reference publication that defines the special
+       points and paths.
+       Currently, the following value is implemented:
+       'hpkot': HPKOT paper: 
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+       diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+       DOI: 10.1016/j.commatsci.2016.10.015
 
-          - ``primitive_lattice``, ``primitive_positions``, ``primitive_types``
-            are removed and replaced by the `primitive_structure` output node
+    :param threshold: the threshold to use to verify if we are in 
+        and edge case (e.g., a tetragonal cell, but a==c). For instance, 
+        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued.
+        Note that depending on the bravais lattice, the meaning of the 
+        threshold is different (angle, length, ...)
 
-          - ``reciprocal_primitive_lattice``, ``explicit_kpoints_abs``,  
-            ``explicit_kpoints_rel`` and ``explicit_kpoints_labels`` are removed
-            and replaced by the ``explicit_kpoints`` output node
+    :return: a dictionary with the following 
+        keys:
 
-        - ``primitive_structure``: A StructureData with the primitive structure
+        - has_inversion_symmetry: True or False, depending on whether the
+          input crystal structure has inversion symmetry or not.
+        - augmented_path: if True, it means that the path was
+          augmented with the -k points (this happens if both 
+          has_inversion_symmetry is False, and the user set 
+          with_time_reversal=False in the input)
+        - primitive_structure: the StructureData for the primitive cell
+        - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
+          primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
+          is the first vector)
+        - volume_original_wrt_prim: volume ratio of the user-provided cell
+          with respect to the the crystallographic primitive cell 
+        - explicit_kpoints: An AiiDA KPointsData object (without weights)
+          with the kpoints and the respective labels.
+          For each segment, the two endpoints are always included, 
+          independently of the length.
+        - explicit_kpoints_linearcoord: array of floats, giving the 
+          coordinate at which to plot the corresponding point.
+        - segments: a list of length-2 tuples, with the start and end index
+          of each segment. **Note**! The indices are supposed to be used as 
+          follows: the labels for the i-th segment are given by::
 
-        - ``conv_structure``: A StructureData with the primitive structure
+            segment_indices = segments[i]
+            segment_points = explicit_kpoints.get_kpoints[slice(*segment_indices)]
 
-        - ``explicit_kpoints``: a KpointsData with the (explicit) kpoints
-          (with labels set).
+          This means, in particular, that if you want the label of the start
+          and end points, you should do::
+
+            start_point = explicit_kpoints.get_kpoints[segment_indices[0]]
+            stop_point = explicit_kpoints.get_kpoints[segment_indices[1]-1]
+
+          (note the minus one!)
+
+          Also, note that if segments[i-1][1] == segments[i][0] + 1 it means
+          that the point was calculated only once, and it belongs to both 
+          paths. Instead, if segments[i-1][1] == segments[i][0], then
+          this is a 'break' point in the path (e.g., segments[i-1][1] is the
+          X point, and segments[i][0] is the R point, and typically in a 
+          graphical representation they are shown at the same coordinate, 
+          with a label "R|X").
     """
     import copy
     from aiida.orm import DataFactory
 
-    KpointsData = DataFactory('array.kpoints')
-    ParameterData = DataFactory('parameter')
-
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
 
-    retdict = {}
-    rawdict = _raw_explicit_path(structure=struc_tuple, **parameters.get_dict())
+    retdict = _raw_explicit_path(struc_tuple)
 
     # Replace primitive structure with AiiDA StructureData
-    primitive_lattice = rawdict.pop('primitive_lattice')
-    primitive_positions = rawdict.pop('primitive_positions')
-    primitive_types = rawdict.pop('primitive_types')
+    primitive_lattice = retdict.pop('primitive_lattice')
+    primitive_positions = retdict.pop('primitive_positions')
+    primitive_types = retdict.pop('primitive_types')
     primitive_tuple = (primitive_lattice, primitive_positions, primitive_types)
     primitive_structure = _tuple_to_aiida(primitive_tuple, kind_info, kinds)
     retdict['primitive_structure'] = primitive_structure
 
-    # Replace conv structure with AiiDA StructureData
-    conv_lattice = rawdict.pop('conv_lattice')
-    conv_positions = rawdict.pop('conv_positions')
-    conv_types = rawdict.pop('conv_types')
-    conv_tuple = (conv_lattice, conv_positions, conv_types)
-    conv_structure = _tuple_to_aiida(conv_tuple, kind_info, kinds)
-    retdict['conv_structure'] = conv_structure
-
     # Remove reciprocal_primitive_lattice, recalculated by kpoints class
-    rawdict.pop('reciprocal_primitive_lattice')
-    kpoints_abs = rawdict.pop('explicit_kpoints_abs')
-    kpoints_rel = rawdict.pop('explicit_kpoints_rel')
-    kpoints_labels = rawdict.pop('explicit_kpoints_labels')
+    retdict.pop('reciprocal_primitive_lattice')
+    KpointsData = DataFactory('array.kpoints')
+    kpoints_abs = retdict.pop('explicit_kpoints_abs')
+    kpoints_rel = retdict.pop('explicit_kpoints_rel')
+    kpoints_labels = retdict.pop('explicit_kpoints_labels')
     # Expects something of the type [[0,'X'],[34,'L'],...]
     # So I generate it, skipping empty labels
     labels = [[idx, label] for idx, label in enumerate(kpoints_labels) if label]
@@ -224,12 +257,15 @@ def get_explicit_k_path(structure, parameters):
     kpoints.set_cell_from_structure(primitive_structure)
     kpoints.set_kpoints(kpoints_abs, cartesian=True, labels=labels)
     retdict['explicit_kpoints'] = kpoints
-    retdict['seekpath_parameters'] = ParameterData(dict=rawdict)
 
     return retdict
 
 
-def get_path(structure, parameters):
+def get_path(structure,
+             with_time_reversal=True,
+             reference_distance=0.025,
+             recipe='hpkot',
+             threshold=1.e-7):
     """
     Return the kpoint path information for band structure given a 
     crystal structure, using the paths from the chosen recipe/reference.
@@ -239,56 +275,86 @@ def get_path(structure, parameters):
 
 
     If you use this module, please cite the paper of the corresponding 
-    recipe (see documentation of seekpath).
+    recipe (see parameter below).
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be an AiiDA StructureData object.
 
-    :param parameters: A ParameterData. Its key-value pairs are passed as
-        additional kwargs to the ``seekpath.get_path`` function.
+    :param with_time_reversal: if False, and the group has no inversion 
+        symmetry, additional lines are returned as described in the HPKOT
+        paper.
 
-    :return: A dictionary with three
-        nodes:
-        - ``seekpath_parameters``: a ParameterData, whose content is
-          the same dictionary as returned by the ``seekpath.get_path`` function,
-          except that:
+    :param recipe: choose the reference publication that defines the special
+       points and paths.
+       Currently, the following value is implemented:
+       'hpkot': HPKOT paper: 
+       Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+       diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+       DOI: 10.1016/j.commatsci.2016.10.015
 
-          - ``conv_lattice``, ``conv_positions``, ``conv_types``
-            are removed and replaced by the ``conv_structure`` output node
+   :param threshold: the threshold to use to verify if we are in 
+        and edge case (e.g., a tetragonal cell, but a==c). For instance, 
+        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is issued. 
+        Note that depending on the bravais lattice, the meaning of the 
+        threshold is different (angle, length, ...)
 
-          - ``primitive_lattice``, ``primitive_positions``, ``primitive_types``
-            are removed and replaced by the ``primitive_structure`` output node
+    :return: a dictionary with the following 
+      keys:
 
-        - ``primitive_structure``: A StructureData with the primitive structure
+        - point_coords: a dictionary with label -> float coordinates
+        - path: a list of length-2 tuples, with the labels of the starting
+          and ending point of each label section
+        - has_inversion_symmetry: True or False, depending on whether the
+          input crystal structure has inversion symmetry or not.
+        - augmented_path: if True, it means that the path was
+          augmented with the -k points (this happens if both 
+          has_inversion_symmetry is False, and the user set 
+          with_time_reversal=False in the input)
+        - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
+        - bravais_lattice_extended: the specific case used to define labels and
+          coordinates (like 'cP1', 'tI2', ...)
+        - conv_structure: AiiDA StructureData for the crystallographic conventional 
+          cell 
+        - primitive_structure: AiiDA StructureData for the crystallographic primitive 
+          cell 
+        - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
+          primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
+          is the first vector)
+        - primitive_transformation_matrix: the transformation matrix P between
+          the conventional and the primitive cell 
+        - inverse_primitive_transformation_matrix: the inverse of the matrix P
+          (the determinant is integer and gives the ratio in volume between
+          the conventional and primitive cells)
+        - volume_original_wrt_conv: volume ratio of the user-provided cell
+          with respect to the the crystallographic conventional cell 
+        - volume_original_wrt_prim: volume ratio of the user-provided cell
+          with respect to the the crystallographic primitive cell 
 
-        - ``conv_structure``: A StructureData with the primitive structure
+    :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
+        orthorhombic systems). In this case, still one of the valid cases
+        is picked.
     """
     import copy
     from aiida.orm import DataFactory
 
-    ParameterData = DataFactory('parameter')
-
     struc_tuple, kind_info, kinds = _aiida_to_tuple(structure)
 
-    retdict = {}
-    rawdict = _raw_get_path(structure=struc_tuple, **parameters.get_dict())
+    retdict = _raw_get_path(struc_tuple)
 
     # Replace conv structure with AiiDA StructureData
-    conv_lattice = rawdict.pop('conv_lattice')
-    conv_positions = rawdict.pop('conv_positions')
-    conv_types = rawdict.pop('conv_types')
+    conv_lattice = retdict.pop('conv_lattice')
+    conv_positions = retdict.pop('conv_positions')
+    conv_types = retdict.pop('conv_types')
     conv_tuple = (conv_lattice, conv_positions, conv_types)
     conv_structure = _tuple_to_aiida(conv_tuple, kind_info, kinds)
     retdict['conv_structure'] = conv_structure
 
     # Replace primitive structure with AiiDA StructureData
-    primitive_lattice = rawdict.pop('primitive_lattice')
-    primitive_positions = rawdict.pop('primitive_positions')
-    primitive_types = rawdict.pop('primitive_types')
+    primitive_lattice = retdict.pop('primitive_lattice')
+    primitive_positions = retdict.pop('primitive_positions')
+    primitive_types = retdict.pop('primitive_types')
     primitive_tuple = (primitive_lattice, primitive_positions, primitive_types)
     primitive_structure = _tuple_to_aiida(primitive_tuple, kind_info, kinds)
     retdict['primitive_structure'] = primitive_structure
-
-    retdict['seekpath_parameters'] = ParameterData(dict=rawdict)
 
     return retdict
