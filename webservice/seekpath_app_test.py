@@ -3,6 +3,7 @@ import seekpath_app
 import unittest
 import tempfile
 
+
 class FlaskTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -17,10 +18,12 @@ class FlaskTestCase(unittest.TestCase):
         #os.unlink(seekpath_app.app.config['DATABASE'])
         pass
 
+
 class TestBasic(FlaskTestCase):
     """
     I at least check that I can get the basic content without error
     """
+
     def test_input_structure(self):
         rv = self.app.get('/input_structure/')
         self.assertEqual(rv.status_code, 200)
@@ -30,11 +33,13 @@ class TestBasic(FlaskTestCase):
         self.assertEqual(rv.status_code, 200)
 
     def test_example_cP1_inv(self):
-        rv = self.app.post('/process_example_structure/', data={
-            'value': 'cP1_inv'
-        }, follow_redirects=True)
+        rv = self.app.post(
+            '/process_example_structure/',
+            data={'value': 'cP1_inv'},
+            follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
         #html_data = rv.get_data()
+
 
 if __name__ == '__main__':
     unittest.main()

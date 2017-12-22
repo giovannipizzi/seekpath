@@ -1,13 +1,17 @@
 from builtins import zip
-from . import (
-    get_explicit_k_path as _raw_explicit_path,
-    get_path as _raw_get_path)
+from . import (get_explicit_k_path as _raw_explicit_path, get_path as
+               _raw_get_path)
+
+DEPRECATION_DOCS_URL = "http://seekpath.readthedocs.io/en/latest/maindoc.html#aiida-integration"
 
 
 def _aiida_to_tuple(aiida_structure):
     """
     Convert an AiiDA structure to a tuple of the format
     (cell, scaled_positions, element_numbers).
+
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
 
     :param aiida_structure: the AiiDA structure
     :return: (structure_tuple, kind_info, kinds) where structure_tuple
@@ -17,6 +21,11 @@ def _aiida_to_tuple(aiida_structure):
        the Z number of the element, otherwise it uses numbers > 1000;
        kinds is a list of the kinds of the structure.
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     import numpy as np
     from aiida.common.constants import elements
 
@@ -57,7 +66,8 @@ def _aiida_to_tuple(aiida_structure):
                 number = realnumber
             kind_numbers[kind.name] = number
         else:
-            number = get_new_number(list(kind_numbers.values()), start_from=200000)
+            number = get_new_number(
+                list(kind_numbers.values()), start_from=200000)
             kind_numbers[kind.name] = number
 
     numbers = [kind_numbers[s.kind_name] for s in aiida_structure.sites]
@@ -74,11 +84,19 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     you should pass both kind_info and kinds, with the same format as returned
     by get_tuple_from_aiida_structure.
 
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
+
     :param structure_tuple: the structure in format (structure_tuple, kind_info)
     :param kind_info: a dictionary mapping the kind_names to
        the numbers used in element_numbers. If not provided, assumes {element_name: element_Z}
     :param kinds: a list of the kinds of the structure.
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     from aiida.common.constants import elements
     from aiida.orm.data.structure import Kind, Site, StructureData
     import numpy as np
@@ -99,8 +117,9 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
             # For each site
             symbols = [elements[num]['symbol'] for num in numbers]
         except KeyError as e:
-            raise ValueError("You did not pass kind_info, but at least one number "
-                             "is not a valid Z number: {}".format(e.message))
+            raise ValueError(
+                "You did not pass kind_info, but at least one number "
+                "is not a valid Z number: {}".format(e.message))
 
         _kind_info = {elements[num]['symbol']: num for num in set(numbers)}
         # Get the default kinds
@@ -115,11 +134,13 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     mapping_num_kindname = {v: k for k, v in _kind_info.items()}
     # Create the actual mapping
     try:
-        mapping_to_kinds = {num: _kinds_dict[kindname] for num, kindname
-                            in mapping_num_kindname.items()}
+        mapping_to_kinds = {
+            num: _kinds_dict[kindname]
+            for num, kindname in mapping_num_kindname.items()
+        }
     except KeyError as e:
-        raise ValueError(
-            "Unable to find '{}' in the kinds list".format(e.message))
+        raise ValueError("Unable to find '{}' in the kinds list".format(
+            e.message))
 
     try:
         site_kinds = [mapping_to_kinds[num] for num in numbers]
@@ -132,8 +153,9 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
         out_structure.append_kind(k)
     abs_pos = np.dot(rel_pos, cell)
     if len(abs_pos) != len(site_kinds):
-        raise ValueError("The length of the positions array is different from the "
-                         "length of the element numbers")
+        raise ValueError(
+            "The length of the positions array is different from the "
+            "length of the element numbers")
 
     for kind, pos in zip(site_kinds, abs_pos):
         out_structure.append_site(Site(kind_name=kind.name, position=pos))
@@ -141,8 +163,10 @@ def _tuple_to_aiida(structure_tuple, kind_info=None, kinds=None):
     return out_structure
 
 
-def get_explicit_k_path(structure, with_time_reversal=True,
-                        reference_distance=0.025, recipe='hpkot',
+def get_explicit_k_path(structure,
+                        with_time_reversal=True,
+                        reference_distance=0.025,
+                        recipe='hpkot',
                         threshold=1.e-7):
     """
     Return the kpoint path for band structure (in scaled and absolute 
@@ -152,6 +176,9 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     as get get_explicit_k_path in __init__, but here all structures are
     input and returned as AiiDA structures rather than tuples, and similarly
     k-points-related information as a AiiDA KpointsData class.
+
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
 
     :param structure: The AiiDA StructureData for which we want to obtain
         the suggested path. 
@@ -222,6 +249,11 @@ def get_explicit_k_path(structure, with_time_reversal=True,
           graphical representation they are shown at the same coordinate, 
           with a label "R|X").
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     import copy
     from aiida.orm import DataFactory
 
@@ -245,20 +277,20 @@ def get_explicit_k_path(structure, with_time_reversal=True,
     kpoints_labels = retdict.pop('explicit_kpoints_labels')
     # Expects something of the type [[0,'X'],[34,'L'],...]
     # So I generate it, skipping empty labels
-    labels = [[idx, label] for idx, label in enumerate(kpoints_labels)
-              if label]
+    labels = [[idx, label] for idx, label in enumerate(kpoints_labels) if label]
 
     kpoints = KpointsData()
     kpoints.set_cell_from_structure(primitive_structure)
-    kpoints.set_kpoints(
-        kpoints_abs, cartesian=True, labels=labels)
+    kpoints.set_kpoints(kpoints_abs, cartesian=True, labels=labels)
     retdict['explicit_kpoints'] = kpoints
 
     return retdict
 
 
-def get_path(structure, with_time_reversal=True,
-             reference_distance=0.025, recipe='hpkot',
+def get_path(structure,
+             with_time_reversal=True,
+             reference_distance=0.025,
+             recipe='hpkot',
              threshold=1.e-7):
     """
     Return the kpoint path information for band structure given a 
@@ -267,9 +299,11 @@ def get_path(structure, with_time_reversal=True,
     as get get_path in __init__, but here all structures are
     input and returned as AiiDA structures rather than tuples.
 
-
     If you use this module, please cite the paper of the corresponding 
     recipe (see parameter below).
+
+    .. deprecated:: 1.8
+      Use the methods in AiiDA instead.
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be an AiiDA StructureData object.
@@ -328,6 +362,11 @@ def get_path(structure, with_time_reversal=True,
         orthorhombic systems). In this case, still one of the valid cases
         is picked.
     """
+    import warnings
+    warnings.warn(
+        'this method has been deprecated and moved to AiiDA, see {}'.format(
+            DEPRECATION_DOCS_URL), DeprecationWarning)
+
     import copy
     from aiida.orm import DataFactory
 

@@ -29,6 +29,12 @@
         //active: false  // Start all closed
         active: -1  // Open the last one
       });
+      $( "#accordion-initialcoords" ).accordion({
+        collapsible: true,
+        heightStyle: "content", // Avoid that all have the same height
+        active: false  // Start all closed
+        //active: -1  // Open the last one
+      });
     });
     </script>
     <style>
@@ -43,17 +49,17 @@
     <script>
     var jsondata = {{ jsondata|safe }};
     var json_content = {{ json_content|safe }};
-
+    var mainBZVisualizer = new BZVisualizer();
     $( document ).ready(function() {
-        load_BZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
-    });
+        mainBZVisualizer.loadBZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
+      });
 
     // global variable
     var structureviewer = null;
 
 
     var resize_canvases = function () {
-        resize_renderer(); // BZ visualizer
+        mainBZVisualizer.resizeRenderer(); // BZ visualizer
         // resize structure viewer
         if (structureviewer) {
             parentcanvas = document.getElementById('structure');
@@ -82,6 +88,75 @@
 	{% block seekpathtitle %}
 	<h1><span style="font-weight: bold;">SeeK-path</span>: the <span style="font-style: italic">k</span>-path finder and visualizer</h1>
 	{% endblock seekpathtitle %}
+      </div>
+
+      <div id="topinfo">
+        <div id="accordion-initialcoords">
+          <h2>Show parsed input coordinates (please double-check here if the parser worked properly)</h2>
+          <div>
+            <h3>Volume ratio between input structure and primitive structure</h3>
+            <p style="text-align: center">The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>              
+            <h3>Input cell vectors (&#8491;)</h3>
+            <table class="center">
+              <thead>
+                <th style="padding-right: 15px; text-align: center">v</th>
+                <th style="text-align: center">x</th>
+                <th style="text-align: center">y</th>
+                <th style="text-align: center">z</th>
+              </thead>
+              <tbody>      
+                {% for v in inputstructure_cell_vectors %}
+                <tr>
+                  <td style="padding-right: 15px; text-align: center">v<sub>{{ v[0] }}</sub></td>
+                  <td style="text-align: right"><code>{{ "%.10f" % v[1]|float }}</code></td>
+                  <td style="text-align: right"><code>{{ "%.10f" % v[2]|float }}</code></td>
+                  <td style="text-align: right"><code>{{ "%.10f" % v[3]|float }}</code></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table> 
+     
+            <h3>Input atom coordinates (scaled)</h3>
+            <table class="center">
+              <thead>
+                <th style="padding-right: 15px; text-align: center">Element</th>
+                <th style="text-align: center">r<sub>1</sub></th>
+                <th style="text-align: center">r<sub>2</sub></th>
+                <th style="text-align: center">r<sub>3</sub></th>
+              </thead>
+              <tbody>      
+                {% for b in inputstructure_atoms_scaled %}
+                <tr>
+                  <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
+                  <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+                  <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+                  <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table> 
+    
+            <h3>Input atom coordinates (Cartesian, &#8491;)</h3>
+            <table class="center">
+              <thead>
+                <th style="padding-right: 15px; text-align: center">Element</th>
+                <th style="text-align: center">x</th>
+                <th style="text-align: center">y</th>
+                <th style="text-align: center">z</th>
+              </thead>
+              <tbody>      
+                {% for b in inputstructure_atoms_cartesian %}
+                <tr>
+                  <td style="padding-right: 15px; text-align: center">{{ b[0] }}</td>
+                  <td style="text-align: right"><code>{{ "%.10f" % b[1]|float }}</code></td>
+                  <td style="text-align: right"><code>{{ "%.10f" % b[2]|float }}</code></td>
+                  <td style="text-align: right"><code>{{ "%.10f" % b[3]|float }}</code></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>  
+          </div>
+        </div>
       </div>
 
       <div id="quicklinks" style="text-align: center"><p><a href="#downloadablecoords">Jump directly to downloadable coordinates</a></p></div>
@@ -241,7 +316,6 @@
         }
         structureviewer.dblclick = structure_switch_activate;
         structureviewer.dbltap = structure_switch_activate;
-
       </script></div>
     </div>
 
@@ -288,7 +362,7 @@
 
             {% for k in kpoints_rel %}
             <tr>
-              <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
+              <td style="text-align: center"><script>document.write(prettifyLabel("{{ k[0] }}"));</script></td>
               <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
               <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
               <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
@@ -312,7 +386,7 @@
 
             {% for k in kpoints %}
             <tr>
-              <td style="text-align: center"><script>document.write(prettify_label("{{ k[0] }}"));</script></td>
+              <td style="text-align: center"><script>document.write(prettifyLabel("{{ k[0] }}"));</script></td>
               <td style="text-align: right"><code>{{ "%.10f" % k[1]|float }}</code></td>
               <td style="text-align: right"><code>{{ "%.10f" % k[2]|float }}</code></td>
               <td style="text-align: right"><code>{{ "%.10f" % k[3]|float }}</code></td>
@@ -325,7 +399,7 @@
 
         <h3>Suggested path</h3>
         <p>
-        {% for lab in suggested_path %}<script>document.write(prettify_label("{{ lab }}"));</script>{% endfor %}
+        {% for lab in suggested_path %}<script>document.write(prettifyLabel("{{ lab }}"));</script>{% endfor %}
         </p>
 
         {% if time_reversal_note %}
@@ -344,14 +418,6 @@
         <p><span style="font-style: italic">Bravais lattice type</span>: {{ bravais_lattice }}</p>
         <p><span style="font-style: italic">Extended Bravais lattice symbol</span>: {{ bravais_lattice_extended }} ({{ with_without_time_reversal }} inversion symmetry)</p>
         <p><span style="font-style: italic">Spacegroup</span>: {{ spacegroup_international }} (number {{ spacegroup_number }})</p>
-
-        <h3>Volume ratio between input structure and primitive structure</h3>
-        <p>The input cell has a volume {{ volume_ratio_prim }} times larger than the primitive cell</p>
-        <p>Note that the input structure had cell vectors (in &#8491;):<br>
-            {% for v in inputstructure_cell_vectors %}
-            v<sub>{{ v[0] }}</sub>: <code>{{ "%.10f" % v[1]|float }}, {{ "%.10f" % v[2]|float }}, {{ "%.10f" % v[3]|float }}</code><br>
-            {% endfor %}
-        </p>
 
         <h3>Primitive cell vectors (&#8491;)</h3>
         <table class="center">
@@ -427,10 +493,10 @@
             that is an essential library used in the implementation.
         </li>
       	<li>
-      	  Some of the input parsers have been implemented either with the 
-      	     <a href="https://wiki.fysik.dtu.dk/ase/" target="_blank">ASE python library</a>
-      	     or using routines from 
-    	       <a href="http://www.aiida.net" target="_blank">AiiDA</a>.
+      	  The input parsers use a number of libraries (see name in the dropdown list) from
+      	     <a href="https://wiki.fysik.dtu.dk/ase/" target="_blank">ASE</a>, 
+             <a href="https://github.com/aiidateam/qe-tools" target="_blank">qe-tools</a> or 
+             <a href="http://pymatgen.org" target="_blank">pymatgen</a>.
       	</li>
         </ul>
         </p>

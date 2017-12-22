@@ -5,12 +5,14 @@ import numpy as np
 
 from . import brillouinzone
 
+
 def has_scipy():
     try:
         import scipy
         return True
     except ImportError:
         return False
+
 
 def is_same_point(p1, p2):
     threshold = 1.e-7
@@ -62,6 +64,7 @@ def is_same_face(f1, f2):
     found = err < threshold
     return found
 
+
 def are_same_faces(faces1, faces2):
     """
     Return a tuple. The first value is True if the two sets of faces are the 
@@ -69,7 +72,7 @@ def are_same_faces(faces1, faces2):
     """
     if len(faces1) != len(faces2):
         return False, ("The two list of faces have different "
-            "length ({} vs. {})".format(len(faces1), len(faces2)))
+                       "length ({} vs. {})".format(len(faces1), len(faces2)))
 
     remaining_indices = list(range(len(faces1)))
     for f1idx, f1 in enumerate(faces1):
@@ -83,10 +86,10 @@ def are_same_faces(faces1, faces2):
         if found:
             remaining_indices.remove(f2idx)
         else:
-            # If here, that means that face f1 does not exist in (the 
+            # If here, that means that face f1 does not exist in (the
             # remaining faces in) faces2
             return False, ("The following item in the first list was not "
-            "found in the second one: {}".format(f1))
+                           "found in the second one: {}".format(f1))
     return True, ""
 
 
@@ -94,41 +97,38 @@ class TestBZ(unittest.TestCase):
     """
     Test the search for BZ faces
     """
+
     @unittest.skipIf(not has_scipy(), "No SciPy")
     def test_cubic(self):
-        b1 = [1,0,0]
-        b2 = [0,1,0]
-        b3 = [0,0,1]
+        b1 = [1, 0, 0]
+        b2 = [0, 1, 0]
+        b3 = [0, 0, 1]
         bz = brillouinzone.get_BZ(b1=b1, b2=b2, b3=b3)
 
-        expected_faces = [
-            [[-0.5, -0.5, -0.5], [-0.5, -0.5, 0.5], 
-                [0.5, -0.5, 0.5], [0.5, -0.5, -0.5]], 
-            [[-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5], 
-                [0.5, -0.5, -0.5], [0.5, 0.5, -0.5]], 
-            [[-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5], 
-                [-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5]], 
-            [[0.5, -0.5, 0.5], [-0.5, -0.5, 0.5], 
-                [-0.5, 0.5, 0.5], [0.5, 0.5, 0.5]], 
-            [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5], 
-                [0.5, 0.5, 0.5], [0.5, -0.5, 0.5]], 
-            [[-0.5, 0.5, -0.5], [0.5, 0.5, -0.5], 
-                [0.5, 0.5, 0.5], [-0.5, 0.5, 0.5]]]
+        expected_faces = [[[-0.5, -0.5, -0.5], [-0.5, -0.5, 0.5], [
+            0.5, -0.5, 0.5
+        ], [0.5, -0.5,
+            -0.5]], [[-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5], [0.5, -0.5, -0.5],
+                     [0.5, 0.5, -0.5]], [[-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5],
+                                         [-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5]],
+                          [[0.5, -0.5, 0.5], [-0.5, -0.5, 0.5],
+                           [-0.5, 0.5, 0.5], [0.5, 0.5, 0.5]],
+                          [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5], [0.5, 0.5, 0.5],
+                           [0.5, -0.5,
+                            0.5]], [[-0.5, 0.5, -0.5], [0.5, 0.5, -0.5],
+                                    [0.5, 0.5, 0.5], [-0.5, 0.5, 0.5]]]
 
         unexpected_faces_1 = [
-            [[-0.5, -0.5, -0.5], [-0.5, -0.5, 0.5], 
-                [0.5, -0.5, 0.5], [0.3, -0.5, -0.5]], 
-            [[-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5], 
-                [0.5, -0.5, -0.5], [0.5, 0.5, -0.5]], 
-            [[-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5], 
-                [-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5]], 
-            [[0.5, -0.5, 0.5], [-0.5, -0.5, 0.5], 
-                [-0.5, 0.5, 0.5], [0.5, 0.5, 0.5]], 
-            [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5], 
-                [0.5, 0.5, 0.5], [0.5, -0.5, 0.5]], 
-            [[-0.5, 0.5, -0.5], [0.5, 0.5, -0.5], 
-                [0.5, 0.5, 0.5], [-0.5, 0.5, 0.5]]]
-
+            [[-0.5, -0.5, -0.5], [-0.5, -0.5, 0.5], [0.5, -0.5, 0.5],
+             [0.3, -0.5, -0.5]], [[-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5],
+                                  [0.5, -0.5, -0.5], [0.5, 0.5, -0.5]],
+            [[-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5], [-0.5, 0.5, -0.5],
+             [-0.5, -0.5, -0.5]], [[0.5, -0.5, 0.5], [-0.5, -0.5, 0.5],
+                                   [-0.5, 0.5, 0.5], [0.5, 0.5, 0.5]],
+            [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5], [0.5, 0.5, 0.5],
+             [0.5, -0.5, 0.5]], [[-0.5, 0.5, -0.5], [0.5, 0.5, -0.5],
+                                 [0.5, 0.5, 0.5], [-0.5, 0.5, 0.5]]
+        ]
 
         # The definition of triangles is not unique. I check directly the
         # faces (that should be obtained from the triangles
@@ -137,18 +137,18 @@ class TestBZ(unittest.TestCase):
         #theFaces = [Face(f) for f in faces]
         #theExpectedFaces = [Face(f) for f in expected_faces]
         is_same, info = are_same_faces(faces, expected_faces)
-        self.assertTrue(is_same, 
-            "The two sets of faces are different: {}".format(info))
+        self.assertTrue(is_same,
+                        "The two sets of faces are different: {}".format(info))
 
         is_same, info = are_same_faces(faces, unexpected_faces_1)
-        self.assertFalse(is_same, 
-            "The two sets of faces are not detected as different")
+        self.assertFalse(is_same,
+                         "The two sets of faces are not detected as different")
 
     @unittest.skipIf(not has_scipy(), "No SciPy")
     def test_2(self):
-        b1 = [1,0,0]
-        b2 = [0,1,0]
-        b3 = [0.2,0.2,1]
+        b1 = [1, 0, 0]
+        b2 = [0, 1, 0]
+        b3 = [0.2, 0.2, 1]
         bz = brillouinzone.get_BZ(b1=b1, b2=b2, b3=b3)
 
         expected_faces = [
@@ -250,11 +250,10 @@ class TestBZ(unittest.TestCase):
         #theFaces = [Face(f) for f in faces]
         #theExpectedFaces = [Face(f) for f in expected_faces]
         is_same, info = are_same_faces(faces, expected_faces)
-        self.assertTrue(is_same, 
-            "The two sets of faces are different: {}".format(info))
+        self.assertTrue(is_same,
+                        "The two sets of faces are different: {}".format(info))
 
 
 if __name__ == "__main__":
 
     unittest.main()
-

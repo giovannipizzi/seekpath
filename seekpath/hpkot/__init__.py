@@ -3,76 +3,54 @@ The seekpath.hpkot module contains routines to get automatically the
 path in a 3D Brillouin zone to plot band structures according to the 
 HPKOT paper (see references below).
 
-Author: Giovanni Pizzi, EPFL (2016)
+Author: Giovanni Pizzi, EPFL
 
-Licence: MIT License
+Licence: MIT License, see LICENSE.txt
 
-Copyright (c), 2016, ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE
-(Theory and Simulation of Materials (THEOS) and National Centre for 
-Computational Design and Discovery of Novel Materials (NCCR MARVEL)). 
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-Note: the list of point coordinates and example POSCAR files in 
+.. note:: the list of point coordinates and example POSCAR files in 
   the band_path_data subfolder have been provided by Yoyo Hinuma,
   Kyoto University, Japan. The POSCARs have been retrieved from
   the Materials Project (http://materialsproject.org).
-
 """
 
 
 class EdgeCaseWarning(RuntimeWarning):
     """
     A warning issued when the cell is an edge case (e.g. orthorhombic
-    symmetry, but a==b==c.
+    symmetry, but ``a==b==c``.
     """
     pass
 
 
 class SymmetryDetectionError(Exception):
     """
-    Error raised if spglib could not detect the symmetry
+    Error raised if spglib could not detect the symmetry.
     """
     pass
 
 
-def get_path(structure, with_time_reversal=True, threshold=1.e-7):
-    """
-    Return the kpoint path for band structure given a crystal structure,
-    using the paths proposed in the HPKOT paper: 
-    Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
-    diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
-    DOI: 10.1016/j.commatsci.2016.10.015
+def get_path(structure,
+             with_time_reversal=True,
+             threshold=1.e-7,
+             symprec=1e-05,
+             angle_tolerance=-1.0):
+    r"""
+    Return the kpoint path information for band structure given a 
+    crystal structure, using the paths from the chosen recipe/reference.
 
-    If you use this module, please cite the paper above.
+    If you use this module, please cite the paper of the corresponding 
+    recipe (see parameter below).
 
     :param structure: The crystal structure for which we want to obtain
         the suggested path. It should be a tuple in the format
-        accepted by spglib: (cell, positions, numbers), where 
+        accepted by spglib: ``(cell, positions, numbers)``, where 
         (if N is the number of atoms):
 
-        - cell is a 3x3 list of floats (cell[0] is the first lattice 
+        - ``cell`` is a :math:`3 \times 3` list of floats (``cell[0]`` is the first lattice 
           vector, ...)
-        - positions is a Nx3 list of floats with the atomic coordinates
+        - ``positions`` is a :math:`N \times 3` list of floats with the atomic coordinates
           in scaled coordinates (i.e., w.r.t. the cell vectors)
-        - numbers is a length-N list with integers identifying uniquely
+        - ``numbers`` is a length-:math:`N` list with integers identifying uniquely
           the atoms in the cell (e.g., the Z number of the atom, but 
           any other positive non-zero integer will work - e.g. if you
           want to distinguish two Carbon atoms, you can set one number
@@ -82,57 +60,69 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         symmetry, additional lines are returned as described in the HPKOT
         paper.
 
+    :param recipe: choose the reference publication that defines the special
+       points and paths.
+       Currently, the following value is implemented:
+       
+       - ``hpkot``: HPKOT paper: 
+         Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure 
+         diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+         DOI: 10.1016/j.commatsci.2016.10.015
+
     :param threshold: the threshold to use to verify if we are in 
-        and edge case (e.g., a tetragonal cell, but a==c). For instance, 
-        in the tI lattice, if abs(a-c) < threshold, a EdgeCaseWarning is 
-        issued. Note that depending on the bravais lattice, the meaning of the 
+        and edge case (e.g., a tetragonal cell, but ``a==c``). For instance, 
+        in the tI lattice, if ``abs(a-c) < threshold``, a 
+        :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued. 
+        Note that depending on the bravais lattice, the meaning of the 
         threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB   
+
 
     :return: a dictionary with the following 
       keys:
 
-        - point_coords: a dictionary with label -> float coordinates
-        - path: a list of length-2 tuples, with the labels of the starting
+        - ``point_coords``: a dictionary with label -> float coordinates
+        - ``path``: a list of length-2 tuples, with the labels of the starting
           and ending point of each label section
-        - has_inversion_symmetry: True or False, depending on whether the
+        - ``has_inversion_symmetry``: True or False, depending on whether the
           input crystal structure has inversion symmetry or not.
-        - augmented_path: if True, it means that the path was
-          augmented with the -k points (this happens if both 
+        - ``augmented_path``: if True, it means that the path was
+          augmented with the :math:`-k` points (this happens if both 
           has_inversion_symmetry is False, and the user set 
           with_time_reversal=False in the input)
-        - bravais_lattice: the Bravais lattice string (like 'cP', 'tI', ...)
-        - bravais_lattice_extended: the specific case used to define labels and
-          coordinates (like 'cP1', 'tI2', ...)
-        - conv_lattice: three real-space vectors for the crystallographic 
-          conventional cell (conv_lattice[0,:] is the first vector)
-        - conv_positions: fractional coordinates of atoms in the 
+        - ``bravais_lattice``: the Bravais lattice string (like ``cP``, ``tI``, ...)
+        - ``bravais_lattice_extended``: the specific case used to define labels and
+          coordinates (like ``cP1``, ``tI2``, ...)
+        - ``cont_lattice``: three real-space vectors for the crystallographic
+          conventional cell (``conv_lattice[0,:]`` is the first vector)
+        - ``conv_positions``: fractional coordinates of atoms in the 
           crystallographic conventional cell 
-        - conv_types: list of integer types of the atoms in the 
-          crystallographic conventional cell (typically, the atomic numbers)
-        - primitive_lattice: three real-space vectors for the crystallographic 
-          primitive cell (primitive_lattice[0,:] is the first vector)
-        - primitive_positions: fractional coordinates of atoms in the 
+        - ``conv_types``: list of integer types of the atoms in the crystallographic
+          conventional cell (typically, the atomic numbers)
+        - ``primitive_lattice``: three real-space vectors for the crystallographic 
+          primitive cell (``primitive_lattice[0,:]`` is the first vector)
+        - ``primitive_positions``: fractional coordinates of atoms in the 
           crystallographic primitive cell 
-        - primitive_types: list of integer types of the atoms in the 
-          crystallographic conventional cell (typically, the atomic numbers)
-        - reciprocal_primitive_lattice: reciprocal-cell vectors for the 
-          primitive cell (vectors are rows: reciprocal_primitive_lattice[0,:] 
+        - ``primitive_types``: list of integer types of the atoms in the 
+          crystallographic primitive cell (typically, the atomic numbers)
+        - ``reciprocal_primitive_lattice``: reciprocal-cell vectors for the 
+          primitive cell (vectors are rows: ``reciprocal_primitive_lattice[0,:]``
           is the first vector)
-        - primitive_transformation_matrix: the transformation matrix P between
+        - ``primitive_transformation_matrix``: the transformation matrix :math:`P` between
           the conventional and the primitive cell 
-        - inverse_primitive_transformation_matrix: the inverse of the matrix P
+        - ``inverse_primitive_transformation_matrix``: the inverse of the matrix :math:`P`
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
-        - volume_original_wrt_conv: volume ratio of the user-provided cell
+        - ``volume_original_wrt_conv``: volume ratio of the user-provided cell
           with respect to the the crystallographic conventional cell 
-        - volume_original_wrt_prim: volume ratio of the user-provided cell
-          with respect to the the crystallographic primitive cell 
-        - spacegroup_number: Number from 1 to 230 of the spacegroup of the 
-          crystal
-        - spacegroup_international: International name of the spacegroup 
-          of the crystal
+        - ``volume_original_wrt_prim``: volume ratio of the user-provided cell
+          with respect to the the crystalloraphic primitive cell 
 
-    :note: An EdgeCaseWarning is issued for edge cases (e.g. if a==b==c for
+    :note: An :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued for 
+        edge cases (e.g. if ``a==b==c`` for
         orthorhombic systems). In this case, still one of the valid cases
         is picked.
     """
@@ -142,23 +132,23 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
     import numpy as np
 
-    from .tools import (
-        check_spglib_version, extend_kparam, eval_expr, eval_expr_simple,
-        get_cell_params, get_path_data, get_reciprocal_cell_rows,
-        get_real_cell_from_reciprocal_rows)
+    from .tools import (check_spglib_version, extend_kparam, eval_expr,
+                        eval_expr_simple, get_cell_params, get_path_data,
+                        get_reciprocal_cell_rows,
+                        get_real_cell_from_reciprocal_rows)
     from .spg_mapping import (get_spgroup_data, get_primitive)
 
     # I check if the SPGlib version is recent enough (raises ValueError)
     # otherwise
     spglib = check_spglib_version()
 
-    structure_internal = (np.array(structure[0]),
-                          np.array(structure[1]),
+    structure_internal = (np.array(structure[0]), np.array(structure[1]),
                           np.array(structure[2]))
 
     # Symmetry analysis by SPGlib, get crystallographic lattice,
     # and cell parameters for this lattice
-    dataset = spglib.get_symmetry_dataset(structure_internal)
+    dataset = spglib.get_symmetry_dataset(
+        structure_internal, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
         raise SymmetryDetectionError(
             "Spglib could not detect the symmetry of the system")
@@ -248,8 +238,10 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         else:
             ext_bravais = "oA2"
     elif bravais_lattice == "hP":
-        if spgrp_num in [143, 144, 145, 146, 147, 148, 149, 151, 153, 157,
-                         159, 160, 161, 162, 163]:
+        if spgrp_num in [
+                143, 144, 145, 146, 147, 148, 149, 151, 153, 157, 159, 160, 161,
+                162, 163
+        ]:
             ext_bravais = "hP1"
         else:
             ext_bravais = "hP2"
@@ -270,8 +262,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         if b < a * sqrt(1. - cosbeta**2):
             ext_bravais = "mC1"
         else:
-            if abs(-a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2
-                   - 1.) < threshold:
+            if abs(-a * cosbeta / c + a**2 *
+                   (1. - cosbeta**2) / b**2 - 1.) < threshold:
                 warnings.warn("mC lattice, but -a*cos(beta)/c + "
                               "a^2*sin(beta)^2/b^2 almost equal to 1",
                               EdgeCaseWarning)
@@ -298,18 +290,9 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             abs(ka2 * kb2 * coskgamma2)
         ])
         M2_matrices = [
-            np.array([
-                [0, 0, 1],
-                [1, 0, 0],
-                [0, 1, 0]]),
-            np.array([
-                [0, 1, 0],
-                [0, 0, 1],
-                [1, 0, 0]]),
-            np.array([
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]])
+            np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]),
+            np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]),
+            np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         ]
         # TODO: manage edge cases
         smallest_condition = np.argsort(conditions)[0]
@@ -332,52 +315,28 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
         # explained in HPKOT
         # Note: cos > 0 => angle < 90deg
         if coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 > 0.:  # 1a
-            M3 = np.array([
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 <= 0.:  # 1b
-            M3 = np.array([
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 <= 0.:  # 2a
-            M3 = np.array([
-                [1, 0, 0],
-                [0, -1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
         elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 > 0.:  # 2b
-            M3 = np.array([
-                [1, 0, 0],
-                [0, -1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
         elif coskalpha3 <= 0. and coskbeta3 > 0. and coskgamma3 <= 0.:  # 3a
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, 1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
         elif coskalpha3 > 0. and coskbeta3 <= 0. and coskgamma3 > 0.:  # 3b
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, 1, 0],
-                [0, 0, -1]])
+            M3 = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
         elif coskalpha3 <= 0. and coskbeta3 <= 0. and coskgamma3 > 0.:  # 4a
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, -1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
         elif coskalpha3 > 0. and coskbeta3 > 0. and coskgamma3 <= 0.:  # 4b
-            M3 = np.array([
-                [-1, 0, 0],
-                [0, -1, 0],
-                [0, 0, 1]])
+            M3 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
         else:
             raise ValueError("Problem identifying M3 matrix in aP lattice!"
                              "Sign of cosines: cos(kalpha3){}0, "
                              "cos(kbeta3){}0, cos(kgamma3){}0".format(
-                                 ">=" if coskalpha3 >= 0 else "<",
-                                 ">=" if coskbeta3 >= 0 else "<",
-                                 ">=" if coskgamma3 >= 0 else "<"))
+                                 ">=" if coskalpha3 >= 0 else "<", ">="
+                                 if coskbeta3 >= 0 else "<", ">="
+                                 if coskgamma3 >= 0 else "<"))
 
         real_cell_final = np.dot(real_cell3.T, M3).T
         reciprocal_cell_final = get_reciprocal_cell_rows(real_cell_final)
@@ -391,12 +350,12 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             # all-acute
             ext_bravais = "aP3"
         else:
-            raise ValueError("Unexpected aP triclinic lattice, it neither "
-                             "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
-                             "cos(kbeta){}0, cos(kgamma){}0".format(
-                                 ">=" if coskalpha >= 0 else "<",
-                                 ">=" if coskbeta >= 0 else "<",
-                                 ">=" if coskgamma >= 0 else "<"))
+            raise ValueError(
+                "Unexpected aP triclinic lattice, it neither "
+                "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
+                "cos(kbeta){}0, cos(kgamma){}0".format(
+                    ">=" if coskalpha >= 0 else "<", ">="
+                    if coskbeta >= 0 else "<", ">=" if coskgamma >= 0 else "<"))
 
         # Get absolute positions
         conv_pos_abs = np.dot(conv_positions, conv_lattice)
@@ -433,8 +392,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     # parameters, as far as they are returned in the
     kparam = {}
     for kparam_name, kparam_expr in kparam_def:
-        kparam[kparam_name] = eval_expr(
-            kparam_expr, a, b, c, cosalpha, cosbeta, cosgamma, kparam)
+        kparam[kparam_name] = eval_expr(kparam_expr, a, b, c, cosalpha, cosbeta,
+                                        cosgamma, kparam)
 
     # Extend kparam with additional simple expressions (like 1-a, ...)
     kparam_extended = extend_kparam(kparam)
@@ -458,7 +417,8 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             if pointname == 'GAMMA':
                 continue
             points["{}'".format(pointname)] = [
-                -coords[0], -coords[1], -coords[2]]
+                -coords[0], -coords[1], -coords[2]
+            ]
         old_path = copy.deepcopy(path)
         for start_p, end_p in old_path:
             if start_p == "GAMMA":

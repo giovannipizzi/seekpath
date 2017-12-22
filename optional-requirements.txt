@@ -1,6 +1,8 @@
 # The following is needed to get the Brillouin zone
 scipy==0.18.1
 # The following are needed for the web service
-Flask==0.11.1
-ase==3.12.0
-
+Flask==0.12.2
+ase==3.15.0
+# For the QE importer
+qe_tools==1.0.0
+pymatgen==2017.7.4

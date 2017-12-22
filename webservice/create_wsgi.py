@@ -16,8 +16,8 @@ current_group = grp.getgrgid(pwd.getpwnam(current_user).pw_gid).gr_name
 #servername = raw_input("Please insert the server name: ")
 #servername = "theospc7.epfl.ch"
 
-print ("I am going to configure everything running as user '{}' and "
-       "group '{}'".format(current_user, current_group))
+print("I am going to configure everything running as user '{}' and "
+      "group '{}'".format(current_user, current_group))
 #print "and the server name will be '{}'".format(servername)
 print " Continue? [CTRL+C to stop]"
 raw_input()
@@ -25,8 +25,7 @@ raw_input()
 content_lines = []
 content_lines.append("import sys")
 wsgi_folder = os.path.split(os.path.realpath(__file__))[0]
-content_lines.append("sys.path.insert(0, '{}')".format(
-    wsgi_folder))
+content_lines.append("sys.path.insert(0, '{}')".format(wsgi_folder))
 wsgi_file = os.path.join(wsgi_folder, WSGI_FILENAME)
 
 import_content_lines = defaultdict(list)
@@ -35,26 +34,22 @@ for package in ['flask', 'numpy', 'scipy', 'ase', 'spglib', 'seekpath']:
     try:
         m = importlib.import_module(package)
         import_content_lines["sys.path.append('{}')".format(
-            os.path.realpath(os.path.join(
-                os.path.split(m.__file__)[0],
-                os.pardir
-            )))].append(package)
+            os.path.realpath(
+                os.path.join(os.path.split(m.__file__)[0],
+                             os.pardir)))].append(package)
     except ImportError:
         raise ValueError(
-            "Unable to load {}, put it in the python path!".format(
-                package
-            ))
+            "Unable to load {}, put it in the python path!".format(package))
 for importline, modules in import_content_lines.iteritems():
-    content_lines.append("{} # {}".format(
-        importline, ", ".join(modules)
-    ))
+    content_lines.append("{} # {}".format(importline, ", ".join(modules)))
 content_lines.append("")
 content_lines.append("from seekpath_app import app as application")
 
 print "=" * 78
 print "\n".join(content_lines)
 print "=" * 78
-print "This is the content I want to write in the {} file.".format(WSGI_FILENAME)
+print "This is the content I want to write in the {} file.".format(
+    WSGI_FILENAME)
 print "Can I continue? [CTRL+C to stop]"
 raw_input()
 
@@ -82,7 +77,7 @@ site_template = string.Template("""
 """)
 
 site_file_content = site_template.substitute(
-#    servername=servername,
+    #    servername=servername,
     appname="seekpath_app",
     user=current_user,
     group=current_group,
@@ -90,7 +85,7 @@ site_file_content = site_template.substitute(
     urlpath='/seekpath',
     wsgipath=wsgi_file,
     wsgifolder=wsgi_folder,
-    )
+)
 
 print "=" * 78
 print site_file_content

@@ -1,0 +1,32 @@
+# yet another python formatter
+- repo: git://github.com/pre-commit/mirrors-yapf
+  sha: v0.20.0
+  hooks:
+  - id: yapf
+    language: system
+    files: >-
+      (?x)^(
+        seekpath/.*.py|
+        webservice/.*.py|
+        docs/source/conf.py|
+        run_tests.py|
+        setup.py
+      )$
+
+# prospector: collection of linters
+#- repo: git://github.com/guykisel/prospector-mirror
+#  sha: b27f281eb9398fc8504415d7fbdabf119ea8c5e1
+#  hooks:
+#  - id: prospector
+#    language: system
+#    types: [file, python]
+#    files: >-
+#      (?x)^(
+#        seekpath/.*.py|
+#        webservice/.*.py|
+#        docs/source/conf.py|
+#        run_tests.py|
+#        setup.py
+#      )$
+
+
