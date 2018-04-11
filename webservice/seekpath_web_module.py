@@ -298,36 +298,32 @@ def process_structure_core(filecontent,
             chemical_symbols[num] for num in in_json_data['atomic_numbers']
         ]
         inputstructure_atoms_scaled = [
-            [label, coords[0], coords[1], coords[2]]
-            for label, coords in zip(inputstructure_symbols, in_json_data[
-                'scaled_coords'])
+            [label, coords[0], coords[1], coords[2]] for label, coords in zip(
+                inputstructure_symbols, in_json_data['scaled_coords'])
         ]
-        inputstructure_atoms_cartesian = [
-            [label, coords[0], coords[1], coords[2]]
-            for label, coords in zip(inputstructure_symbols,
-                                     inputstructure_positions_cartesian)
-        ]
+        inputstructure_atoms_cartesian = [[
+            label, coords[0], coords[1], coords[2]
+        ] for label, coords in zip(inputstructure_symbols,
+                                   inputstructure_positions_cartesian)]
 
         direct_vectors = [[idx, coords[0], coords[1], coords[2]]
                           for idx, coords in enumerate(
                               path_results['primitive_lattice'], start=1)]
 
-        reciprocal_primitive_vectors = [
-            [idx, coords[0], coords[1], coords[2]]
-            for idx, coords in enumerate(
-                path_results['reciprocal_primitive_lattice'], start=1)
-        ]
+        reciprocal_primitive_vectors = [[
+            idx, coords[0], coords[1], coords[2]
+        ] for idx, coords in enumerate(
+            path_results['reciprocal_primitive_lattice'], start=1)]
 
         atoms_scaled = [
-            [label, coords[0], coords[1], coords[2]]
-            for label, coords in zip(primitive_symbols, path_results[
-                'primitive_positions'])
+            [label, coords[0], coords[1], coords[2]] for label, coords in zip(
+                primitive_symbols, path_results['primitive_positions'])
         ]
 
-        atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
-                           for label, coords in zip(
-                               primitive_symbols, primitive_positions_cartesian)
-                          ]
+        atoms_cartesian = [
+            [label, coords[0], coords[1], coords[2]] for label, coords in zip(
+                primitive_symbols, primitive_positions_cartesian)
+        ]
 
         # Create extetically-nice looking path, with dashes and pipes
         suggested_path = []
@@ -367,16 +363,13 @@ def process_structure_core(filecontent,
             "xyz": (primitive_lattice[0] + primitive_lattice[1] +
                     primitive_lattice[2] - center).tolist(),
         }
-        atoms_json = [
-            {
-                "l": label,
-                "x": pos[0] - center[0],
-                "y": pos[1] - center[1],
-                "z": pos[2] - center[2]
-            }
-            for label, pos in zip(primitive_symbols,
-                                  primitive_positions_cartesian_refolded)
-        ]
+        atoms_json = [{
+            "l": label,
+            "x": pos[0] - center[0],
+            "y": pos[1] - center[1],
+            "z": pos[2] - center[2]
+        } for label, pos in zip(primitive_symbols,
+                                primitive_positions_cartesian_refolded)]
         # These will be passed to ChemDoodle
         json_content = {"s": [cell_json], "m": [{"a": atoms_json}]}
 
