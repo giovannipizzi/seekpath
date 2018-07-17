@@ -298,7 +298,7 @@ def process_structure():
             return flask.redirect(flask.url_for('input_structure'))
         structurefile = flask.request.files['structurefile']
         fileformat = flask.request.form.get('fileformat', 'unknown')
-        filecontent = structurefile.read()
+        filecontent = structurefile.read().decode('utf-8')
 
         try:
             data_for_template = process_structure_core(
@@ -311,7 +311,7 @@ def process_structure():
             return flask.render_template(
                 get_visualizer_template(flask.request), **data_for_template)
         except FlaskRedirectException as e:
-            flask.flash(e.message)
+            flask.flash(str(e))
             return flask.redirect(flask.url_for('input_structure'))
         except SymmetryDetectionError:
             flask.flash("Unable to detect symmetry... "
@@ -364,7 +364,7 @@ def process_example_structure():
             return flask.render_template(
                 get_visualizer_template(flask.request), **data_for_template)
         except FlaskRedirectException as e:
-            flask.flash(e.message)
+            flask.flash(str(e))
             return flask.redirect(flask.url_for('input_structure'))
 
     else:  # GET Request

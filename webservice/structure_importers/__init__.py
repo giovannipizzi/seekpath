@@ -82,8 +82,14 @@ def get_structure_tuple(fileobject, fileformat, extra_data=None):
             fileobject, format=ase_fileformats[fileformat])
 
         if fileformat == 'xyz-ase':
-            # XYZ does not contain cell information, add them back from the additional form data
+            # XYZ does not contain cell information, add them back from the
+            # additional form data (note that at the moment we are not using the
+            # extended XYZ format)
             try:
+                if extra_data is None:
+                    raise ValueError(
+                        "Please pass also the extra_data with the cell information if you want to use the xyz format"
+                    )
                 cell = list(
                     tuple(
                         float(extra_data['xyzCellVec' + v + a][0])
@@ -108,10 +114,47 @@ def get_structure_tuple(fileobject, fileformat, extra_data=None):
         cell = pwparsed['cell']
         rel_position = np.dot(pwparsed['positions'],
                               np.linalg.inv(cell)).tolist()
-        numbers = [atoms_num_dict[sym] for sym in pwparsed['atom_names']]
+
+        species_dict = {
+            name: pseudo_file_name for name, pseudo_file_name in zip(
+                pwparsed['species']['names'], pwparsed['species'][
+                    'pseudo_file_names'])
+        }
+
+        numbers = []
+        # Heuristics to get the chemical element
+        for name in pwparsed['atom_names']:
+            # Take only characters, take only up to two characters
+            chemical_name = "".join(
+                char for char in name if char.isalpha())[:2].capitalize()
+            number_from_name = atoms_num_dict.get(chemical_name, None)
+            # Infer chemical element from element
+            pseudo_name = species_dict[name]
+            name_from_pseudo = pseudo_name
+            for sep in ['-', '.', '_']:
+                name_from_pseudo = name_from_pseudo.partition(sep)[0]
+            name_from_pseudo = name_from_pseudo.capitalize()
+            number_from_pseudo = atoms_num_dict.get(name_from_pseudo, None)
+
+            if number_from_name is None and number_from_pseudo is None:
+                raise KeyError(
+                    'Unable to parse the chemical element either from the atom name or for the pseudo name'
+                )
+            # I make number_from_pseudo prioritary if both are parsed,
+            # even if they are different
+            if number_from_pseudo is not None:
+                numbers.append(number_from_pseudo)
+                continue
+
+            # If we are here, number_from_pseudo is None and number_from_name is not
+            numbers.append(number_from_name)
+            continue
+
+        # Old conversion. This does not work for multiple species
+        # for the same chemical element, e.g. Si1 and Si2
+        #numbers = [atoms_num_dict[sym] for sym in pwparsed['atom_names']]
 
         structure_tuple = (cell, rel_position, numbers)
-        print(structure_tuple)
         return structure_tuple
 
     raise UnknownFormatError(fileformat)
