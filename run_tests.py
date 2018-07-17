@@ -50,9 +50,8 @@ class TestConversion(unittest.TestCase):
         self.assertAlmostEqual(
             np.sum(
                 np.abs(
-                    np.array([site.position
-                              for site in struc.sites]) - np.array(abscoords))),
-            0.)
+                    np.array([site.position for site in struc.sites]) -
+                    np.array(abscoords))), 0.)
         self.assertEqual([site.kind_name for site in struc.sites],
                          ['Ba', 'Ti', 'O', 'O', 'O'])
 
@@ -154,9 +153,8 @@ class TestConversion(unittest.TestCase):
         self.assertAlmostEqual(
             np.sum(
                 np.abs(
-                    np.array([site.position
-                              for site in struc.sites]) - np.array(abscoords))),
-            0.)
+                    np.array([site.position for site in struc.sites]) -
+                    np.array(abscoords))), 0.)
         self.assertEqual(
             [site.kind_name for site in struc.sites],
             ['Ba', 'Ti', 'O', 'O', 'O', 'Ba2', 'BaTi', 'BaTi2', 'Ba3'])

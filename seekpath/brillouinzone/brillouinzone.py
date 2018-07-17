@@ -55,8 +55,8 @@ def get_BZ(b1, b2, b3):
             for k in range(-supercell_size, supercell_size + 1):
                 if i == 0 and j == 0 and k == 0:
                     central_idx = len(points3d)
-                points3d.append(
-                    i * np.array(b1) + j * np.array(b2) + k * np.array(b3))
+                points3d.append(i * np.array(b1) + j * np.array(b2) +
+                                k * np.array(b3))
 
     # Get Voronois
     vor3d = Voronoi(np.array(points3d))

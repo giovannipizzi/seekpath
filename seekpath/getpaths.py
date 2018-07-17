@@ -46,16 +46,16 @@ def get_explicit_from_implicit(seekpath_output, reference_distance):
                         segment_start -= 1
                         continue
 
-            kpoints_rel.append(start_coord + (
-                stop_coord - start_coord) * float(i) / float(num_points - 1))
+            kpoints_rel.append(start_coord + (stop_coord - start_coord) *
+                               float(i) / float(num_points - 1))
             if i == 0:
                 kpoints_labels.append(start_label)
             elif i == num_points - 1:
                 kpoints_labels.append(stop_label)
             else:
                 kpoints_labels.append('')
-            kpoints_linearcoord.append(
-                previous_linearcoord + segment_linearcoord[i])
+            kpoints_linearcoord.append(previous_linearcoord +
+                                       segment_linearcoord[i])
         previous_linearcoord += segment_length
         segment_end = len(kpoints_labels)
         segments.append((segment_start, segment_end))

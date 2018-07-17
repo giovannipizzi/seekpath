@@ -6,3 +6,5 @@ ase==3.15.0
 # For the QE importer
 qe_tools==1.1.0
 pymatgen==2017.7.4
+# command line, only for testing
+click>=6

@@ -246,14 +246,14 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     # -0.5 and 0.5 rather than between 0 and 1, which would be problematic
     # to find values close to zero
     x_match = np.abs((
-        (prim_positions[:, 0] - prim_positions[:, 0][:, None] + 0.5) % 1.) - 0.5
-                    ) < threshold
+        (prim_positions[:, 0] - prim_positions[:, 0][:, None] + 0.5) % 1.) -
+                     0.5) < threshold
     y_match = np.abs((
-        (prim_positions[:, 1] - prim_positions[:, 1][:, None] + 0.5) % 1.) - 0.5
-                    ) < threshold
+        (prim_positions[:, 1] - prim_positions[:, 1][:, None] + 0.5) % 1.) -
+                     0.5) < threshold
     z_match = np.abs((
-        (prim_positions[:, 2] - prim_positions[:, 2][:, None] + 0.5) % 1.) - 0.5
-                    ) < threshold
+        (prim_positions[:, 2] - prim_positions[:, 2][:, None] + 0.5) % 1.) -
+                     0.5) < threshold
     # To be the same, they should all match
     all_match = np.logical_and(x_match, np.logical_and(y_match, z_match))
 
@@ -281,12 +281,11 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
         if len(type_set) != 1)
     if problematic_groups_idx:
         raise ValueError("The following ids of atoms go on top of each other, "
-                         "but they are of different type! {}".format(
-                             ", ".join([
-                                 str(group)
-                                 for group_idx, group in enumerate(groups)
-                                 if group_idx in problematic_groups_idx
-                             ])))
+                         "but they are of different type! {}".format(", ".join([
+                             str(group)
+                             for group_idx, group in enumerate(groups)
+                             if group_idx in problematic_groups_idx
+                         ])))
     # All good, just return the first (no wrapping to [0..1[ yet)
     chosen_idx = np.array([group[0] for group in groups])
 
