@@ -1,0 +1,6 @@
+# Configuration for readthedocs
+
+# Only compile HTML
+formats: []
+
+requirements_file: docs/requirements_for_rtd.txt
