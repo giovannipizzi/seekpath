@@ -51,7 +51,8 @@ setup(
         "dev_precommit": [
             'pre-commit>=1.4', 'yapf>=0.20.0', 'prospector>=0.12.7',
             'pylint>=1.8'
-        ]
+        ],
+        "click": ['click>=6']
     },
     packages=find_packages(),
     # Needed to include some static files declared in MANIFEST.in
