@@ -34,17 +34,15 @@ RUN /pd_build/utilities.sh && \
 
 # Install required software
 
-# First, install pip (for python 2)
-# Install also Apache (nginx doesn't have the X-Sendfile support
+# Install Apache (nginx doesn't have the X-Sendfile support
 # that we use)
-## Note: to install instead pip3 for python3, install the package python3-pip
-## However, then one has to configure the web server to use wsgi with python3
+## Here and below we install everything with python3
 RUN apt-get update \
     && apt-get -y install \
-    python-pip \
+    python3-pip \
     apache2 \
     libapache2-mod-xsendfile \
-    libapache2-mod-wsgi \
+    libapache2-mod-wsgi-py3 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean all
 
@@ -67,14 +65,16 @@ COPY ./run_tests.py run_tests.py
 # Set proper permissions
 RUN chown -R app:app $HOME
 
+# Run this as sudo to replace the version of pip
+RUN pip3 install -U 'pip>=10' setuptools wheel
+
 # install rest of the packages as normal user (app, provided by passenger)
 USER app
 
 # Install SeeK-path
 # Note: if you want to deploy with python3, use 'pip3' instead of 'pip'
 WORKDIR /home/app/code/seekpath
-RUN pip install -U --user pip setuptools wheel && \
-    pip install --user -U .[bz,webservice]
+RUN pip3 install --user -U .[bz,webservice]
 
 # Create a proper wsgi file file
 #
