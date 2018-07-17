@@ -106,8 +106,7 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers, seekpath_module):
         for k, v in res['point_coords'].items()
     }
     response['kpoints_rel'] = {
-        k: [v[0], v[1], v[2]]
-        for k, v in res['point_coords'].items()
+        k: [v[0], v[1], v[2]] for k, v in res['point_coords'].items()
     }
     response['path'] = res['path']
 
@@ -320,10 +319,10 @@ def process_structure_core(filecontent,
                 primitive_symbols, path_results['primitive_positions'])
         ]
 
-        atoms_cartesian = [
-            [label, coords[0], coords[1], coords[2]] for label, coords in zip(
-                primitive_symbols, primitive_positions_cartesian)
-        ]
+        atoms_cartesian = [[label, coords[0], coords[1], coords[2]]
+                           for label, coords in zip(
+                               primitive_symbols, primitive_positions_cartesian)
+                          ]
 
         # Create extetically-nice looking path, with dashes and pipes
         suggested_path = []
@@ -342,9 +341,8 @@ def process_structure_core(filecontent,
 
         primitive_lattice = path_results['primitive_lattice']
         # Manual recenter of the structure
-        center = (
-            primitive_lattice[0] + primitive_lattice[1] + primitive_lattice[2]
-        ) / 2.
+        center = (primitive_lattice[0] + primitive_lattice[1] +
+                  primitive_lattice[2]) / 2.
         cell_json = {
             "t":
             "UnitCell",

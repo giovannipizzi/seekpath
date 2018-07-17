@@ -216,10 +216,11 @@ def get_path(structure,
         # Sort a,b,c, first is the largest
         sorted_vectors = sorted([(c, 1, 'c'), (b, 3, 'b'), (a, 2, 'a')])[::-1]
         if abs(sorted_vectors[0][0] - sorted_vectors[1][0]) < threshold:
-            warnings.warn("oI lattice, but the two longest vectors {} and {} "
-                          "have almost the same length".format(
-                              sorted_vectors[0][2], sorted_vectors[1][2]),
-                          EdgeCaseWarning)
+            warnings.warn(
+                "oI lattice, but the two longest vectors {} and {} "
+                "have almost the same length".format(sorted_vectors[0][2],
+                                                     sorted_vectors[1][2]),
+                EdgeCaseWarning)
         ext_bravais = "{}{}".format(bravais_lattice, sorted_vectors[0][1])
     elif bravais_lattice == "oC":
         if abs(b - a) < threshold:
@@ -264,9 +265,9 @@ def get_path(structure,
         else:
             if abs(-a * cosbeta / c + a**2 *
                    (1. - cosbeta**2) / b**2 - 1.) < threshold:
-                warnings.warn("mC lattice, but -a*cos(beta)/c + "
-                              "a^2*sin(beta)^2/b^2 almost equal to 1",
-                              EdgeCaseWarning)
+                warnings.warn(
+                    "mC lattice, but -a*cos(beta)/c + "
+                    "a^2*sin(beta)^2/b^2 almost equal to 1", EdgeCaseWarning)
             if -a * cosbeta / c + a**2 * (1. - cosbeta**2) / b**2 <= 1.:
                 # 12-face
                 ext_bravais = "mC2"
@@ -303,14 +304,17 @@ def get_path(structure,
         ka3, kb3, kc3, coskalpha3, coskbeta3, coskgamma3 = get_cell_params(
             reciprocal_cell3)
         if abs(coskalpha3) < threshold:
-            warnings.warn("aP lattice, but the k_alpha3 angle is almost equal "
-                          "to 90 degrees", EdgeCaseWarning)
+            warnings.warn(
+                "aP lattice, but the k_alpha3 angle is almost equal "
+                "to 90 degrees", EdgeCaseWarning)
         if abs(coskbeta3) < threshold:
-            warnings.warn("aP lattice, but the k_beta3 angle is almost equal "
-                          "to 90 degrees", EdgeCaseWarning)
+            warnings.warn(
+                "aP lattice, but the k_beta3 angle is almost equal "
+                "to 90 degrees", EdgeCaseWarning)
         if abs(coskgamma3) < threshold:
-            warnings.warn("aP lattice, but the k_gamma3 angle is almost equal "
-                          "to 90 degrees", EdgeCaseWarning)
+            warnings.warn(
+                "aP lattice, but the k_gamma3 angle is almost equal "
+                "to 90 degrees", EdgeCaseWarning)
         # Make them all-acute or all-obtuse with the additional conditions
         # explained in HPKOT
         # Note: cos > 0 => angle < 90deg
