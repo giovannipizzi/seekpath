@@ -74,7 +74,10 @@ USER app
 # Install SeeK-path
 # Note: if you want to deploy with python3, use 'pip3' instead of 'pip'
 WORKDIR /home/app/code/seekpath
-RUN pip3 install --user -U .[bz,webservice]
+# First install pinned versions of packages
+RUN pip3 install --user -r optional-requirements.txt --only-binary numpy,scipy
+# Then install the code without extra dependencies
+RUN pip3 install --user .
 
 # Create a proper wsgi file file
 #
