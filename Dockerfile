@@ -61,6 +61,7 @@ COPY ./README.rst README.rst
 COPY ./MANIFEST.in MANIFEST.in
 COPY ./LICENSE.txt LICENSE.txt
 COPY ./run_tests.py run_tests.py
+COPY ./optional-requirements.txt optional-requirements.txt
 
 # Set proper permissions
 RUN chown -R app:app $HOME
