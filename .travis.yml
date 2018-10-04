@@ -35,7 +35,7 @@ before_install:
 
 install:
     - if [ "$TEST_CODE" == "true" ] ; then pip install -r optional-requirements.txt --only-binary numpy,scipy && pip install -e . ; fi
-    - if [ "$TEST_PRECOMMIT" == "true" ] ;  then pip install -r optional-requirements.txt --only-binary numpy,scipy && pip install -e .[dev_precommit] ; fi
+    - if [ "$TEST_PRECOMMIT" == "true" ] ;  then pip install -r optional-requirements.txt --only-binary numpy,scipy && pip install -e .[dev] ; fi
     - if [ "$TEST_DOCKER" == "true" ] ; then docker build -t seekpathdocker . && docker run -d -p 10080:80 seekpathdocker && docker ps ; fi
 
 script:

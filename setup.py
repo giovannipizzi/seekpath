@@ -48,8 +48,8 @@ setup(
     extras_require={
         "bz": ["scipy>=0.17"],
         "webservice":
-        ["Flask>=0.12", "ase>=3.15.0", "qe-tools>=1.1.1", "pymatgen>=2017.7"],
-        "dev_precommit": [
+        ["Flask>=0.12.3", "ase>=3.15.0", "qe-tools>=1.1.1", "pymatgen>=2017.7"],
+        "dev": [
             'pre-commit>=1.4', 'yapf==0.22.0', 'prospector>=0.12.7',
             'pylint>=1.8'
         ],
