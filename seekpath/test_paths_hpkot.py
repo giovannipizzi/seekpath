@@ -654,7 +654,6 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         """
         self.base_test(ext_bravais="oF1", with_inv=False)
 
-
 # oF2Y does not exist by symmetry
 #    def test_oF2Y(self):
 #        """
@@ -698,12 +697,14 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         """
         self.base_test(ext_bravais="oI1", with_inv=False)
 
-    def test_oI2Y(self):
-        """
-        Obtain the k-path for a test system with inversion symmetry and
-        Bravais lattice (extended) oI2.
-        """
-        self.base_test(ext_bravais="oI2", with_inv=True)
+
+# oI2Y does not exist by symmetry
+#    def test_oI2Y(self):
+#        """
+#        Obtain the k-path for a test system with inversion symmetry and
+#        Bravais lattice (extended) oI2.
+#        """
+#        self.base_test(ext_bravais="oI2", with_inv=True)
 
     def test_oI2N(self):
         """
