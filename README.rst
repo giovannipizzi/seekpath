@@ -33,7 +33,8 @@ If you use this tool, please cite the following work:
   paths based on crystallography*, Comp. Mat. Sci. 128, 140 (2017)
   (`JOURNAL LINK`_, `arXiv link`_).
 - You should also cite `spglib`_ that is an essential library used in the 
-  implementation.
+  implementation: A. Togo, I. Tanaka, 
+  "Spglib: a software library for crystal symmetry search", arXiv:1808.01590 (2018) (`spglib arXiv link`_).
 
 ============
 Contributors
@@ -82,3 +83,4 @@ And the following is a screenshot of the main output window, showing the Brillou
 .. _Materials Cloud: http://www.materialscloud.org/tools/seekpath/
 .. _docker hub: https://hub.docker.com/r/giovannipizzi/seekpath/
 .. _user guide is on Read the docs: http://seekpath.readthedocs.io
+.. _spglib arXiv link: https://arxiv.org/abs/1808.01590

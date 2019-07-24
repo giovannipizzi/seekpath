@@ -461,6 +461,4 @@ def get_path(structure,
             volume_conv_wrt_original * np.linalg.det(invP),
             'spacegroup_number': dataset['number'],
             'spacegroup_international': dataset['international'],
-            #'mapping_to_primitive': dataset['mapping_to_primitive'],
-            #'std_mapping_to_primitive': dataset['std_mapping_to_primitive'],
             }

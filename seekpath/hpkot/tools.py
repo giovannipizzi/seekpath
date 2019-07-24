@@ -196,6 +196,10 @@ def check_spglib_version():
     Check the SPGLIB version and raise a ValueError if the version is
     older than 1.9.4.
 
+    Also raises an warning if the user has a version of SPGLIB that is
+    older than 1.13, because before then there were some bugs (e.g. 
+    wrong treatment of oI, see e.g. issue )
+
     Return the spglib module.
     """
     try:
@@ -221,6 +225,14 @@ def check_spglib_version():
 
     if version_pieces[:2] == (1, 9) and version_pieces[2] < 4:
         raise ValueError("Invalid spglib version, need >= 1.9.4")
+
+    if tuple(version_pieces[:2]) < (1, 13):
+        import warnings
+        warnings.warn(
+            'You have a version of SPGLIB older than 1.13, '
+            'please consider upgrading to 1.13 or later since some bugs '
+            'have been fixed', RuntimeWarning)
+
     return spglib
 
 
