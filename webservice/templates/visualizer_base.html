@@ -43,12 +43,11 @@
     }
     </style>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link rel="stylesheet" href="../static/css/ChemDoodleWeb.min.css" type="text/css">
-    <script type="text/javascript" src="../static/js/ChemDoodleWeb.min.js"></script>
+    <script src="../static/js/jsmol/JSmol.min.nojq.js"></script>
+    <script src="../static/js/visualization.js"></script>
 
     <script>
     var jsondata = {{ jsondata|safe }};
-    var json_content = {{ json_content|safe }};
     var mainBZVisualizer = new BZVisualizer();
     $( document ).ready(function() {
         mainBZVisualizer.loadBZ(canvasID='canvas3d',infoID='info',jsondata=jsondata);
@@ -64,8 +63,10 @@
         if (structureviewer) {
             parentcanvas = document.getElementById('structure');
             the_width = parentcanvas.offsetWidth;
-            the_height = parentcanvas.offsetHeight;
-            structureviewer.resize(the_width, the_height);
+            // the_height = parentcanvas.offsetHeight;
+            var jsmolcontent = document.getElementById('jmolApplet_appletinfotablediv');
+            jsmolcontent.style.width = the_width + "px";
+            console.log(jsmolcontent, the_width, the_height);
         }
     }
     </script>
@@ -251,73 +252,83 @@
     <div id='aboveright'>
       <div id='structuretitle'><h3>Primitive structure 
         (<a href="#prim_coords">go to coordinates</a>)</h3><p><em>Drag to rotate, scroll to zoom, double-click to enable/disable interaction</em></p></div>
-      <div id='structure'><script>
-        parentcanvas = document.getElementById('structure');
-        the_width = parentcanvas.offsetWidth;
-        the_height = parentcanvas.offsetHeight;
-
-        structureviewer = new ChemDoodle.TransformCanvas3D('structureviewer', 
-          the_width, the_height);
-        structureviewer.emptyMessage = 'Loading data...';
-        structureviewer.specs.set3DRepresentation('Ball and Stick');
-        structureviewer.specs.projectionPerspective_3D = false;
-        structureviewer.specs.backgroundColor = 'white';
-        structureviewer.specs.atoms_displayLabels_3D = true;
-        structureviewer.specs.shapes_color = '#111';
-        chemstructure = new ChemDoodle.io.JSONInterpreter().contentFrom(json_content);
-        new ChemDoodle.informatics.BondDeducer().deduceCovalentBonds(chemstructure['molecules'][0], 1);
-        structureviewer.center = function () {}; // Disable ChemDoodle recentering of molecule (not consistent with cell, uses different recenterings...)
-
-        structureviewer.loadContent(chemstructure['molecules'], chemstructure['shapes']);
-        structureviewer.specs.projectionFrontCulling_3D = 0.01;
-        structureviewer.specs.projectionBackCulling_3D = 10000;
-        structureviewer.setupScene();
-
-        structureviewer.defaultmouseup = structureviewer.mouseup;
-        structureviewer.defaultmousedown = structureviewer.mousedown;
-        structureviewer.defaultmousewheel = structureviewer.mousewheel;
-        structureviewer.defaulttouchend = structureviewer.touchend;
-        structureviewer.defaulttouchhold = structureviewer.touchhold;
-        structureviewer.defaulttouchmove = structureviewer.touchmove;
-        structureviewer.defaulttouchstart = structureviewer.touchstart;                        
-
-        structureviewer.enabled = true;
-
-        var structure_switch_activate = function () {
-
-            structureviewer.enabled = ! structureviewer.enabled;
-            if (structureviewer.enabled) {
-              // Restore default mouse actions
-              structureviewer.mouseup = structureviewer.defaultmouseup;
-              structureviewer.mousedown = structureviewer.defaultmousedown;
-              structureviewer.mousewheel = structureviewer.defaultmousewheel;
-              structureviewer.touchend = structureviewer.defaulttouchend;
-              structureviewer.touchhold = structureviewer.defaulttouchhold;
-              structureviewer.touchmove = structureviewer.defaulttouchmove;
-              structureviewer.touchstart = structureviewer.defaulttouchstart;                        
-              structureviewer.specs.backgroundColor = "white";
-              structureviewer.setupScene();
-              structureviewer.repaint();
-            }
-            else {
-              // disable mouse actions
-              structureviewer.mouseup = function(event) {return true;};
-              structureviewer.mousedown = function(event) {return true;};
-              structureviewer.mousewheel = function(event) {return true;};
-              structureviewer.touchend = function(event) {return true;};
-              structureviewer.touchhold = function(event) {return true;};
-              structureviewer.touchmove = function(event) {return true;};
-              structureviewer.touchstart = function(event) {return true;};
-              structureviewer.specs.backgroundColor = "#eeeeee";
-              structureviewer.setupScene();
-              structureviewer.repaint();
-            }
-
-        }
-        structureviewer.dblclick = structure_switch_activate;
-        structureviewer.dbltap = structure_switch_activate;
-      </script></div>
-    </div>
+        <div id='structure'>
+          <div class="shadow-box">
+            <div class="plot-diagram">
+              <div class="structure-container" id="structure-content">
+                <div id="crystal" ondblclick="toggleStrVisInteraction(false);"></div>
+                <div id="str-overlay" class="overlay-div" ondblclick="toggleStrVisInteraction(true);">
+                  <span id="str-overlay-span" style="display: table-cell; vertical-align: middle; text-align: center;">
+                    Double click to toggle interaction
+                  </span>
+              </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="jsmol-options">
+            <div class="option-section" style="display:flex;">
+              <form>
+                <h4 class="inline-header">Supercell:</h4>
+                <input id="nx" type="number" name="quantity" class="option-input" min="1" max= "10" value="2">
+                <input id="ny" type="number" name="quantity" class="option-input" min="1" max= "10" value="2">
+                <input id="nz" type="number" name="quantity" class="option-input" min="1" max= "10" value="2">
+                <button id="supercell" type="button" onclick="jsmolSupercell(jmolApplet);">update</button>
+                <button id="reset" type="button" onclick="jsmol222cell(jmolApplet);">reset 2x2x2 cell</button>
+              </form>
+            </div>
+            
+            <div class="option-section">
+              <h4 class="inline-header">Camera:</h4>
+              <button id="centerX" onclick="centerXaxis(jmolApplet)">x</button>
+              <button id="centerY" onclick="centerYaxis(jmolApplet)">y</button>
+              <button id="centerZ" onclick="centerZaxis(jmolApplet)">z</button>
+            </div>
+            
+            <div class="option-section">
+              <h4 class="inline-header">Axes:</h4>
+              <select id="axesMenu" onchange="jsmolDrawAxes(jmolApplet);">
+                <option value="xyz" selected>xyz axes</option>
+                <option value="abc">abc vectors</option>
+                <option value="noaxes">no axes</option>
+              </select>
+            </div>
+            <div class="option-section">
+              <div class="row">
+                <div class="checkbox-option" id="bonds">
+                  <label>
+                    <input id="bonds-input" style='margin-right:4px' type="checkbox" onchange="showBonds(jmolApplet);" checked>bonds
+                    <a href="#" data-toggle="tooltip" title="Show bonds"><sup>[?]</sup></a>
+                  </label>
+                </div>
+                <div class="checkbox-option" id="labels">
+                  <label>
+                    <input id="labels-input" style='margin-right:4px' type="checkbox" onchange="showLabels(jmolApplet)">atom labels
+                    <a href="#" data-toggle="tooltip" title="Display element symbols"><sup>[?]</sup></a>
+                  </label>
+                </div>
+                <div class="checkbox-option" id="packed">
+                  <label>
+                    <input id="packed-input" style='margin-right:4px' type="checkbox" onchange="showPacked(jmolApplet)">packed cell
+                    <a href="#" data-toggle="tooltip" title="Show atoms on the edge of the cell or supercell"><sup>[?]</sup></a>
+                  </label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="checkbox-option" id="sphere">
+                  <label>
+                    <input id="spheres-input" style='margin-right:4px' type="checkbox" onchange="showSpheres(jmolApplet)">space-filling
+                    <a href="#" data-toggle="tooltip" title="Show atoms as spheres"><sup>[?]</sup></a>
+                  </label>
+                </div>
+                <div class="checkbox-option" id="spin">
+                  <label><input id="spin-input" style='margin-right:4px' type="checkbox" onchange="toggleRotation(jmolApplet)">rotation</label>
+                </div>
+              </div>
+            </div>
+          </div>        
+        </div>
+      </div>
 
 
 
@@ -560,6 +571,31 @@
     <script>
         // Activate clipboard buttons
         var clipboard = new Clipboard('.clipboardbtn');
+        structureviewer= jsmolCrystal({{ xsfstructure|tojson|safe }}, "structure-content", "jmolApplet", [2,2,2]);
+
+        $(document).ready(function(){
+          var divjsmol = document.getElementById('crystal');
+          var jsmolcontent = document.getElementById('jmolApplet_appletinfotablediv');
+          divjsmol.appendChild(jsmolcontent);
+          $('[data-toggle="tooltip"]').tooltip({placement: "top"});
+
+          var stroverlay = document.getElementById('str-overlay');
+          stroverlay.onmouseenter = function() 
+            {
+                this.style.backgroundColor = "rgba(230,230,230,0.5)";
+                document.getElementById('str-overlay-span').innerText = "Double click to toggle interaction";
+                console.log(this, 'enter');
+            }
+          stroverlay.onmouseleave = function() 
+            {
+                // 0.0 for alpha doesn't work properly, apparently
+                this.style.backgroundColor = "rgba(255,255,255,0.01)";
+                document.getElementById('str-overlay-span').innerText = "";
+                console.log(this, 'leave');
+            }
+      });
+
+
     </script>
 
     <div id='finalinfo'>

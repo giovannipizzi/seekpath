@@ -48,6 +48,10 @@ These include:
    - webservice/static/js/download.min.js
    - webservice/static/js/orig/download.js
 
+- JSMol visualizer:
+  GPL 2.1 license
+  Files involved:
+  - webservice/static/js/jsmol/*
 
 ----
 
