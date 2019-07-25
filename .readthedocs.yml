@@ -1,6 +1,12 @@
 # Configuration for readthedocs
+# Doc: https://docs.readthedocs.io/en/stable/config-file/v2.html
+
+version: 2
 
 # Only compile HTML
 formats: []
 
-requirements_file: docs/requirements_for_rtd.txt
+python:
+   version: 3.6
+   install:
+      - requirements: docs/requirements_for_rtd.txt
