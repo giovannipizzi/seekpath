@@ -340,36 +340,20 @@ def process_structure_core(filecontent,
             last = p2
 
         primitive_lattice = path_results['primitive_lattice']
-        # Manual recenter of the structure
-        center = (primitive_lattice[0] + primitive_lattice[1] +
-                  primitive_lattice[2]) / 2.
-        cell_json = {
-            "t":
-            "UnitCell",
-            "i":
-            "s0",
-            "o": (-center).tolist(),
-            "x": (primitive_lattice[0] - center).tolist(),
-            "y": (primitive_lattice[1] - center).tolist(),
-            "z": (primitive_lattice[2] - center).tolist(),
-            "xy":
-            (primitive_lattice[0] + primitive_lattice[1] - center).tolist(),
-            "xz":
-            (primitive_lattice[0] + primitive_lattice[2] - center).tolist(),
-            "yz":
-            (primitive_lattice[1] + primitive_lattice[2] - center).tolist(),
-            "xyz": (primitive_lattice[0] + primitive_lattice[1] +
-                    primitive_lattice[2] - center).tolist(),
-        }
-        atoms_json = [{
-            "l": label,
-            "x": pos[0] - center[0],
-            "y": pos[1] - center[1],
-            "z": pos[2] - center[2]
-        } for label, pos in zip(primitive_symbols,
-                                primitive_positions_cartesian_refolded)]
-        # These will be passed to ChemDoodle
-        json_content = {"s": [cell_json], "m": [{"a": atoms_json}]}
+        xsfstructure = []
+        xsfstructure.append("CRYSTAL")
+        xsfstructure.append("PRIMVEC")
+        for vector in primitive_lattice:
+            xsfstructure.append("{} {} {}".format(vector[0], vector[1],
+                                                  vector[2]))
+        xsfstructure.append("PRIMCOORD")
+        xsfstructure.append("{} 1".format(
+            len(primitive_positions_cartesian_refolded)))
+        for atom_num, pos in zip(path_results['primitive_types'],
+                                 primitive_positions_cartesian_refolded):
+            xsfstructure.append("{} {} {} {}".format(atom_num, pos[0], pos[1],
+                                                     pos[2]))
+        xsfstructure = "\n".join(xsfstructure)
 
         compute_time = time.time() - start_time
     except Exception:
@@ -398,7 +382,6 @@ def process_structure_core(filecontent,
 
     return dict(
         jsondata=json.dumps(out_json_data),
-        json_content=json.dumps(json_content),
         volume_ratio_prim=int(round(path_results['volume_original_wrt_prim'])),
         raw_code=raw_code,
         kpoints=kpoints,
@@ -426,7 +409,7 @@ def process_structure_core(filecontent,
         spglib_version=spglib.__version__,
         time_reversal_note=(time_reversal_note
                             if path_results['augmented_path'] else ""),
-    )
+        xsfstructure=xsfstructure)
 
 
 def get_qe_pw(raw_data, out_json_data):

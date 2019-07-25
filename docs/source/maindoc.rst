@@ -21,7 +21,8 @@ If you use this tool, please cite the following work:
   paths based on crystallography*, Comp. Mat. Sci. 128, 140 (2017)
   (`JOURNAL LINK`_, `arXiv link`_).
 - You should also cite `spglib`_ that is an essential library used in the 
-  implementation.
+  implementation: A. Togo, I. Tanaka, 
+  "Spglib: a software library for crystal symmetry search", arXiv:1808.01590 (2018) (`spglib arXiv link`_).
 
 
 ==============
@@ -127,3 +128,4 @@ where appropriate. Also in this case, additional information is found in the doc
 .. _Materials Cloud: http://www.materialscloud.org/tools/seekpath/
 .. _docker hub: https://hub.docker.com/r/giovannipizzi/seekpath/
 .. _AiiDA: http://www.aiida.net
+.. _spglib arXiv link: https://arxiv.org/abs/1808.01590
