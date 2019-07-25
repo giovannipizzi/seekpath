@@ -119,9 +119,9 @@ def get_path(structure,
         - ``volume_original_wrt_conv``: volume ratio of the user-provided cell
           with respect to the the crystallographic conventional cell 
         - ``volume_original_wrt_prim``: volume ratio of the user-provided cell
-          with respect to the the crystalloraphic primitive cell 
+          with respect to the the crystallographic primitive cell
 
-    :note: An :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued for 
+    :note: An :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued for
         edge cases (e.g. if ``a==b==c`` for
         orthorhombic systems). In this case, still one of the valid cases
         is picked.

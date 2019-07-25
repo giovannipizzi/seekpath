@@ -71,7 +71,6 @@ valid_examples = {
     "oF1_inv": ("oF1", True),
     "oF3_inv": ("oF3", True),
     "oI1_inv": ("oI1", True),
-    "oI2_inv": ("oI2", True),
     "oI3_inv": ("oI3", True),
     "oP1_inv": ("oP1", True),
     "tI1_inv": ("tI1", True),

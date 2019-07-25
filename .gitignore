@@ -6,3 +6,4 @@ seekpath.egg-info/
 .DS_Store
 .coverage
 .idea/
+.vscode/
