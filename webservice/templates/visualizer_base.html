@@ -360,6 +360,17 @@
           </tbody>
         </table> 
 
+        <h3>Suggested path</h3>
+        <p>
+        {% for lab in suggested_path %}<script>document.write(prettifyLabel("{{ lab }}"));</script>{% endfor %}
+        </p>
+
+        {% if time_reversal_note %}
+        <p>
+        <span style="font-style: italic">Note on time reversal</span>: {{ time_reversal_note }}
+        </p>
+        {% endif %}
+
         <h3>High-symmetry points (scaled units)</h3>
         <table class="center">
           <thead>
@@ -407,18 +418,6 @@
 
           </tbody>
         </table> 
-
-        <h3>Suggested path</h3>
-        <p>
-        {% for lab in suggested_path %}<script>document.write(prettifyLabel("{{ lab }}"));</script>{% endfor %}
-        </p>
-
-        {% if time_reversal_note %}
-        <p>
-        <span style="font-style: italic">Note on time reversal</span>: {{ time_reversal_note }}
-        </p>
-        {% endif %}
-
 
       </div>
       <div id='structureinfo'>
