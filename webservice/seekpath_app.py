@@ -375,4 +375,8 @@ if __name__ == "__main__":
     # if deployed with Apache
     # Use the local version of seekpath, not the installed one
     app.use_x_sendfile = False
-    app.run(debug=True)
+    if sys.argv[1:2] == ['-a']:
+        # Bind on all interfaces
+        app.run(debug=True, host="0.0.0.0")
+    else:
+        app.run(debug=True)

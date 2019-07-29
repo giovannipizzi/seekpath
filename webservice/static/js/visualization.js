@@ -1,15 +1,23 @@
 function toggleStrVisInteraction(enableStrInteraction){
     if (enableStrInteraction){
         // enable interaction here
-        $("#str-overlay").css("display", "none");
-        $("#crystal").css('pointer-events', 'auto');
-        enableStrInteraction = false;
+        $("#str-overlay").css("display", "none")
+        .css("-webkit-touch-callout", "auto")
+        .css("-webkit-user-select", "auto")
+        .css("-khtml-user-select", "auto")
+        .css("-moz-user-select", "auto")
+        .css("-ms-user-select", "auto")
+        .css("user-select", "auto");
     }
     else{
         // disable interaction here
-        $("#str-overlay").css("display", "table");
-        $("#crystal").css('pointer-events', 'none');
-        enableStrInteraction = true;
+        $("#str-overlay").css("display", "table")
+        .css("-webkit-touch-callout", "none")
+        .css("-webkit-user-select", "none")
+        .css("-khtml-user-select", "none")
+        .css("-moz-user-select", "none")
+        .css("-ms-user-select", "none")
+        .css("user-select", "none");
     }
 };
 
@@ -171,3 +179,79 @@ function centerYaxis(viewer){
 function centerZaxis(viewer){
     Jmol.script(eval(viewer), "moveto 1 axis z");
 };
+
+$.fn.bindFirst = function(name, fn) {
+    var elem, handlers, i, _len;
+    this.bind(name, fn);
+    for (i = 0, _len = this.length; i < _len; i++) {
+      elem = this[i];
+      handlers = jQuery._data(elem).events[name.split('.')[0]];
+      handlers.unshift(handlers.pop());
+    }
+  };
+
+function enableDoubleTap(element, callback, ignoreOnMove) {
+    /* Enable double-tap event for phones */
+    element.dbltapTimeout = undefined;
+    element.shortTap = false;
+
+    var preventOnMove = false;
+    if (typeof ignoreOnMove !== 'undefined') {
+        preventOnMove = ignoreOnMove;
+    }
+
+    // Manual detect of double tap
+    //element.addEventListener('touchend', function(event) {
+    $(element).bindFirst('touchend', function(event) {
+      if (typeof element.dbltapTimeout !== 'undefined') {
+          // start disabling any timeout that would reset shortTap to false
+          clearTimeout(element.dbltapTimeout);
+      }
+      if (element.shortTap) {
+          // if here, there's been another tap a few ms before
+          // reset the variable and do the custom action
+          element.shortTap = false;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          callback();
+      }
+      else {
+          if (event.targetTouches.length != 0) {
+              // activate this only when there is only a finger
+              // if more than one finger is detected, cancel detection
+              // of double tap
+              if (typeof element.dbltapTimeout !== 'undefined') {
+                  // disable the timeout
+                  clearTimeout(element.dbltapTimeout);
+                  element.shortTap = false;
+              }
+            return;
+          }
+          // If we are here, no tap was recently detected
+          // mark that a tap just happened, and start a timeout
+          // to reset this
+          element.shortTap = true;
+
+          element.dbltapTimeout = setTimeout(function() {
+              // after 500ms, reset shortTap to false
+              element.shortTap = false;
+          }, 500);
+      }
+  });
+  element.addEventListener('touchcancel', function(event) {
+      if (typeof element.dbltapTimeout !== 'undefined') {
+          // disable the timeout if the touch was canceled
+          clearTimeout(element.dbltapTimeout);
+          element.shortTap = false;
+      }
+  });
+  if (!preventOnMove) {
+        element.addEventListener('touchmove', function(event) {
+        if (typeof element.dbltapTimeout !== 'undefined') {
+            // disable the timeout if the finger is being moved
+            clearTimeout(element.dbltapTimeout);
+            element.shortTap = false;
+        }
+    });  
+  }
+}

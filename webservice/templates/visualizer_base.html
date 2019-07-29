@@ -579,6 +579,10 @@
           divjsmol.appendChild(jsmolcontent);
           $('[data-toggle="tooltip"]').tooltip({placement: "top"});
 
+          enableDoubleTap(structureviewer['_mouseInterface'], function() {
+            toggleStrVisInteraction(false);
+          }, ignoreOnMove=true);
+
           var stroverlay = document.getElementById('str-overlay');
           stroverlay.onmouseenter = function() 
             {
@@ -593,6 +597,11 @@
                 document.getElementById('str-overlay-span').innerText = "";
                 console.log(this, 'leave');
             }
+
+          // Enable double-tap events for phones
+          enableDoubleTap(stroverlay, function() {
+            toggleStrVisInteraction(true);
+          });
       });
 
 
