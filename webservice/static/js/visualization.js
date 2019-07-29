@@ -171,3 +171,59 @@ function centerYaxis(viewer){
 function centerZaxis(viewer){
     Jmol.script(eval(viewer), "moveto 1 axis z");
 };
+
+function enableDoubleTap(element, callback) {
+    /* Enable double-tap event for phones */
+    var dbltapTimeout;
+    var shortTap = false;
+
+    // Manual detect of double tap
+    element.addEventListener('touchend', function(event) {
+      if (typeof dbltapTimeout !== 'undefined') {
+          // start disabling any timeout that would reset shortTap to false
+          clearTimeout(dbltapTimeout);
+      }
+      if (shortTap) {
+          // if here, there's been another tap a few ms before
+          // reset the variable and do the custom action
+          shortTap = false;
+          event.preventDefault();
+          callback();
+      }
+      else {
+          if (event.targetTouches.length != 0) {
+              // activate this only when there is only a finger
+              // if more than one finger is detected, cancel detection
+              // of double tap
+              if (typeof dbltapTimeout !== 'undefined') {
+                  // disable the timeout
+                  clearTimeout(dbltapTimeout);
+                  shortTap = false;
+              }
+              return;
+          }
+          // If we are here, no tap was recently detected
+          // mark that a tap just happened, and start a timeout
+          // to reset this
+          shortTap = true;
+          dbltapTimeout = setTimeout(function() {
+              // after 500ms, reset shortTap to false
+              shortTap = false;
+          }, 500);
+      }
+  });
+  element.addEventListener('touchcancel', function(event) {
+      if (typeof dbltapTimeout !== 'undefined') {
+          // disable the timeout if the touch was canceled
+          clearTimeout(dbltapTimeout);
+          shortTap = false;
+      }
+  });
+  element.addEventListener('touchmove', function(event) {
+      if (typeof dbltapTimeout !== 'undefined') {
+          // disable the timeout if the finger is being moved
+          clearTimeout(dbltapTimeout);
+          shortTap = false;
+      }
+  });
+}

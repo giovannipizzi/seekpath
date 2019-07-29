@@ -593,6 +593,14 @@
                 document.getElementById('str-overlay-span').innerText = "";
                 console.log(this, 'leave');
             }
+
+          // Enable double-tap events for phones
+          enableDoubleTap(stroverlay, function() {
+            toggleStrVisInteraction(true);
+          });
+          enableDoubleTap(document.getElementById('crystal'), function() {
+            toggleStrVisInteraction(false);
+          });
       });
 
 
