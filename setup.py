@@ -42,7 +42,7 @@ setup(
     # for a useful dicussion
     install_requires=[
         'numpy>=1.0',
-        'spglib>=1.13',
+        'spglib>=1.14.1',
         'future>=0.15',
     ],
     extras_require={
