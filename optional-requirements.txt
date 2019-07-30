@@ -1,10 +1,10 @@
 # The following is needed to get the Brillouin zone
-scipy==0.18.1
+scipy==1.2.2
 # The following are needed for the web service
-Flask==1.0.2
+Flask==1.1.1
 ase==3.15.0
 # For the QE importer
-qe_tools==1.1.1
+qe_tools==1.1.2
 pymatgen==2017.7.4
 # command line, only for testing
 click>=6
