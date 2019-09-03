@@ -47,8 +47,14 @@ setup(
     ],
     extras_require={
         "bz": ["scipy>=0.17"],
-        "webservice":
-        ["Flask>=0.12.3", "ase>=3.15.0", "qe-tools>=1.1.1", "pymatgen>=2017.7"],
+        "webservice": [
+            "Flask>=0.12.3",
+            "ase>=3.15.0,<3.18; python_version<'3.0'",
+            "ase>=3.18.0; python_version>='3.0'",
+            "qe-tools>=1.1.1",
+            "pymatgen>=2017.7,<2019.1; python_version<'3.0'",
+            "pymatgen>=2017.7; python_version>='3.0'",
+        ],
         "dev": [
             'pre-commit>=1.4', 'yapf==0.22.0', 'prospector>=0.12.7',
             'pylint>=1.8'
@@ -64,8 +70,8 @@ setup(
         'path', 'band structure', 'Brillouin', 'crystallography', 'physics',
         'primitive cell', 'conventional cell'
     ],
-    long_description=io.open(
-        os.path.join(folder, 'README.rst'), encoding="utf-8").read(),
+    long_description=io.open(os.path.join(folder, 'README.rst'),
+                             encoding="utf-8").read(),
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
