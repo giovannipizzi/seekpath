@@ -70,8 +70,8 @@ setup(
         'path', 'band structure', 'Brillouin', 'crystallography', 'physics',
         'primitive cell', 'conventional cell'
     ],
-    long_description=io.open(os.path.join(folder, 'README.rst'),
-                             encoding="utf-8").read(),
+    long_description=io.open(
+        os.path.join(folder, 'README.rst'), encoding="utf-8").read(),
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
