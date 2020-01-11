@@ -379,7 +379,13 @@ def process_structure_core(filecontent,
                                                         ' ', '&nbsp;')
     cp2k = str(jinja2.escape(get_cp2k(raw_code_dict))).replace(
         '\n', '<br>').replace(' ', '&nbsp;')
-
+    crystal = str(jinja2.escape(get_crystal(raw_code_dict))).replace(
+        '\n', '<br>').replace(' ', '&nbsp;')
+    vasp_gga = str(jinja2.escape(get_vasp_gga(raw_code_dict))).replace(
+        '\n', '<br>').replace(' ', '&nbsp;')
+    vasp_gen = str(jinja2.escape(get_vasp_gen(out_json_data))).replace(
+        '\n', '<br>').replace(' ', '&nbsp;')
+        
     return dict(
         jsondata=json.dumps(out_json_data),
         volume_ratio_prim=int(round(path_results['volume_original_wrt_prim'])),
@@ -404,6 +410,9 @@ def process_structure_core(filecontent,
         qe_pw=qe_pw,
         qe_matdyn=qe_matdyn,
         cp2k=cp2k,
+        crystal=crystal,
+        vasp_gga=vasp_gga,
+        vasp_gen=vasp_gen,
         compute_time=compute_time,
         seekpath_version=seekpath_module.__version__,
         spglib_version=spglib.__version__,
@@ -535,4 +544,117 @@ def get_cp2k(raw_data):
         raw=raw_data,  # export the complete raw data to the template
         zip=zip,
         set=set  # add zip and set to the template environment for some loops
-    )
+    )  
+    
+    
+def get_crystal(raw_data):
+    """
+    Return the data in format of a CRYSTAL input
+    """
+    
+    def float_to_fraction(x, error=0.000001):
+        '''
+        1D float np.array to 1D fraction (int) array
+        Modified from ref: https://stackoverflow.com/questions/5124743/algorithm-for-simplifying-decimal-to-fractions
+        '''
+        out = np.empty([len(x), 2], dtype=np.int)
+        for i, value in enumerate(x):
+            if value < error:
+                out[i] = 0, 1
+            elif 1 - error < value:
+                out[i] = 1, 1
+            else:
+                # The lower fraction is 0/1
+                lower_n = 0
+                lower_d = 1
+                # The upper fraction is 1/1
+                upper_n = 1
+                upper_d = 1
+                while True:
+                    # The middle fraction is (lower_n + upper_n) / (lower_d + upper_d)
+                    middle_n = lower_n + upper_n
+                    middle_d = lower_d + upper_d
+                    # If value + error < middle
+                    
+                    if middle_d * (value + error) < middle_n:
+                        # middle is our new upper
+                        upper_n = middle_n
+                        upper_d = middle_d
+                    # Else If middle < value - error
+                    elif middle_n < (value - error) * middle_d:
+                        # middle is our new lower
+                        lower_n = middle_n
+                        lower_d = middle_d
+                    # Else middle is our best fraction
+                    else:
+                        out[i] = middle_n, middle_d
+                        break
+        return out
+
+    lines = []
+    lines.append("BAND")
+    lines.append("<...>     !Title")
+    kpath = []
+    for s in raw_data['path']:
+        c0 = raw_data['kpoints_rel'][s[0]]
+        c1 = raw_data['kpoints_rel'][s[1]]
+        klabel.append([s[0], s[1]])
+        kpath.append([c0, c1])
+
+    npath = len(kpath)
+    kpath = np.float64(kpath)
+    kpath_flat = kpath.flatten()
+    fraction_kpath = float_to_fraction (kpath_flat)
+    numerator = fraction_kpath[:,0]
+    denominator = fraction_kpath[:,1]
+    shrinking_fac = np.lcm.reduce(denominator)
+    kpath_new = shrinking_fac * kpath_flat
+    kpath_new = np.int64(kpath_new.round().reshape(npath, 2, -1))
+    lines.append("{:d} {:d} 100 <...> <...> 1 0     !<...> <...>: 1st band - last band".format(npath, shrinking_fac))
+    
+    for i, path in enumerate(kpath_new):
+        c0 = path[0] 
+        c1 = path[1]         
+        lines.append("{:d} {:d} {:d}  {:d} {:d} {:d} {:4s} -> {:4s}".format(c0[0], c0[1], c0[2], c1[0], c1[1], c1[2], klabel[i][0], s[i][1]))
+
+    return "\n".join(lines)
+   
+    
+def get_vasp_gga(raw_data):
+    """
+    Return the KPOINTS data in format of a VASP input for LDA or GGA functional
+    """
+
+    lines = []
+    lines.append("Special k-points for band structure")
+    lines.append("<...>  ! intersectons ")
+    lines.append("line-mode")
+    lines.append("reciprocal")
+    kpath = []
+    for s in raw_data['path']:
+        c0 = raw_data['kpoints_rel'][s[0]]
+        c1 = raw_data['kpoints_rel'][s[1]]
+        lines.append("{:16.10f} {:16.10f} {:16.10f} 1  {:4s}".format(c0[0], c0[1], c0[2], s[0]))
+        lines.append("{:16.10f} {:16.10f} {:16.10f} 1  {:4s}".format(c1[0], c1[1], c1[2], s[1]))
+        lines.append("\n")
+        
+    return "\n".join(lines)
+    
+    
+def get_vasp_gen(out_json_data):
+    """
+    Return the KPOINTS data in format of a general VASP input (GGA, Hybrid, GW)
+    """
+    lines = []
+    
+    lines.append("Explicit k-points list for band structure")
+    kplines = []
+    for kp in out_json_data['explicit_kpoints_rel']:
+        kplines.append("{:16.10f} {:16.10f} {:16.10f} 0".format(*kp))
+    nkpts = len(kplines)
+    lines.append("<...>  !Total number of k-points = {:d} + No. of k-points from IBZKPT".format(nkpts))
+    lines.append("reciprocal")
+    lines.append("<...>  !Copy the kpoints coordinates block from IBZKPT file")
+    lines += kplines
+  
+    return "\n".join(lines)
