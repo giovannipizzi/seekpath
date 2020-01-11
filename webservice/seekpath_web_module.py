@@ -551,7 +551,7 @@ def get_crystal(raw_data):
     """
     Return the data in format of a CRYSTAL input
     """
-    
+
     def float_to_fraction(x, error=0.000001):
         '''
         1D float np.array to 1D fraction (int) array
@@ -625,7 +625,6 @@ def get_vasp_gga(raw_data):
     """
     Return the KPOINTS data in format of a VASP input for LDA or GGA functional
     """
-
     lines = []
     lines.append("Special k-points for band structure")
     lines.append("<...>  ! intersectons ")
@@ -646,8 +645,7 @@ def get_vasp_gen(out_json_data):
     """
     Return the KPOINTS data in format of a general VASP input (GGA, Hybrid, GW)
     """
-    lines = []
-    
+    lines = []    
     lines.append("Explicit k-points list for band structure")
     kplines = []
     for kp in out_json_data['explicit_kpoints_rel']:
