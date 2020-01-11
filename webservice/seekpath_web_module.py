@@ -595,6 +595,7 @@ def get_crystal(raw_data):
     lines.append("BAND")
     lines.append("<...>     !Title")
     kpath = []
+    klabel = []
     for s in raw_data['path']:
         c0 = raw_data['kpoints_rel'][s[0]]
         c1 = raw_data['kpoints_rel'][s[1]]
