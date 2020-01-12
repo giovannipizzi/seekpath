@@ -549,7 +549,7 @@ def get_cp2k(raw_data):
     
 def get_crystal(raw_data):
     """
-    Return the data in format of a CRYSTAL input
+    Return the data in format of a CRYSTAL d3 input
     """
 
     def float_to_fraction(x, error=0.000001):
@@ -611,12 +611,12 @@ def get_crystal(raw_data):
     shrinking_fac = np.lcm.reduce(denominator)
     kpath_new = shrinking_fac * kpath_flat
     kpath_new = np.int64(kpath_new.round().reshape(npath, 2, -1))
-    lines.append("{:d} {:d} 100 <...> <...> 1 0     !<...> <...>: 1st band - last band".format(npath, shrinking_fac))
-    
+    lines.append("{:d} {:d} 100 <...> <...> 1 0     !<...> - <...>: 1st band - last band".format(npath, shrinking_fac))
     for i, path in enumerate(kpath_new):
         c0 = path[0] 
-        c1 = path[1]         
-        lines.append("{:d} {:d} {:d}  {:d} {:d} {:d} {:4s} -> {:4s}".format(c0[0], c0[1], c0[2], c1[0], c1[1], c1[2], klabel[i][0], s[i][1]))
+        c1 = path[1]   
+        
+        lines.append("{:2d} {:2d} {:2d}  {:2d} {:2d} {:2d}    {:2s} -> {:2s}".format(c0[0], c0[1], c0[2], c1[0], c1[1], c1[2], klabel[i][0], klabel[i][1]))
 
     return "\n".join(lines)
    
@@ -634,8 +634,8 @@ def get_vasp_gga(raw_data):
     for s in raw_data['path']:
         c0 = raw_data['kpoints_rel'][s[0]]
         c1 = raw_data['kpoints_rel'][s[1]]
-        lines.append("{:16.10f} {:16.10f} {:16.10f} 1  {:4s}".format(c0[0], c0[1], c0[2], s[0]))
-        lines.append("{:16.10f} {:16.10f} {:16.10f} 1  {:4s}".format(c1[0], c1[1], c1[2], s[1]))
+        lines.append("{:16.10f} {:16.10f} {:16.10f} 1    {:2s}".format(c0[0], c0[1], c0[2], s[0]))
+        lines.append("{:16.10f} {:16.10f} {:16.10f} 1    {:2s}".format(c1[0], c1[1], c1[2], s[1]))
         lines.append("\n")
         
     return "\n".join(lines)
@@ -651,9 +651,10 @@ def get_vasp_gen(out_json_data):
     for kp in out_json_data['explicit_kpoints_rel']:
         kplines.append("{:16.10f} {:16.10f} {:16.10f} 0".format(*kp))
     nkpts = len(kplines)
-    lines.append("<...>  !Total number of k-points = {:d} + No. of k-points from IBZKPT".format(nkpts))
+    lines.append("<...>  !Total number of k-points = {:2d} + No. of k-points from IBZKPT file".format(nkpts))
     lines.append("reciprocal")
-    lines.append("<...>  !Copy the kpoints coordinates block from IBZKPT file")
+    lines.append("<...Copy the kpoints coordinates block from IBZKPT here...>")
+    lines.append("\n")
     lines += kplines
   
     return "\n".join(lines)
