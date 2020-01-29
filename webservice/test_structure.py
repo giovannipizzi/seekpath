@@ -8,8 +8,9 @@ import structure_importers
 @click.argument('file', type=click.File('rb'))
 def test(format, file):
     click.echo("Format: {}".format(format))
-    structure = structure_importers.get_structure_tuple(
-        file, format, extra_data=None)
+    structure = structure_importers.get_structure_tuple(file,
+                                                        format,
+                                                        extra_data=None)
     print "# CELL"
     for v in structure[0]:
         print v

@@ -57,7 +57,7 @@ setup(
             "pymatgen>=2017.7; python_version>='3.0'",
         ],
         "dev": [
-            'pre-commit>=1.4', 'yapf==0.22.0', 'prospector>=0.12.7',
+            'pre-commit>=1.4', 'yapf==0.29.0', 'prospector>=0.12.7',
             'pylint>=1.8'
         ],
         "click": ['click>=6']

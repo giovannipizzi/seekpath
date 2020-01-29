@@ -111,8 +111,8 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers, seekpath_module):
     response['path'] = res['path']
 
     # It should use the same logic, so give the same cell as above
-    res_explicit = seekpath_module.get_explicit_k_path(
-        system, with_time_reversal=False)
+    res_explicit = seekpath_module.get_explicit_k_path(system,
+                                                       with_time_reversal=False)
     for k in res_explicit:
         if k == 'segments' or k.startswith('explicit_'):
             if isinstance(res_explicit[k], np.ndarray):
@@ -165,68 +165,65 @@ def process_structure_core(filecontent,
     fileobject = io.StringIO(str(filecontent))
     form_data = dict(flask_request.form)
     try:
-        structure_tuple = get_structure_tuple(
-            fileobject, fileformat, extra_data=form_data)
+        structure_tuple = get_structure_tuple(fileobject,
+                                              fileformat,
+                                              extra_data=form_data)
     except UnknownFormatError:
-        logme(
-            logger,
-            filecontent,
-            fileformat,
-            flask_request,
-            call_source,
-            reason='unknownformat',
-            extra={
-                'form_data': form_data,
-            })
+        logme(logger,
+              filecontent,
+              fileformat,
+              flask_request,
+              call_source,
+              reason='unknownformat',
+              extra={
+                  'form_data': form_data,
+              })
         raise FlaskRedirectException("Unknown format '{}'".format(fileformat))
     except Exception:
         # There was an exception...
         import traceback
-        logme(
-            logger,
-            filecontent,
-            fileformat,
-            flask_request,
-            call_source,
-            reason='exception',
-            extra={
-                'traceback': traceback.format_exc(),
-                'form_data': form_data,
-            })
+        logme(logger,
+              filecontent,
+              fileformat,
+              flask_request,
+              call_source,
+              reason='exception',
+              extra={
+                  'traceback': traceback.format_exc(),
+                  'form_data': form_data,
+              })
         raise FlaskRedirectException(
             "I tried my best, but I wasn't able to load your "
             "file in format '{}'...".format(fileformat))
 
     if len(structure_tuple[1]) > MAX_NUMBER_OF_ATOMS:
         ## Structure too big
-        logme(
-            logger,
-            filecontent,
-            fileformat,
-            flask_request,
-            call_source,
-            reason='toolarge',
-            extra={
-                'number_of_atoms': len(structure_tuple[1]),
-                'form_data': form_data,
-            })
+        logme(logger,
+              filecontent,
+              fileformat,
+              flask_request,
+              call_source,
+              reason='toolarge',
+              extra={
+                  'number_of_atoms': len(structure_tuple[1]),
+                  'form_data': form_data,
+              })
         raise FlaskRedirectException(
             "Sorry, this online visualizer is limited to {} atoms "
             "in the input cell, while your structure has {} atoms."
             "".format(MAX_NUMBER_OF_ATOMS, len(structure_tuple[1])))
 
     # Log the content in case of valid structure
-    logme(
-        logger,
-        filecontent,
-        fileformat,
-        flask_request,
-        call_source,
-        reason='OK',
-        extra={
-            'number_of_atoms': len(structure_tuple[1]),
-            'form_data': form_data,
-        })
+    logme(logger,
+          filecontent,
+          fileformat,
+          flask_request,
+          call_source,
+          reason='OK',
+          extra={
+              'number_of_atoms': len(structure_tuple[1]),
+              'form_data': form_data,
+          })
 
     try:
         in_json_data = {
@@ -358,25 +355,23 @@ def process_structure_core(filecontent,
         compute_time = time.time() - start_time
     except Exception:
         import traceback
-        logme(
-            logger,
-            filecontent,
-            fileformat,
-            flask_request,
-            call_source,
-            reason='codeexception',
-            extra={
-                'traceback': traceback.extract_stack(),
-                'form_data': form_data,
-            })
+        logme(logger,
+              filecontent,
+              fileformat,
+              flask_request,
+              call_source,
+              reason='codeexception',
+              extra={
+                  'traceback': traceback.extract_stack(),
+                  'form_data': form_data,
+              })
         raise
 
     qe_pw = str(jinja2.escape(get_qe_pw(raw_code_dict, out_json_data))).replace(
         '\n', '<br>').replace(' ', '&nbsp;')
-    qe_matdyn = str(jinja2.escape(get_qe_matdyn(raw_code_dict,
-                                                out_json_data))).replace(
-                                                    '\n', '<br>').replace(
-                                                        ' ', '&nbsp;')
+    qe_matdyn = str(jinja2.escape(get_qe_matdyn(
+        raw_code_dict, out_json_data))).replace('\n',
+                                                '<br>').replace(' ', '&nbsp;')
     cp2k = str(jinja2.escape(get_cp2k(raw_code_dict))).replace(
         '\n', '<br>').replace(' ', '&nbsp;')
     crystal = str(jinja2.escape(get_crystal(raw_code_dict))).replace(
@@ -385,7 +380,7 @@ def process_structure_core(filecontent,
         '\n', '<br>').replace(' ', '&nbsp;')
     vasp_gen = str(jinja2.escape(get_vasp_gen(out_json_data))).replace(
         '\n', '<br>').replace(' ', '&nbsp;')
-        
+
     return dict(
         jsondata=json.dumps(out_json_data),
         volume_ratio_prim=int(round(path_results['volume_original_wrt_prim'])),
@@ -401,9 +396,8 @@ def process_structure_core(filecontent,
         inputstructure_atoms_scaled=inputstructure_atoms_scaled,
         inputstructure_atoms_cartesian=inputstructure_atoms_cartesian,
         atoms_scaled=atoms_scaled,
-        with_without_time_reversal=("with"
-                                    if path_results['has_inversion_symmetry']
-                                    else "without"),
+        with_without_time_reversal=(
+            "with" if path_results['has_inversion_symmetry'] else "without"),
         atoms_cartesian=atoms_cartesian,
         reciprocal_primitive_vectors=reciprocal_primitive_vectors,
         suggested_path=suggested_path,
@@ -434,8 +428,8 @@ def get_qe_pw(raw_data, out_json_data):
     lines.append("&SYSTEM")
     lines.append("    ibrav = 0")
     lines.append("    nat = {}".format(len(raw_data["primitive_symbols"])))
-    lines.append("    ntyp = {}".format(
-        len(set(raw_data["primitive_symbols"]))))
+    lines.append("    ntyp = {}".format(len(set(
+        raw_data["primitive_symbols"]))))
     lines.append("    <...>")
     lines.append("/")
     lines.append("&ELECTRONS")
@@ -544,9 +538,9 @@ def get_cp2k(raw_data):
         raw=raw_data,  # export the complete raw data to the template
         zip=zip,
         set=set  # add zip and set to the template environment for some loops
-    )  
-    
-    
+    )
+
+
 def get_crystal(raw_data):
     """
     Return the data in format of a CRYSTAL d3 input
@@ -575,7 +569,7 @@ def get_crystal(raw_data):
                     middle_n = lower_n + upper_n
                     middle_d = lower_d + upper_d
                     # If value + error < middle
-                    
+
                     if middle_d * (value + error) < middle_n:
                         # middle is our new upper
                         upper_n = middle_n
@@ -605,22 +599,27 @@ def get_crystal(raw_data):
     npath = len(kpath)
     kpath = np.float64(kpath)
     kpath_flat = kpath.flatten()
-    fraction_kpath = float_to_fraction (kpath_flat)
-    numerator = fraction_kpath[:,0]
-    denominator = fraction_kpath[:,1]
+    fraction_kpath = float_to_fraction(kpath_flat)
+    numerator = fraction_kpath[:, 0]
+    denominator = fraction_kpath[:, 1]
     shrinking_fac = np.lcm.reduce(denominator)
     kpath_new = shrinking_fac * kpath_flat
     kpath_new = np.int64(kpath_new.round().reshape(npath, 2, -1))
-    lines.append("{:d} {:d} 100 <...> <...> 1 0     !<...> - <...>: 1st band - last band".format(npath, shrinking_fac))
+    lines.append(
+        "{:d} {:d} 100 <...> <...> 1 0     !<...> - <...>: 1st band - last band"
+        .format(npath, shrinking_fac))
     for i, path in enumerate(kpath_new):
-        c0 = path[0] 
-        c1 = path[1]   
-        
-        lines.append("{:2d} {:2d} {:2d}  {:2d} {:2d} {:2d}    {:2s} -> {:2s}".format(c0[0], c0[1], c0[2], c1[0], c1[1], c1[2], klabel[i][0], klabel[i][1]))
+        c0 = path[0]
+        c1 = path[1]
+
+        lines.append(
+            "{:2d} {:2d} {:2d}  {:2d} {:2d} {:2d}    {:2s} -> {:2s}".format(
+                c0[0], c0[1], c0[2], c1[0], c1[1], c1[2], klabel[i][0],
+                klabel[i][1]))
 
     return "\n".join(lines)
-   
-    
+
+
 def get_vasp_gga(raw_data):
     """
     Return the KPOINTS data in format of a VASP input for LDA or GGA functional
@@ -634,27 +633,31 @@ def get_vasp_gga(raw_data):
     for s in raw_data['path']:
         c0 = raw_data['kpoints_rel'][s[0]]
         c1 = raw_data['kpoints_rel'][s[1]]
-        lines.append("{:16.10f} {:16.10f} {:16.10f} 1    {:2s}".format(c0[0], c0[1], c0[2], s[0]))
-        lines.append("{:16.10f} {:16.10f} {:16.10f} 1    {:2s}".format(c1[0], c1[1], c1[2], s[1]))
+        lines.append("{:16.10f} {:16.10f} {:16.10f} 1    {:2s}".format(
+            c0[0], c0[1], c0[2], s[0]))
+        lines.append("{:16.10f} {:16.10f} {:16.10f} 1    {:2s}".format(
+            c1[0], c1[1], c1[2], s[1]))
         lines.append("\n")
-        
+
     return "\n".join(lines)
-    
-    
+
+
 def get_vasp_gen(out_json_data):
     """
     Return the KPOINTS data in format of a general VASP input (GGA, Hybrid, GW)
     """
-    lines = []    
+    lines = []
     lines.append("Explicit k-points list for band structure")
     kplines = []
     for kp in out_json_data['explicit_kpoints_rel']:
         kplines.append("{:16.10f} {:16.10f} {:16.10f} 0".format(*kp))
     nkpts = len(kplines)
-    lines.append("<...>  !Total number of k-points = {:2d} + No. of k-points from IBZKPT file".format(nkpts))
+    lines.append(
+        "<...>  !Total number of k-points = {:2d} + No. of k-points from IBZKPT file"
+        .format(nkpts))
     lines.append("reciprocal")
     lines.append("<...Copy the kpoints coordinates block from IBZKPT here...>")
     lines.append("\n")
     lines += kplines
-  
+
     return "\n".join(lines)

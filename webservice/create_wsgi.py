@@ -1,9 +1,15 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os
 import sys
 import importlib
 from collections import defaultdict
 import string
+
+try:
+    input = raw_input  # py2-py3 compatibility
+except NameError:
+    pass
 
 import getpass, grp, pwd
 
@@ -16,11 +22,11 @@ current_group = grp.getgrgid(pwd.getpwnam(current_user).pw_gid).gr_name
 #servername = raw_input("Please insert the server name: ")
 #servername = "theospc7.epfl.ch"
 
-print("I am going to configure everything running as user '{}' and "
-      "group '{}'".format(current_user, current_group))
+print("I am going to configure everything, ")
+print("running as user '{}' and group '{}'".format(current_user, current_group))
 #print "and the server name will be '{}'".format(servername)
-print " Continue? [CTRL+C to stop]"
-raw_input()
+print(" Continue? [CTRL+C to stop]")
+input()
 
 content_lines = []
 content_lines.append("import sys")
@@ -40,23 +46,23 @@ for package in ['flask', 'numpy', 'scipy', 'ase', 'spglib', 'seekpath']:
     except ImportError:
         raise ValueError(
             "Unable to load {}, put it in the python path!".format(package))
-for importline, modules in import_content_lines.iteritems():
+for importline, modules in import_content_lines.items():
     content_lines.append("{} # {}".format(importline, ", ".join(modules)))
 content_lines.append("")
 content_lines.append("from seekpath_app import app as application")
 
-print "=" * 78
-print "\n".join(content_lines)
-print "=" * 78
-print "This is the content I want to write in the {} file.".format(
-    WSGI_FILENAME)
-print "Can I continue? [CTRL+C to stop]"
-raw_input()
+print("=" * 78)
+print("\n".join(content_lines))
+print("=" * 78)
+print(
+    "This is the content I want to write in the {} file.".format(WSGI_FILENAME))
+print("Can I continue? [CTRL+C to stop]")
+input()
 
 with open(WSGI_FILENAME, 'w') as f:
     f.write("\n".join(content_lines))
 
-print "File {} written.".format(WSGI_FILENAME)
+print("File {} written.".format(WSGI_FILENAME))
 
 site_template = string.Template("""
     WSGIDaemonProcess $appname user=$user group=$group threads=$numthreads
@@ -87,14 +93,14 @@ site_file_content = site_template.substitute(
     wsgifolder=wsgi_folder,
 )
 
-print "=" * 78
-print site_file_content
-print "=" * 78
-print "This is the content I want to write in the {} file.".format(site_fname)
-print "Can I continue? [CTRL+C to stop]"
-raw_input()
+print("=" * 78)
+print(site_file_content)
+print("=" * 78)
+print("This is the content I want to write in the {} file.".format(site_fname))
+print("Can I continue? [CTRL+C to stop]")
+input()
 
 with open(site_fname, 'w') as f:
     f.write(site_file_content)
 
-print "File {} written.".format(site_fname)
+print("File {} written.".format(site_fname))

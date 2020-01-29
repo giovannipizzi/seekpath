@@ -96,8 +96,9 @@ class TestSpglibSymprec(unittest.TestCase):
         if symprec is None:
             res = hpkot.get_path(system, with_time_reversal=False)
         else:
-            res = hpkot.get_path(
-                system, with_time_reversal=False, symprec=symprec)
+            res = hpkot.get_path(system,
+                                 with_time_reversal=False,
+                                 symprec=symprec)
         # Checks
         self.assertEqual(res['bravais_lattice'], check_bravais_lattice)
 
@@ -109,19 +110,17 @@ class TestSpglibSymprec(unittest.TestCase):
         positions = [[0., 0., 0.]]
         atomic_numbers = [6]
 
-        self.basic_test(
-            cell,
-            positions,
-            atomic_numbers,
-            check_bravais_lattice='tP',
-            symprec=1.e-8)
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='tP',
+                        symprec=1.e-8)
 
-        self.basic_test(
-            cell,
-            positions,
-            atomic_numbers,
-            check_bravais_lattice='cP',
-            symprec=1.e-3)
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='cP',
+                        symprec=1.e-3)
 
 
 class TestExplicitPaths(unittest.TestCase):
@@ -199,8 +198,9 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
             if symprec is None:
                 res = hpkot.get_path(system, with_time_reversal=False)
             else:
-                res = hpkot.get_path(
-                    system, with_time_reversal=False, symprec=symprec)
+                res = hpkot.get_path(system,
+                                     with_time_reversal=False,
+                                     symprec=symprec)
             # Checks
             self.assertEqual(res['bravais_lattice'], check_bravais_lattice)
             # Checks on issued warnings
@@ -222,8 +222,10 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
                      [0.5, 0.5, 0.6]]
         atomic_numbers = [6, 6, 8, 8]
 
-        self.basic_test(
-            cell, positions, atomic_numbers, check_bravais_lattice='tI')
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='tI')
 
     def test_oF_first(self):
         from math import sqrt
@@ -233,50 +235,49 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         positions = [[0., 0., 0.], [0., 0.5, 0.5], [0.5, 0., 0.5],
                      [0.5, 0.5, 0.]]
         atomic_numbers = [6, 6, 6, 6]
-        self.basic_test(
-            cell,
-            positions,
-            atomic_numbers,
-            check_bravais_lattice='oF',
-            check_string="but 1/a^2")
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='oF',
+                        check_string="but 1/a^2")
 
     def test_oF_second(self):
         from math import sqrt
 
         cell = [[10, 0, 0], [0, 21, 0],
                 [0, 0, sqrt(1. / (1 / 100. + 1 / 441.))]]
-        positions = [[
-            0.1729328200000002, 0.5632488700000001, 0.9531259500000002
-        ], [0.8270671799999998, 0.4367511299999999, 0.9531259500000002], [
-            0.0770671799999998, 0.3132488700000001, 0.7031259500000002
-        ], [0.9229328200000002, 0.6867511299999999, 0.7031259500000002], [
-            0.1729328200000002, 0.0632488700000001, 0.4531259500000002
-        ], [0.8270671799999998, 0.9367511299999998, 0.4531259500000002], [
-            0.0770671799999998, 0.8132488700000001, 0.2031259500000002
-        ], [0.9229328200000002, 0.1867511299999999, 0.2031259500000002], [
-            0.6729328200000002, 0.5632488700000001, 0.4531259500000002
-        ], [0.3270671799999998, 0.4367511299999999, 0.4531259500000002], [
-            0.5770671799999998, 0.3132488700000001, 0.2031259500000002
-        ], [0.4229328200000002, 0.6867511299999999, 0.2031259500000002], [
-            0.6729328200000002, 0.0632488700000001, 0.9531259500000002
-        ], [0.3270671799999998, 0.9367511299999998, 0.9531259500000002], [
-            0.5770671799999998, 0.8132488700000001, 0.7031259500000002
-        ], [0.4229328200000002, 0.1867511299999999, 0.7031259500000002], [
-            0.0000000000000000, 0.5000000000000000, 0.4701481000000003
-        ], [0.7500000000000000, 0.7500000000000000, 0.2201481000000003], [
-            0.0000000000000000, 0.0000000000000000, 0.9701481000000002
-        ], [0.7500000000000000, 0.2500000000000000, 0.7201481000000003], [
-            0.5000000000000000, 0.5000000000000000, 0.9701481000000002
-        ], [0.2500000000000000, 0.7500000000000000, 0.7201481000000003], [
-            0.5000000000000000, 0.0000000000000000, 0.4701481000000003
-        ], [0.2500000000000000, 0.2500000000000000, 0.2201481000000003]]
+        positions = [
+            [0.1729328200000002, 0.5632488700000001, 0.9531259500000002],
+            [0.8270671799999998, 0.4367511299999999, 0.9531259500000002],
+            [0.0770671799999998, 0.3132488700000001, 0.7031259500000002],
+            [0.9229328200000002, 0.6867511299999999, 0.7031259500000002],
+            [0.1729328200000002, 0.0632488700000001, 0.4531259500000002],
+            [0.8270671799999998, 0.9367511299999998, 0.4531259500000002],
+            [0.0770671799999998, 0.8132488700000001, 0.2031259500000002],
+            [0.9229328200000002, 0.1867511299999999, 0.2031259500000002],
+            [0.6729328200000002, 0.5632488700000001, 0.4531259500000002],
+            [0.3270671799999998, 0.4367511299999999, 0.4531259500000002],
+            [0.5770671799999998, 0.3132488700000001, 0.2031259500000002],
+            [0.4229328200000002, 0.6867511299999999, 0.2031259500000002],
+            [0.6729328200000002, 0.0632488700000001, 0.9531259500000002],
+            [0.3270671799999998, 0.9367511299999998, 0.9531259500000002],
+            [0.5770671799999998, 0.8132488700000001, 0.7031259500000002],
+            [0.4229328200000002, 0.1867511299999999, 0.7031259500000002],
+            [0.0000000000000000, 0.5000000000000000, 0.4701481000000003],
+            [0.7500000000000000, 0.7500000000000000, 0.2201481000000003],
+            [0.0000000000000000, 0.0000000000000000, 0.9701481000000002],
+            [0.7500000000000000, 0.2500000000000000, 0.7201481000000003],
+            [0.5000000000000000, 0.5000000000000000, 0.9701481000000002],
+            [0.2500000000000000, 0.7500000000000000, 0.7201481000000003],
+            [0.5000000000000000, 0.0000000000000000, 0.4701481000000003],
+            [0.2500000000000000, 0.2500000000000000, 0.2201481000000003]
+        ]
         atomic_numbers = [6] * 16 + [8] * 8
-        self.basic_test(
-            cell,
-            positions,
-            atomic_numbers,
-            check_bravais_lattice='oF',
-            check_string="but 1/c^2")
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='oF',
+                        check_string="but 1/c^2")
 
     def test_oI_bc(self):
 
@@ -284,42 +285,47 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         positions = [[0., 0., 0.], [0.5, 0.5, 0.5], [0., 0., 0.1],
                      [0.5, 0.5, 0.6]]
         atomic_numbers = [6, 6, 8, 8]
-        self.basic_test(
-            cell,
-            positions,
-            atomic_numbers,
-            check_bravais_lattice='oI',
-            check_string="but the two longest vectors b and c")
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='oI',
+                        check_string="but the two longest vectors b and c")
 
     def test_oC(self):
 
         cell = [[3., 0., 0.], [0., 3., 0.], [0., 0., 5.]]
-        positions = [[
-            0.5000000000000000, 0.1136209299999999, 0.7500967299999999
-        ], [0.5000000000000000, 0.8863790700000000, 0.2500967299999999], [
-            0.0000000000000000, 0.6136209300000000, 0.7500967299999999
-        ], [0.0000000000000000, 0.3863790700000001, 0.2500967299999999], [
-            0.0000000000000000, 0.8444605049999999, 0.7659032699999999
-        ], [0.0000000000000000, 0.1555394950000001, 0.2659032699999999], [
-            0.5000000000000000, 0.3444605049999999, 0.7659032699999999
-        ], [0.5000000000000000, 0.6555394950000001, 0.2659032699999999]]
+        positions = [
+            [0.5000000000000000, 0.1136209299999999, 0.7500967299999999],
+            [0.5000000000000000, 0.8863790700000000, 0.2500967299999999],
+            [0.0000000000000000, 0.6136209300000000, 0.7500967299999999],
+            [0.0000000000000000, 0.3863790700000001, 0.2500967299999999],
+            [0.0000000000000000, 0.8444605049999999, 0.7659032699999999],
+            [0.0000000000000000, 0.1555394950000001, 0.2659032699999999],
+            [0.5000000000000000, 0.3444605049999999, 0.7659032699999999],
+            [0.5000000000000000, 0.6555394950000001, 0.2659032699999999]
+        ]
         atomic_numbers = [6, 6, 6, 6, 8, 8, 8, 8]
-        self.basic_test(
-            cell, positions, atomic_numbers, check_bravais_lattice='oC')
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='oC')
 
     def test_oA(self):
 
         cell = [[9., 0., 0.], [0., 3., 0.], [0., 0., 3.]]
-        positions = [[
-            0.0000000000000000, 0.0000000000000000, 0.0309652399999998
-        ], [0.0000000000000000, 0.5000000000000000, 0.5309652399999998], [
-            0.0000000000000000, 0.5000000000000000, 0.8489601849999999
-        ], [0.5000000000000000, 0.5000000000000000, 0.1263269549999999], [
-            0.0000000000000000, 0.0000000000000000, 0.3489601849999999
-        ], [0.5000000000000000, 0.0000000000000000, 0.6263269549999999]]
+        positions = [
+            [0.0000000000000000, 0.0000000000000000, 0.0309652399999998],
+            [0.0000000000000000, 0.5000000000000000, 0.5309652399999998],
+            [0.0000000000000000, 0.5000000000000000, 0.8489601849999999],
+            [0.5000000000000000, 0.5000000000000000, 0.1263269549999999],
+            [0.0000000000000000, 0.0000000000000000, 0.3489601849999999],
+            [0.5000000000000000, 0.0000000000000000, 0.6263269549999999]
+        ]
         atomic_numbers = [6, 6, 8, 8, 8, 8]
-        self.basic_test(
-            cell, positions, atomic_numbers, check_bravais_lattice='oA')
+        self.basic_test(cell,
+                        positions,
+                        atomic_numbers,
+                        check_bravais_lattice='oA')
 
     # For full coverage, we should also implement the tests for the warnings
     # in the mC lattices, and for the oP warnings.
@@ -369,8 +375,9 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         if self.verbose_tests:
             print("*** {} (inv={})".format(ext_bravais, with_inv))
             for p1, p2 in res['path']:
-                print("   {} -- {}: {} -- {}".format(
-                    p1, p2, res['point_coords'][p1], res['point_coords'][p2]))
+                print("   {} -- {}: {} -- {}".format(p1, p2,
+                                                     res['point_coords'][p1],
+                                                     res['point_coords'][p2]))
 
     def test_aP2Y(self):
         """

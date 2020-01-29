@@ -170,12 +170,11 @@ def get_path(structure,
     """
     if recipe == 'hpkot':
         from . import hpkot
-        res = hpkot.get_path(
-            structure=structure,
-            with_time_reversal=with_time_reversal,
-            threshold=threshold,
-            symprec=symprec,
-            angle_tolerance=angle_tolerance)
+        res = hpkot.get_path(structure=structure,
+                             with_time_reversal=with_time_reversal,
+                             threshold=threshold,
+                             symprec=symprec,
+                             angle_tolerance=angle_tolerance)
 
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
@@ -292,12 +291,11 @@ def get_explicit_k_path(structure,
     """
     if recipe == 'hpkot':
         from . import hpkot
-        res = hpkot.get_path(
-            structure=structure,
-            with_time_reversal=with_time_reversal,
-            threshold=threshold,
-            symprec=symprec,
-            angle_tolerance=angle_tolerance)
+        res = hpkot.get_path(structure=structure,
+                             with_time_reversal=with_time_reversal,
+                             threshold=threshold,
+                             symprec=symprec,
+                             angle_tolerance=angle_tolerance)
 
     else:
         raise ValueError("value for 'recipe' not recognized. The only value "
