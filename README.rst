@@ -41,6 +41,7 @@ Contributors
 ============
 - Tiziano Müller (UZH, Switzerland) for the CP2K input file generator
   and added a number of new input formats (XYZ, PDB, ...)
+- Hung Pham (University of Minnesota, USA) for the CRYSTAL and VASP input file generators
 
 =============================
 How to install and how to use
