@@ -626,7 +626,7 @@ def get_vasp_gga(raw_data):
     """
     lines = []
     lines.append("Special k-points for band structure")
-    lines.append("<...>  ! intersectons ")
+    lines.append("<...>  ! intersections ")
     lines.append("line-mode")
     lines.append("reciprocal")
     kpath = []
