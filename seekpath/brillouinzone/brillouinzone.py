@@ -297,12 +297,11 @@ if __name__ == "__main__":
     fig = figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.add_collection3d(
-        Poly3DCollection(
-            faces_coords,
-            linewidth=1,
-            alpha=0.9,
-            edgecolor="k",
-            facecolor="#ccccff"))
+        Poly3DCollection(faces_coords,
+                         linewidth=1,
+                         alpha=0.9,
+                         edgecolor="k",
+                         facecolor="#ccccff"))
 
     #draw origin
     ax.scatter([0], [0], [0], color="g", s=100)
@@ -310,26 +309,23 @@ if __name__ == "__main__":
     axes_length = 2
     # Add axes
     ax.add_artist(
-        Arrow3D(
-            (0, axes_length), (0, 0), (0, 0),
-            mutation_scale=20,
-            lw=1,
-            arrowstyle="-|>",
-            color="k"))
+        Arrow3D((0, axes_length), (0, 0), (0, 0),
+                mutation_scale=20,
+                lw=1,
+                arrowstyle="-|>",
+                color="k"))
     ax.add_artist(
-        Arrow3D(
-            (0, 0), (0, axes_length), (0, 0),
-            mutation_scale=20,
-            lw=1,
-            arrowstyle="-|>",
-            color="k"))
+        Arrow3D((0, 0), (0, axes_length), (0, 0),
+                mutation_scale=20,
+                lw=1,
+                arrowstyle="-|>",
+                color="k"))
     ax.add_artist(
-        Arrow3D(
-            (0, 0), (0, 0), (0, axes_length),
-            mutation_scale=20,
-            lw=1,
-            arrowstyle="-|>",
-            color="k"))
+        Arrow3D((0, 0), (0, 0), (0, axes_length),
+                mutation_scale=20,
+                lw=1,
+                arrowstyle="-|>",
+                color="k"))
 
     ## Reset limits
     ax.set_xlim(-1, 1)

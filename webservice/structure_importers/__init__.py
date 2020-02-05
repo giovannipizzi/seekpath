@@ -75,11 +75,11 @@ def get_structure_tuple(fileobject, fileformat, extra_data=None):
         'pdb-ase': 'proteindatabank',
         'xyz-ase': 'xyz',
         'cif-ase':
-        'cif',  # currently broken in ASE: https://gitlab.com/ase/ase/issues/15
+            'cif',  # currently broken in ASE: https://gitlab.com/ase/ase/issues/15
     }
     if fileformat in ase_fileformats.keys():
-        asestructure = ase.io.read(
-            fileobject, format=ase_fileformats[fileformat])
+        asestructure = ase.io.read(fileobject,
+                                   format=ase_fileformats[fileformat])
 
         if fileformat == 'xyz-ase':
             # XYZ does not contain cell information, add them back from the
@@ -117,8 +117,8 @@ def get_structure_tuple(fileobject, fileformat, extra_data=None):
 
         species_dict = {
             name: pseudo_file_name for name, pseudo_file_name in zip(
-                pwparsed['species']['names'], pwparsed['species'][
-                    'pseudo_file_names'])
+                pwparsed['species']['names'], pwparsed['species']
+                ['pseudo_file_names'])
         }
 
         numbers = []

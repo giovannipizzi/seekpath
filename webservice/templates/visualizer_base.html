@@ -532,6 +532,7 @@
         <div id="accordion">
         <h3>Quantum ESPRESSO pw.x input</h3>
         <div>
+          <div style="font-size: small;"><a href="https://www.quantum-espresso.org/Doc/INPUT_PW.html" target="_blank">[FORMAT DESCRIPTION]</a></div>
           <p>
             <button class="clipboardbtn" data-clipboard-target="#qepwdata">
               <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
@@ -548,6 +549,7 @@
         </div>-->
         <h3>CP2K input</h3>
         <div>
+          <div style="font-size: small;"><a href="https://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/BAND_STRUCTURE/KPOINT_SET.html" target="_blank">[FORMAT DESCRIPTION]</a></div>
           <p>
             <button class="clipboardbtn" data-clipboard-target="#cp2kdata">
               <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
@@ -555,6 +557,39 @@
               simulation</code>)
           </p>
           <p><code id="cp2kdata">{{ cp2k|safe }}</code></p>
+        </div>
+        <h3>CRYSTAL *.d3 input</h3>
+        <div>
+          <div style="font-size: small;"><a href="http://tutorials.crystalsolutions.eu/tutorial.html?td=properties&tf=properties_tut" target="_blank">[FORMAT DESCRIPTION]</a> (see also page 263 in the <a href="http://www.crystal.unito.it/Manuals/crystal17.pdf" target="_blank">PDF manual</a>)</div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#crystaldata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
+          <p><code id="crystaldata">{{ crystal|safe }}</code></p>
+        </div>
+        <h3>VASP KPOINTS input for LDA/GGA</h3>
+        <div>
+          <div style="font-size: small;"><a href="https://www.vasp.at/wiki/index.php/KPOINTS" target="_blank">[FORMAT DESCRIPTION]</a></div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#vaspggadata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
+          <p><code id="vaspggadata">{{ vasp_gga|safe }}</code></p>
+        </div>
+        <h3>VASP KPOINTS input for LDA/GGA/Hybrid/GW</h3>
+        <div>
+          <div style="font-size: small;"><a href="https://www.vasp.at/wiki/index.php/KPOINTS" target="_blank">[FORMAT DESCRIPTION]</a></div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#vaspgendata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
+          <p><code id="vaspgendata">{{ vasp_gen|safe }}</code></p>
         </div>
         <h3>Raw data (JSON)</h3>
         <div>

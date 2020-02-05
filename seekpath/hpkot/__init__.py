@@ -147,8 +147,9 @@ def get_path(structure,
 
     # Symmetry analysis by SPGlib, get crystallographic lattice,
     # and cell parameters for this lattice
-    dataset = spglib.get_symmetry_dataset(
-        structure_internal, symprec=symprec, angle_tolerance=angle_tolerance)
+    dataset = spglib.get_symmetry_dataset(structure_internal,
+                                          symprec=symprec,
+                                          angle_tolerance=angle_tolerance)
     if dataset is None:
         raise SymmetryDetectionError(
             "Spglib could not detect the symmetry of the system")
@@ -338,9 +339,9 @@ def get_path(structure,
             raise ValueError("Problem identifying M3 matrix in aP lattice!"
                              "Sign of cosines: cos(kalpha3){}0, "
                              "cos(kbeta3){}0, cos(kgamma3){}0".format(
-                                 ">=" if coskalpha3 >= 0 else "<", ">="
-                                 if coskbeta3 >= 0 else "<", ">="
-                                 if coskgamma3 >= 0 else "<"))
+                                 ">=" if coskalpha3 >= 0 else "<",
+                                 ">=" if coskbeta3 >= 0 else "<",
+                                 ">=" if coskgamma3 >= 0 else "<"))
 
         real_cell_final = np.dot(real_cell3.T, M3).T
         reciprocal_cell_final = get_reciprocal_cell_rows(real_cell_final)
@@ -358,8 +359,9 @@ def get_path(structure,
                 "Unexpected aP triclinic lattice, it neither "
                 "all-obtuse nor all-acute! Sign of cosines: cos(kalpha){}0, "
                 "cos(kbeta){}0, cos(kgamma){}0".format(
-                    ">=" if coskalpha >= 0 else "<", ">="
-                    if coskbeta >= 0 else "<", ">=" if coskgamma >= 0 else "<"))
+                    ">=" if coskalpha >= 0 else "<",
+                    ">=" if coskbeta >= 0 else "<",
+                    ">=" if coskgamma >= 0 else "<"))
 
         # Get absolute positions
         conv_pos_abs = np.dot(conv_positions, conv_lattice)
@@ -435,30 +437,48 @@ def get_path(structure,
                 new_end_p = "{}'".format(end_p)
             path.append((new_start_p, new_end_p))
 
-    return {'point_coords': points,
-            'path': path,
-            'has_inversion_symmetry': has_inv,
-            'augmented_path': augmented_path,
-            'bravais_lattice': bravais_lattice,
-            'bravais_lattice_extended': ext_bravais,
-            'conv_lattice': conv_lattice,
-            'conv_positions': conv_positions,
-            'conv_types': conv_types,
-            'primitive_lattice': prim_lattice,
-            'primitive_positions': prim_pos,
-            'primitive_types': prim_types,
-            'reciprocal_primitive_lattice': get_reciprocal_cell_rows(
-                prim_lattice),
-            # The following: between conv and primitive, see docstring of
-            # spg_mapping.get_P_matrix
-            'inverse_primitive_transformation_matrix': invP,
-            'primitive_transformation_matrix': P,
-            # For the time being disabled, not valid for aP lattices
-            # (for which we would need the transformation matrix from niggli)
-            #'transformation_matrix': transf_matrix,
-            'volume_original_wrt_conv': volume_conv_wrt_original,
-            'volume_original_wrt_prim': \
+    return {
+        'point_coords':
+            points,
+        'path':
+            path,
+        'has_inversion_symmetry':
+            has_inv,
+        'augmented_path':
+            augmented_path,
+        'bravais_lattice':
+            bravais_lattice,
+        'bravais_lattice_extended':
+            ext_bravais,
+        'conv_lattice':
+            conv_lattice,
+        'conv_positions':
+            conv_positions,
+        'conv_types':
+            conv_types,
+        'primitive_lattice':
+            prim_lattice,
+        'primitive_positions':
+            prim_pos,
+        'primitive_types':
+            prim_types,
+        'reciprocal_primitive_lattice':
+            get_reciprocal_cell_rows(prim_lattice),
+        # The following: between conv and primitive, see docstring of
+        # spg_mapping.get_P_matrix
+        'inverse_primitive_transformation_matrix':
+            invP,
+        'primitive_transformation_matrix':
+            P,
+        # For the time being disabled, not valid for aP lattices
+        # (for which we would need the transformation matrix from niggli)
+        #'transformation_matrix': transf_matrix,
+        'volume_original_wrt_conv':
+            volume_conv_wrt_original,
+        'volume_original_wrt_prim':
             volume_conv_wrt_original * np.linalg.det(invP),
-            'spacegroup_number': dataset['number'],
-            'spacegroup_international': dataset['international'],
-            }
+        'spacegroup_number':
+            dataset['number'],
+        'spacegroup_international':
+            dataset['international'],
+    }

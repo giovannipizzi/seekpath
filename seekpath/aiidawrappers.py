@@ -60,14 +60,14 @@ def _aiida_to_tuple(aiida_structure):
         if len(kind.symbols) == 1:
             realnumber = Z[kind.symbols[0]]
             if realnumber in list(kind_numbers.values()):
-                number = get_new_number(
-                    list(kind_numbers.values()), start_from=realnumber * 1000)
+                number = get_new_number(list(kind_numbers.values()),
+                                        start_from=realnumber * 1000)
             else:
                 number = realnumber
             kind_numbers[kind.name] = number
         else:
-            number = get_new_number(
-                list(kind_numbers.values()), start_from=200000)
+            number = get_new_number(list(kind_numbers.values()),
+                                    start_from=200000)
             kind_numbers[kind.name] = number
 
     numbers = [kind_numbers[s.kind_name] for s in aiida_structure.sites]

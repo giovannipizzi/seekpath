@@ -269,8 +269,8 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     if wrong_count:
         raise ValueError("Problem creating primitive cell, I found the "
                          "following group of atoms with len != {}: {}".format(
-                             volume_ratio, ", ".join(
-                                 str(_) for _ in wrong_count)))
+                             volume_ratio,
+                             ", ".join(str(_) for _ in wrong_count)))
     # These are the groups of equivalent atoms; values are the positions in
     # the list from 0 to N-1
     groups = sorted(group_count.keys())

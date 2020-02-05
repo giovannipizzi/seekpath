@@ -42,8 +42,8 @@ class TestConversion(unittest.TestCase):
 
         numbers = [56, 22, 8, 8, 8]
 
-        struc = seekpath.aiidawrappers._tuple_to_aiida((cell, relcoords,
-                                                        numbers))
+        struc = seekpath.aiidawrappers._tuple_to_aiida(
+            (cell, relcoords, numbers))
 
         self.assertAlmostEqual(
             np.sum(np.abs(np.array(struc.cell) - np.array(cell))), 0.)
@@ -59,11 +59,11 @@ class TestConversion(unittest.TestCase):
     def test_complex1_to_aiida(self):
         cell = np.array([[4., 1., 0.], [0., 4., 0.], [0., 0., 4.]])
 
-        relcoords = np.array([[0.09493671, 0., 0.], [0.59493671, 0.5, 0.5], [
-            0.59493671, 0.5, 0.
-        ], [0.59493671, 0., 0.5], [0.09493671, 0.5, 0.5],
+        relcoords = np.array([[0.09493671, 0., 0.], [0.59493671, 0.5, 0.5],
+                              [0.59493671, 0.5, 0.], [0.59493671, 0., 0.5],
                               [0.09493671, 0.5, 0.5], [0.09493671, 0.5, 0.5],
-                              [0.09493671, 0.5, 0.5], [0.09493671, 0.5, 0.5]])
+                              [0.09493671, 0.5, 0.5], [0.09493671, 0.5, 0.5],
+                              [0.09493671, 0.5, 0.5]])
 
         abscoords = np.dot(cell.T, relcoords.T).T
 
@@ -94,16 +94,14 @@ class TestConversion(unittest.TestCase):
             Kind(name='Ti', symbols="Ti"),
             Kind(name='O', symbols="O"),
             Kind(name='Ba2', symbols="Ba", mass=100.),
-            Kind(
-                name='BaTi',
-                symbols=("Ba", "Ti"),
-                weights=(0.5, 0.5),
-                mass=100.),
-            Kind(
-                name='BaTi2',
-                symbols=("Ba", "Ti"),
-                weights=(0.4, 0.6),
-                mass=100.),
+            Kind(name='BaTi',
+                 symbols=("Ba", "Ti"),
+                 weights=(0.5, 0.5),
+                 mass=100.),
+            Kind(name='BaTi2',
+                 symbols=("Ba", "Ti"),
+                 weights=(0.4, 0.6),
+                 mass=100.),
             Kind(name='Ba3', symbols="Ba", mass=100.)
         ]
 
@@ -112,16 +110,14 @@ class TestConversion(unittest.TestCase):
             Kind(name='Ti', symbols="Ti"),
             Kind(name='O', symbols="O"),
             Kind(name='Ba2', symbols="Ba", mass=100.),
-            Kind(
-                name='BaTi',
-                symbols=("Ba", "Ti"),
-                weights=(0.5, 0.5),
-                mass=100.),
-            Kind(
-                name='BaTi2',
-                symbols=("Ba", "Ti"),
-                weights=(0.4, 0.6),
-                mass=100.),
+            Kind(name='BaTi',
+                 symbols=("Ba", "Ti"),
+                 weights=(0.5, 0.5),
+                 mass=100.),
+            Kind(name='BaTi2',
+                 symbols=("Ba", "Ti"),
+                 weights=(0.4, 0.6),
+                 mass=100.),
             Kind(name='Ba4', symbols="Ba", mass=100.)
         ]
 
@@ -170,11 +166,10 @@ class TestConversion(unittest.TestCase):
         struc.append_kind(Kind(name='Ba2', symbols="Ba", mass=100.))
         struc.append_site(Site(kind_name='Ba2', position=[3, 2, 1]))
         struc.append_kind(
-            Kind(
-                name='Test',
-                symbols=["Ba", "Ti"],
-                weights=[0.2, 0.4],
-                mass=120.))
+            Kind(name='Test',
+                 symbols=["Ba", "Ti"],
+                 weights=[0.2, 0.4],
+                 mass=120.))
         struc.append_site(Site(kind_name='Test', position=[3, 5, 1]))
 
         struc_tuple, kind_info, kinds = seekpath.aiidawrappers._aiida_to_tuple(
@@ -202,11 +197,10 @@ class TestConversion(unittest.TestCase):
         struc.append_kind(Kind(name='Ba2', symbols="Ba", mass=100.))
         struc.append_site(Site(kind_name='Ba2', position=[3, 2, 1]))
         struc.append_kind(
-            Kind(
-                name='Test',
-                symbols=["Ba", "Ti"],
-                weights=[0.2, 0.4],
-                mass=120.))
+            Kind(name='Test',
+                 symbols=["Ba", "Ti"],
+                 weights=[0.2, 0.4],
+                 mass=120.))
         struc.append_site(Site(kind_name='Test', position=[3, 5, 1]))
 
         struc_tuple, kind_info, kinds = seekpath.aiidawrappers._aiida_to_tuple(
@@ -218,8 +212,8 @@ class TestConversion(unittest.TestCase):
             np.sum(
                 np.abs(np.array(struc.cell) - np.array(roundtrip_struc.cell))),
             0.)
-        self.assertEqual(
-            struc.get_attr('kinds'), roundtrip_struc.get_attr('kinds'))
+        self.assertEqual(struc.get_attr('kinds'),
+                         roundtrip_struc.get_attr('kinds'))
         self.assertEqual([_.kind_name for _ in struc.sites],
                          [_.kind_name for _ in roundtrip_struc.sites])
         self.assertEqual(
@@ -256,17 +250,15 @@ class TestAiiDAExplicitPath(unittest.TestCase):
         self.assertTrue(retdict['has_inversion_symmetry'])
         self.assertFalse(retdict['augmented_path'])
         self.assertAlmostEqual(retdict['volume_original_wrt_prim'], 1.0)
-        self.assertEqual(
-            to_list_of_lists(retdict['explicit_segments']),
-            [[0, 31], [30, 61], [60, 104], [103, 123], [122, 153], [152, 183],
-             [182, 226], [226, 246], [246, 266]])
+        self.assertEqual(to_list_of_lists(retdict['explicit_segments']),
+                         [[0, 31], [30, 61], [60, 104], [103, 123], [122, 153],
+                          [152, 183], [182, 226], [226, 246], [246, 266]])
 
         ret_k = return_value['explicit_kpoints']
-        self.assertEqual(
-            to_list_of_lists(ret_k.labels),
-            [[0, 'GAMMA'], [30, 'X'], [60, 'M'], [103, 'GAMMA'], [122, 'Z'],
-             [152, 'R'], [182, 'A'], [225, 'Z'], [226, 'X'], [245, 'R'],
-             [246, 'M'], [265, 'A']])
+        self.assertEqual(to_list_of_lists(ret_k.labels),
+                         [[0, 'GAMMA'], [30, 'X'], [60, 'M'], [103, 'GAMMA'],
+                          [122, 'Z'], [152, 'R'], [182, 'A'], [225, 'Z'],
+                          [226, 'X'], [245, 'R'], [246, 'M'], [265, 'A']])
         kpts = ret_k.get_kpoints(cartesian=False)
         highsympoints_relcoords = [kpts[idx] for idx, label in ret_k.labels]
         self.assertAlmostEqual(
