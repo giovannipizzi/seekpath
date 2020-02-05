@@ -39,7 +39,7 @@ install:
     - if [ "$TEST_DOCKER" == "true" ] ; then docker build -t seekpathdocker . && docker run -d -p 10080:80 seekpathdocker && docker ps ; fi
 
 script:
-    - if [ "$TEST_PRECOMMIT" == "true" ] ; then pre-commit run --all-files ; fi
+    - if [ "$TEST_PRECOMMIT" == "true" ] ; then pre-commit run --all-files || ( git diff ; exit 1 ) ; fi
 
     # Very minimal test for the time being; before starting, wait (up to 2 minutes) for the service to go up
     # Note: I sleep 15 secs because I need to give the time to nginx + wsgi to start up, otherwise I get

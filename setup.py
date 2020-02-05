@@ -53,10 +53,11 @@ setup(
             "ase>=3.18.0; python_version>='3.0'",
             "qe-tools>=1.1.1",
             "pymatgen>=2017.7,<2019.1; python_version<'3.0'",
+            "monty<=2.0.4; python_version<'3.0'",
             "pymatgen>=2017.7; python_version>='3.0'",
         ],
         "dev": [
-            'pre-commit>=1.4', 'yapf==0.22.0', 'prospector>=0.12.7',
+            'pre-commit>=1.4', 'yapf==0.29.0', 'prospector>=0.12.7',
             'pylint>=1.8'
         ],
         "click": ['click>=6']
@@ -70,8 +71,8 @@ setup(
         'path', 'band structure', 'Brillouin', 'crystallography', 'physics',
         'primitive cell', 'conventional cell'
     ],
-    long_description=io.open(
-        os.path.join(folder, 'README.rst'), encoding="utf-8").read(),
+    long_description=io.open(os.path.join(folder, 'README.rst'),
+                             encoding="utf-8").read(),
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",

@@ -99,8 +99,8 @@ def eval_expr(expr, a, b, c, cosalpha, cosbeta, cosgamma, kparam):
             return 2. * F - Z
         elif expr == "c/2/a/cosbeta*(1-4*U+a*a*sinbeta*sinbeta/b/b)":
             U = kparam['U']
-            return c / 2. / a / cosbeta * (
-                1. - 4. * U + a * a * sinbeta * sinbeta / b / b)
+            return c / 2. / a / cosbeta * (1. - 4. * U +
+                                           a * a * sinbeta * sinbeta / b / b)
         elif expr == "-1/4+W/2-Z*c*cosbeta/a":
             W = kparam['W']
             Z = kparam['Z']

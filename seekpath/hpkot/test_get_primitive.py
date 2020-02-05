@@ -47,9 +47,10 @@ class TestGetPrimitive(unittest.TestCase):
         self.assertEqual(mapping.tolist(), [0, 1, 1, 2, 0, 2])
         self.assertAlmostEqual(
             np.sum(
-                np.abs(prim[1] - np.array([[0.03096524, 0.96903476, 0.], [
-                    0.34896018, 0.65103982, 0.
-                ], [-0.37367305, 1.37367305, 0.5]]))), 0.)
+                np.abs(prim[1] - np.array([[0.03096524, 0.96903476, 0.],
+                                           [0.34896018, 0.65103982, 0.],
+                                           [-0.37367305, 1.37367305, 0.5]]))),
+            0.)
 
     def test_primitive_oA_with_wrapping(self):
         """
@@ -65,14 +66,16 @@ class TestGetPrimitive(unittest.TestCase):
         atomic_numbers = [6, 8, 8, 8, 6, 8]
 
         system = (cell, positions, atomic_numbers)
-        prim, PinvP, mapping = get_primitive(
-            system, 'oA', wrap_to_zero_one=True)
+        prim, PinvP, mapping = get_primitive(system,
+                                             'oA',
+                                             wrap_to_zero_one=True)
 
         self.assertAlmostEqual(prim[0].tolist(),
                                [[0., 1.5, -1.5], [0., 1.5, 1.5], [9., 0., 0.]])
         self.assertEqual(mapping.tolist(), [0, 1, 1, 2, 0, 2])
         self.assertAlmostEqual(
             np.sum(
-                np.abs(prim[1] - np.array([[0.03096524, 0.96903476, 0.], [
-                    0.34896018, 0.65103982, 0.
-                ], [0.62632695, 0.37367305, 0.5]]))), 0.)
+                np.abs(prim[1] - np.array([[0.03096524, 0.96903476, 0.],
+                                           [0.34896018, 0.65103982, 0.],
+                                           [0.62632695, 0.37367305, 0.5]]))),
+            0.)

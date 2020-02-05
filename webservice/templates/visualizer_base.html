@@ -556,6 +556,36 @@
           </p>
           <p><code id="cp2kdata">{{ cp2k|safe }}</code></p>
         </div>
+        <h3>CRYSTAL *.d3 input</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#crystaldata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
+          <p><code id="crystaldata">{{ crystal|safe }}</code></p>
+        </div>
+        <h3>VASP KPOINTS input for LDA/GGA</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#vaspggadata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
+          <p><code id="vaspggadata">{{ vasp_gga|safe }}</code></p>
+        </div>
+        <h3>VASP KPOINTS input for LDA/GGA/Hybrid/GW</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#vaspgendata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
+          <p><code id="vaspgendata">{{ vasp_gen|safe }}</code></p>
+        </div>
         <h3>Raw data (JSON)</h3>
         <div>
           <p>

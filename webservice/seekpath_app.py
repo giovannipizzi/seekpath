@@ -35,10 +35,9 @@ def get_style_version(request):
 import logging, logging.handlers
 logger = logging.getLogger("seekpath_server")
 
-logHandler = logging.handlers.TimedRotatingFileHandler(
-    os.path.join(
-        os.path.split(os.path.realpath(__file__))[0], 'logs', 'requests.log'),
-    when='midnight')
+logHandler = logging.handlers.TimedRotatingFileHandler(os.path.join(
+    os.path.split(os.path.realpath(__file__))[0], 'logs', 'requests.log'),
+                                                       when='midnight')
 formatter = logging.Formatter(
     '[%(asctime)s]%(levelname)s-%(funcName)s ^ %(message)s')
 logHandler.setFormatter(formatter)
@@ -307,8 +306,8 @@ def process_structure():
                 call_source="process_structure",
                 logger=logger,
                 flask_request=flask.request)
-            return flask.render_template(
-                get_visualizer_template(flask.request), **data_for_template)
+            return flask.render_template(get_visualizer_template(flask.request),
+                                         **data_for_template)
         except FlaskRedirectException as e:
             flask.flash(str(e))
             return flask.redirect(flask.url_for('input_structure'))
@@ -360,8 +359,8 @@ def process_example_structure():
                     examplestructure),
                 logger=logger,
                 flask_request=flask.request)
-            return flask.render_template(
-                get_visualizer_template(flask.request), **data_for_template)
+            return flask.render_template(get_visualizer_template(flask.request),
+                                         **data_for_template)
         except FlaskRedirectException as e:
             flask.flash(str(e))
             return flask.redirect(flask.url_for('input_structure'))

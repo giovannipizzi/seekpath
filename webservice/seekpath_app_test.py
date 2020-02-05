@@ -31,9 +31,8 @@ class TestConverters(unittest.TestCase):
 
     def test_wrong_file_examples(self):
         """Check if these valid structures are properly parsed"""
-        with open(
-                os.path.join(this_folder, 'file_examples_wrong',
-                             'list.json')) as f:
+        with open(os.path.join(this_folder, 'file_examples_wrong',
+                               'list.json')) as f:
             list_files = json.load(f)
 
         for the_format, examples in list_files.items():
@@ -99,10 +98,9 @@ class TestBasic(FlaskTestCase):
         self.assertEqual(rv.status_code, 200)
 
     def test_example_cP1_inv(self):
-        rv = self.app.post(
-            '/process_example_structure/',
-            data={'value': 'cP1_inv'},
-            follow_redirects=True)
+        rv = self.app.post('/process_example_structure/',
+                           data={'value': 'cP1_inv'},
+                           follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
         #html_data = rv.get_data()
 
