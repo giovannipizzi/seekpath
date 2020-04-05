@@ -59,7 +59,7 @@ def is_same_face(f1, f2):
     if found:
         return True
     # Try also reversed order
-    indices = (-(np.arange(len(f2)) + shift)) % len(f2)
+    indices = (-np.arange(len(f2)) + shift) % len(f2)
     err = np.abs(np.array(f1) - np.array(f2)[indices]).mean()
     found = err < threshold
     return found
