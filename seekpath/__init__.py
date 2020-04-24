@@ -7,7 +7,7 @@ Author: Giovanni Pizzi, EPFL (2016-2020)
 Licence: MIT License, see LICENSE.txt file
 """
 
-__version__ = "1.9.6"
+__version__ = "1.9.7"
 __author__ = "Giovanni Pizzi, EPFL"
 __copyright__ = "Copyright (c), 2016-2020, Giovanni Pizzi, EPFL (Theory and Simulation of Materials (THEOS) and National Centre for Computational Design and Discovery of Novel Materials (NCCR MARVEL)), Switzerland."
 __credits__ = ["Yoyo Hinuma"]
