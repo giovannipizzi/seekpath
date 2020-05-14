@@ -34,7 +34,7 @@ before_install:
     - pip install --upgrade pip setuptools
 
 install:
-    - pip install -r optional-requirements.txt
+    - pip install -r optional-requirements.txt --only-binary scipy
     - if [ "$TEST_CODE" == "true" ] ; then pip install -e . ; fi
     - if [ "$TEST_PRECOMMIT" == "true" ] ; then pip install -e .[dev] ; fi
 
