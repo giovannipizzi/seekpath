@@ -47,20 +47,10 @@ setup(
     ],
     extras_require={
         "bz": ["scipy>=0.17"],
-        "webservice": [
-            "Flask>=0.12.3",
-            "ase>=3.15.0,<3.18; python_version<'3.0'",
-            "ase>=3.18.0; python_version>='3.0'",
-            "qe-tools>=1.1.4",
-            "pymatgen>=2017.7,<2019.1; python_version<'3.0'",
-            "monty<=2.0.4; python_version<'3.0'",
-            "pymatgen>=2017.7; python_version>='3.0'",
-        ],
         "dev": [
             'pre-commit>=1.4', 'yapf==0.29.0', 'prospector>=0.12.7',
             'pylint>=1.8'
-        ],
-        "click": ['click>=6']
+        ]
     },
     packages=find_packages(),
     # Needed to include some static files declared in MANIFEST.in
