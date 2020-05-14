@@ -1,8 +1,3 @@
-from builtins import str
-from builtins import range
-from builtins import int  # subclass of long on Py2
-
-
 def get_crystal_family(number):
     """
     Given a spacegroup number, returns a string to identify its

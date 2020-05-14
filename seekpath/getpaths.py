@@ -1,7 +1,6 @@
 """
 This module contains the main functions to get a path and an explicit path.
 """
-from builtins import range
 
 
 def get_explicit_from_implicit(seekpath_output, reference_distance):

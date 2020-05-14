@@ -1,5 +1,3 @@
-from __future__ import print_function
-from builtins import range
 import numpy as np
 from collections import defaultdict
 
@@ -119,7 +117,7 @@ def get_BZ(b1, b2, b3):
         edges[tuple(sorted([simplex[1], simplex[2]]))].append(simplex_idx)
         edges[tuple(sorted([simplex[2], simplex[0]]))].append(simplex_idx)
     # convert to dictionary of lists (from defaultdict of sets)
-    edges = dict(edges)  #{k: v for k, v in edges.iteritems()}
+    edges = dict(edges)
 
     ### Create now the list of faces, merging the triangles that share an
     ### edge and are coplanar. Note: this works only if up to two triangles
@@ -174,7 +172,7 @@ def get_BZ(b1, b2, b3):
     # The algorithm below is probably wrong (actually, it is only
     # probably inefficient)
 
-    #for k, v in merge_with.iteritems():
+    #for k, v in merge_with.items():
     #    print "{}: {}".format(k, list(v))
 
     # Iterate untile convergence - not sure this is correct
