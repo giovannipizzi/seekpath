@@ -22,14 +22,6 @@ notifications:
         on_success: never
         on_failure: always
 
-addons:
-    apt:
-        packages:
-            - curl
-            - gfortran
-            - libblas-dev
-            - liblapack-dev 
-
 before_install:
     - pip install --upgrade pip setuptools
 
