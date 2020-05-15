@@ -76,6 +76,6 @@ And the following is a screenshot of the main output window, showing the Brillou
 .. _spglib: http://atztogo.github.io/spglib/
 .. _Materials Cloud: http://www.materialscloud.org/tools/seekpath/
 .. _docker hub: https://hub.docker.com/r/giovannipizzi/seekpath/
-.. _user guide is on Read the docs: http://seekpath.readthedocs.io
+.. _user guide on ReadTheDocs: http://seekpath.readthedocs.io
 .. _spglib arXiv link: https://arxiv.org/abs/1808.01590
 .. _tools-seekpath: http://www.github.com/materialscloud-org/tools-seekpath/
