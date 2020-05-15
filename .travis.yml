@@ -2,9 +2,9 @@ sudo: required
 
 language: python
 
-matrix: 
+matrix:
     include:
-    - python: "3.5"
+    - python: "3.7"
       env: TEST_PRECOMMIT=true TEST_CODE=false
     - python: "3.5"
       env: TEST_CODE=true TEST_PRECOMMIT=false

@@ -1,11 +1,10 @@
+"""Run the code tests."""
 import unittest
-import numpy as np
-import seekpath
 
 # Import all tests here
-from seekpath.test_paths_hpkot import *
-from seekpath.hpkot.test_get_primitive import *
-from seekpath.brillouinzone.test_brillouinzone import *
+from seekpath.test_paths_hpkot import *  # pylint: disable=unused-wildcard-import,unused-import
+from seekpath.hpkot.test_get_primitive import *  # pylint: disable=unused-wildcard-import,unused-import
+from seekpath.brillouinzone.test_brillouinzone import *  # pylint: disable=unused-wildcard-import,unused-import
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,8 +1,0 @@
-# Don't send some content to the Docker host when building
-.git
-.travis.yml
-misc
-# These might be present if a release has been made
-build
-dist
-seekpath.egg-info

@@ -17,7 +17,7 @@ The definition of k-point labels follows crystallographic convention, as defined
 and discussed in the `HPKOT paper`_. Moreover, the Bravais lattice is detected
 properly using the spacegroup symmetry. Also the suggested band path provided
 in the `HPKOT paper`_ is returned.
-Systems without time-reversal and inversion-symmetry are also properly 
+Systems without time-reversal and inversion-symmetry are also properly
 taken into account.
 
 .. contents::
@@ -29,11 +29,11 @@ How to cite
 ===========
 If you use this tool, please cite the following work:
 
-- Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, *Band structure diagram 
+- Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, *Band structure diagram
   paths based on crystallography*, Comp. Mat. Sci. 128, 140 (2017)
   (`JOURNAL LINK`_, `arXiv link`_).
-- You should also cite `spglib`_ that is an essential library used in the 
-  implementation: A. Togo, I. Tanaka, 
+- You should also cite `spglib`_ that is an essential library used in the
+  implementation: A. Togo, I. Tanaka,
   "Spglib: a software library for crystal symmetry search", arXiv:1808.01590 (2018) (`spglib arXiv link`_).
 
 =============================
@@ -52,8 +52,8 @@ The code is open-source (licensed with a MIT license, see LICENSE.txt).
 Online service/tool
 ===================
 
-In the `tools-seekpath`_ repository we also provide the code to deploy a online service for 
-the visualization of the band paths and primitive cells of the crystal 
+In the `tools-seekpath`_ repository we also provide the code to deploy a online service for
+the visualization of the band paths and primitive cells of the crystal
 structures. A live version is hosted on the `Materials Cloud`_ web portal.
 
 The following is a screenshot of the selection window:
