@@ -1,3 +1,6 @@
+"""Tools to map a spagegroup to the crystal family or similar requirements."""
+
+
 def get_crystal_family(number):
     """
     Given a spacegroup number, returns a string to identify its
@@ -11,18 +14,17 @@ def get_crystal_family(number):
         raise ValueError("number should be >= 1")
     if number <= 2:
         return "a"  # triclinic
-    elif number <= 15:
+    if number <= 15:
         return "m"  # monoclinic
-    elif number <= 74:
+    if number <= 74:
         return "o"  # orthorhombic
-    elif number <= 142:
+    if number <= 142:
         return "t"  # tetragonal
-    elif number <= 194:
+    if number <= 194:
         return "h"  # trigonal + hexagonal
-    elif number <= 230:
+    if number <= 230:
         return "c"  # cubic
-    else:
-        raise ValueError("number should be <= 230")
+    raise ValueError("number should be <= 230")
 
 
 def pointgroup_has_inversion(number):
@@ -34,7 +36,7 @@ def pointgroup_has_inversion(number):
     """
     if number in [2, 5, 8, 11, 15, 17, 20, 23, 27, 29, 32]:
         return True
-    elif number in [
+    if number in [
         1,
         3,
         4,
@@ -58,8 +60,7 @@ def pointgroup_has_inversion(number):
         31,
     ]:
         return False
-    else:
-        raise ValueError("number should be between 1 and 32")
+    raise ValueError("number should be between 1 and 32")
 
 
 def pgnum_from_pgint(pgint):

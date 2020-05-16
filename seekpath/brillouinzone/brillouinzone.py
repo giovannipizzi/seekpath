@@ -1,5 +1,8 @@
-import numpy as np
+"""Module to compute the Brillouin zone of a crystal."""
 from collections import defaultdict
+
+import numpy as np
+from scipy.spatial import Voronoi, ConvexHull, Delaunay
 
 
 def get_missing_point(tr, p1, p2):
@@ -11,10 +14,8 @@ def get_missing_point(tr, p1, p2):
     or if all points are among p1 and p2 (e.g. a point repeated twice)
     """
     missing = None
-    for idx, vertex in enumerate(tr):
-        if vertex == p1 or vertex == p2:
-            pass
-        else:
+    for vertex in tr:
+        if vertex not in (p1, p2):
             if missing is not None:
                 raise ValueError("Two missing points found...")
             missing = vertex
@@ -40,8 +41,6 @@ def get_BZ(b1, b2, b3):
         plotting library prefers these - these are not oriented for the
         time being)
     """
-    from scipy.spatial import Voronoi, ConvexHull, Delaunay
-
     ret_data = {}
 
     supercell_size = 3  # Is this enough?

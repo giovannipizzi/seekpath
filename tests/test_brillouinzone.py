@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from . import brillouinzone
+from seekpath.brillouinzone import brillouinzone
 
 
 def has_scipy():

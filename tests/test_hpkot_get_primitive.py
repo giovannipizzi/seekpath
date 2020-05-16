@@ -1,4 +1,6 @@
 import unittest
+from seekpath.hpkot.spg_mapping import get_primitive
+import numpy as np
 
 
 class TestGetPrimitive(unittest.TestCase):
@@ -10,9 +12,6 @@ class TestGetPrimitive(unittest.TestCase):
         """
         Test the primitive of a BCC.
         """
-        from .spg_mapping import get_primitive
-        import numpy as np
-
         cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
         positions = [
             [0.0, 0.0, 0.0],
@@ -32,9 +31,6 @@ class TestGetPrimitive(unittest.TestCase):
         """
         Test the primitive of a oA cell.
         """
-        from .spg_mapping import get_primitive
-        import numpy as np
-
         cell = [[9.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 3.0]]
         positions = [
             [0.0, 0.5, 0.46903476],
@@ -73,9 +69,6 @@ class TestGetPrimitive(unittest.TestCase):
         """
         Test the primitive of a oA cell, wrapping coordinates between 0 and 1.
         """
-        from .spg_mapping import get_primitive
-        import numpy as np
-
         cell = [[9.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 3.0]]
         positions = [
             [0.0, 0.5, 0.46903476],

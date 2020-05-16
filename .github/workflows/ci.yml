@@ -1,0 +1,44 @@
+name: Continuous integration
+
+on: [push, pull_request]
+
+jobs:
+  precommit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+
+      - name: Install python dependencies
+        run: |
+          pip install -r optional-requirements.txt
+          pip install -e .[dev]
+          pip freeze
+
+      - name: Run pre-commit
+        run:
+          pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+
+  dockertests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+
+      - name: Install python dependencies
+        run: |
+          pip install -e .
+          pip freeze
+
+      - name: Run the tests
+        run: pytest

@@ -1,8 +1,11 @@
+"""Test the HPKOT paths."""
+# pylint: disable=invalid-name,too-many-public-methods
 import unittest
-from .util import atoms_num_dict
+from seekpath.util import atoms_num_dict
 
 
 def simple_read_poscar(fname):
+    """Read a POSCAR file."""
     with open(fname) as f:
         lines = [l.partition("!")[0] for l in f.readlines()]
 
@@ -26,7 +29,7 @@ def simple_read_poscar(fname):
     cnt = 8
     for el, num in zip(species, num_atoms):
         atom_num = atoms_num_dict[el.capitalize()]
-        for at_idx in range(num):
+        for _ in range(num):
             atomic_numbers.append(atom_num)
             positions.append([float(_) for _ in lines[cnt].split()])
             cnt += 1
@@ -82,8 +85,6 @@ class TestSpglibSymprec(unittest.TestCase):
             (e.g., 'tI', 'oF', ...)
         :param symprec: if specified, pass also the symprec to the code
         """
-        import warnings
-
         from seekpath import hpkot
 
         system = (cell, positions, atomic_numbers)
@@ -113,7 +114,9 @@ class TestSpglibSymprec(unittest.TestCase):
 
 
 class TestExplicitPaths(unittest.TestCase):
-    def test_keys(self):
+    """Test the creation of explicit paths."""
+
+    def test_keys(self):  # pylint: disable=no-self-use
         """
         Test the edge case for tI.
         """
@@ -229,6 +232,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         self.basic_test(cell, positions, atomic_numbers, check_bravais_lattice="tI")
 
     def test_oF_first(self):
+        """Test oF case."""
         from math import sqrt
 
         cell = [
@@ -247,6 +251,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         )
 
     def test_oF_second(self):
+        """Test oF case."""
         from math import sqrt
 
         cell = [[10, 0, 0], [0, 21, 0], [0, 0, sqrt(1.0 / (1 / 100.0 + 1 / 441.0))]]
@@ -286,7 +291,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         )
 
     def test_oI_bc(self):
-
+        """Test oI case, b and c order."""
         cell = [[4.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]]
         positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5], [0.0, 0.0, 0.1], [0.5, 0.5, 0.6]]
         atomic_numbers = [6, 6, 8, 8]
@@ -299,7 +304,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         )
 
     def test_oC(self):
-
+        """Test oC case."""
         cell = [[3.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 5.0]]
         positions = [
             [0.5000000000000000, 0.1136209299999999, 0.7500967299999999],
@@ -315,7 +320,7 @@ class TestPaths3D_HPKOT_EdgeCases(unittest.TestCase):
         self.basic_test(cell, positions, atomic_numbers, check_bravais_lattice="oC")
 
     def test_oA(self):
-
+        """Test oA case."""
         cell = [[9.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 3.0]]
         positions = [
             [0.0000000000000000, 0.0000000000000000, 0.0309652399999998],

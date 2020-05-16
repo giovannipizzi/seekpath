@@ -45,6 +45,7 @@ setup(
             "black==19.10b0",
             "prospector==1.2.0",
             "pylint==2.4.4",
+            "pytest==5.3.5",
         ],
     },
     python_requires=">=3.5",

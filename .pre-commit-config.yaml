@@ -8,11 +8,11 @@
   hooks:
   - id: black
 
-#- repo: local
-#  hooks:
-#  - id: prospector
-#    language: system
-#    types: [file, python]
-#    name: prospector
-#    description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
-#    entry: prospector
+- repo: local
+  hooks:
+  - id: prospector
+    language: system
+    types: [file, python]
+    name: prospector
+    description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
+    entry: prospector
