@@ -1,3 +1,4 @@
+"""Basic information on spacegroups."""
 # Given a spgroup number, return
 # the crystal family letter, the centering, and if the corresponding
 # pointgroup has inversion (True) or not.

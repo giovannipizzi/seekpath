@@ -1,6 +1,7 @@
 """Various utilities."""
 import numpy
 import numpy.linalg
+from math import sqrt
 
 
 def eval_expr_simple(expr, kparam):  # pylint=disable: too-many-return-statements
@@ -87,20 +88,20 @@ def eval_expr(  # pylint: disable=too-many-return-statements,unused-argument
     try:
         if expr == "(a*a/b/b+(1+a/c*cosbeta)/sinbeta/sinbeta)/4":
             return (a * a / b / b + (1.0 + a / c * cosbeta) / sinbeta / sinbeta) / 4.0
-        elif expr == "1-Z*b*b/a/a":
+        if expr == "1-Z*b*b/a/a":
             Z = kparam["Z"]
             return 1.0 - Z * b * b / a / a
-        elif expr == "1/2-2*Z*c*cosbeta/a":
+        if expr == "1/2-2*Z*c*cosbeta/a":
             Z = kparam["Z"]
             return 1.0 / 2.0 - 2.0 * Z * c * cosbeta / a
-        elif expr == "E/2+a*a/4/b/b+a*c*cosbeta/2/b/b":
+        if expr == "E/2+a*a/4/b/b+a*c*cosbeta/2/b/b":
             E = kparam["E"]
             return E / 2.0 + a * a / 4.0 / b / b + a * c * cosbeta / 2.0 / b / b
-        elif expr == "2*F-Z":
+        if expr == "2*F-Z":
             F = kparam["F"]
             Z = kparam["Z"]
             return 2.0 * F - Z
-        elif expr == "c/2/a/cosbeta*(1-4*U+a*a*sinbeta*sinbeta/b/b)":
+        if expr == "c/2/a/cosbeta*(1-4*U+a*a*sinbeta*sinbeta/b/b)":
             U = kparam["U"]
             return (
                 c
@@ -109,96 +110,95 @@ def eval_expr(  # pylint: disable=too-many-return-statements,unused-argument
                 / cosbeta
                 * (1.0 - 4.0 * U + a * a * sinbeta * sinbeta / b / b)
             )
-        elif expr == "-1/4+W/2-Z*c*cosbeta/a":
+        if expr == "-1/4+W/2-Z*c*cosbeta/a":
             W = kparam["W"]
             Z = kparam["Z"]
             return -1.0 / 4.0 + W / 2.0 - Z * c * cosbeta / a
-        elif expr == "(2+a/c*cosbeta)/4/sinbeta/sinbeta":
+        if expr == "(2+a/c*cosbeta)/4/sinbeta/sinbeta":
             return (2.0 + a / c * cosbeta) / 4.0 / sinbeta / sinbeta
-        elif expr == "3/4-b*b/4/a/a/sinbeta/sinbeta":
+        if expr == "3/4-b*b/4/a/a/sinbeta/sinbeta":
             return 3.0 / 4.0 - b * b / 4.0 / a / a / sinbeta / sinbeta
-        elif expr == "S-(3/4-S)*a*cosbeta/c":
+        if expr == "S-(3/4-S)*a*cosbeta/c":
             S = kparam["S"]
             return S - (3.0 / 4.0 - S) * a * cosbeta / c
-        elif expr == "(1+a*a/b/b)/4":
+        if expr == "(1+a*a/b/b)/4":
             return (1.0 + a * a / b / b) / 4.0
-        elif expr == "-a*c*cosbeta/2/b/b":
+        if expr == "-a*c*cosbeta/2/b/b":
             return -a * c * cosbeta / 2.0 / b / b
-        elif expr == "1+Z-2*M":
+        if expr == "1+Z-2*M":
             Z = kparam["Z"]
             M = kparam["M"]
             return 1.0 + Z - 2.0 * M
-        elif expr == "X-2*D":
+        if expr == "X-2*D":
             X = kparam["X"]
             D = kparam["D"]
             return X - 2 * D
-        elif expr == "(1+a/c*cosbeta)/2/sinbeta/sinbeta":
+        if expr == "(1+a/c*cosbeta)/2/sinbeta/sinbeta":
             return (1.0 + a / c * cosbeta) / 2.0 / sinbeta / sinbeta
-        elif expr == "1/2+Y*c*cosbeta/a":
+        if expr == "1/2+Y*c*cosbeta/a":
             Y = kparam["Y"]
             return 1.0 / 2.0 + Y * c * cosbeta / a
-        elif expr == "a*a/4/c/c":
+        if expr == "a*a/4/c/c":
             return a * a / 4.0 / c / c
-        elif expr == "5/6-2*D":
+        if expr == "5/6-2*D":
             D = kparam["D"]
             return 5.0 / 6.0 - 2.0 * D
-        elif expr == "1/3+D":
+        if expr == "1/3+D":
             D = kparam["D"]
             return 1.0 / 3.0 + D
-        elif expr == "1/6-c*c/9/a/a":
+        if expr == "1/6-c*c/9/a/a":
             return 1.0 / 6.0 - c * c / 9.0 / a / a
-        elif expr == "1/2-2*Z":
+        if expr == "1/2-2*Z":
             Z = kparam["Z"]
             return 1.0 / 2.0 - 2.0 * Z
-        elif expr == "1/2+Z":
+        if expr == "1/2+Z":
             Z = kparam["Z"]
             return 1.0 / 2.0 + Z
-        elif expr == "(1+b*b/c/c)/4":
+        if expr == "(1+b*b/c/c)/4":
             return (1.0 + b * b / c / c) / 4.0
-        elif expr == "(1+c*c/b/b)/4":
+        if expr == "(1+c*c/b/b)/4":
             return (1.0 + c * c / b / b) / 4.0
-        elif expr == "(1+b*b/a/a)/4":
+        if expr == "(1+b*b/a/a)/4":
             return (1.0 + b * b / a / a) / 4.0
-        elif expr == "(1+a*a/b/b-a*a/c/c)/4":
+        if expr == "(1+a*a/b/b-a*a/c/c)/4":
             return (1.0 + a * a / b / b - a * a / c / c) / 4.0
-        elif expr == "(1+a*a/b/b+a*a/c/c)/4":
+        if expr == "(1+a*a/b/b+a*a/c/c)/4":
             return (1.0 + a * a / b / b + a * a / c / c) / 4.0
-        elif expr == "(1+c*c/a/a-c*c/b/b)/4":
+        if expr == "(1+c*c/a/a-c*c/b/b)/4":
             return (1.0 + c * c / a / a - c * c / b / b) / 4.0
-        elif expr == "(1+c*c/a/a+c*c/b/b)/4":
+        if expr == "(1+c*c/a/a+c*c/b/b)/4":
             return (1.0 + c * c / a / a + c * c / b / b) / 4.0
-        elif expr == "(1+b*b/a/a-b*b/c/c)/4":
+        if expr == "(1+b*b/a/a-b*b/c/c)/4":
             return (1.0 + b * b / a / a - b * b / c / c) / 4.0
-        elif expr == "(1+c*c/b/b-c*c/a/a)/4":
+        if expr == "(1+c*c/b/b-c*c/a/a)/4":
             return (1.0 + c * c / b / b - c * c / a / a) / 4.0
-        elif expr == "(1+a*a/c/c)/4":
+        if expr == "(1+a*a/c/c)/4":
             return (1.0 + a * a / c / c) / 4.0
-        elif expr == "(b*b-a*a)/4/c/c":
+        if expr == "(b*b-a*a)/4/c/c":
             return (b * b - a * a) / 4.0 / c / c
-        elif expr == "(a*a+b*b)/4/c/c":
+        if expr == "(a*a+b*b)/4/c/c":
             return (a * a + b * b) / 4.0 / c / c
-        elif expr == "(1+c*c/a/a)/4":
+        if expr == "(1+c*c/a/a)/4":
             return (1.0 + c * c / a / a) / 4.0
-        elif expr == "(c*c-b*b)/4/a/a":
+        if expr == "(c*c-b*b)/4/a/a":
             return (c * c - b * b) / 4.0 / a / a
-        elif expr == "(b*b+c*c)/4/a/a":
+        if expr == "(b*b+c*c)/4/a/a":
             return (b * b + c * c) / 4.0 / a / a
-        elif expr == "(a*a-c*c)/4/b/b":
+        if expr == "(a*a-c*c)/4/b/b":
             return (a * a - c * c) / 4.0 / b / b
-        elif expr == "(c*c+a*a)/4/b/b":
+        if expr == "(c*c+a*a)/4/b/b":
             return (c * c + a * a) / 4.0 / b / b
-        elif expr == "a*a/2/c/c":
+        if expr == "a*a/2/c/c":
             return a * a / 2.0 / c / c
-        else:
-            raise ValueError(
-                "Unknown expression, define a new case:\n"
-                '        elif expr == "{0}":\n'
-                "            return {0}".format(expr)
-            )
-    except KeyError as e:
+        raise ValueError(
+            "Unknown expression, define a new case:\n"
+            '        elif expr == "{0}":\n'
+            "            return {0}".format(expr)
+        )
+    except KeyError as exc:
         raise ValueError(
             "Asking for evaluation of symbol '{}' but this has "
-            "not been defined or not yet computed".format(e.message)
+            "not been defined or not yet computed".format(str(exc))
         )
 
 
@@ -258,9 +258,6 @@ def get_cell_params(cell):
 
     .. note:: Rows are vectors: ``v1 = cell[0]``, ``v2 = cell[1]``, ``v3 = cell[3]``
     """
-    import numpy
-    from math import sqrt
-
     v1, v2, v3 = numpy.array(cell)
     a = sqrt(sum(v1 ** 2))
     b = sqrt(sum(v2 ** 2))
