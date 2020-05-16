@@ -24,7 +24,7 @@ jobs:
         run:
           pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
 
-  dockertests:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Install python dependencies
         run: |
-          pip install -e .
+          pip install -e .[dev]
           pip freeze
 
       - name: Run the tests
