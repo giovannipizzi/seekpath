@@ -100,26 +100,6 @@ If you use AiiDA, you might be interested to use the wrappers that are provided 
 The documentation of the methods can be found at
 http://aiida-core.readthedocs.io/en/latest/datatypes/kpoints.html
 
----------------
-Legacy wrappers
----------------
-
-.. deprecated:: 1.8
-  This section describes deprecated methods for back-compatibility reasons.
-  Until seekpath version 1.7, AiiDA wrappers were included into
-  seekpath itself. They have now been included in AiiDA.
-
-  These methods will be removed in future versions of seekpath.
-
-If you use `AiiDA`_, you might be interested in replacing the above
-functions with the following wrappers, instead: :py:func:`~seekpath.aiidawrappers.get_path`,
-:py:func:`~seekpath.aiidawrappers.get_explicit_k_path`.
-
-The function interfaces are very similar, but the advantage is that these functions expect an AiiDA structure as
-input (instead of a tuple) and return AiiDA structures and KpointsData classes instead of lists and tuples,
-where appropriate. Also in this case, additional information is found in the docstrings.
-
-
 
 .. _HPKOT paper: http://dx.doi.org/10.1016/j.commatsci.2016.10.015
 .. _JOURNAL LINK: http://dx.doi.org/10.1016/j.commatsci.2016.10.015
