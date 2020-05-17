@@ -1,3 +1,5 @@
+"""Utilities (mapping of chemical elements to atomic number)."""
+
 atoms_num_dict = {
     "H": 1,
     "He": 2,

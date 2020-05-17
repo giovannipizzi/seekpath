@@ -1,0 +1,19 @@
+[MASTER]
+disable=import-outside-toplevel,bad-continuation,locally-disabled,invalid-name,too-many-locals,too-many-statements,too-many-return-statements,too-many-branches
+
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=10
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=12
+
+# Maximum number of branch for function / method body
+max-branches=12
+
+# Maximum number of locals for function / method body
+max-locals=30
+
+# Maximum number of characters on a single line.
+max-line-length=120
