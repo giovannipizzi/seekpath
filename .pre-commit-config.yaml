@@ -1,32 +1,18 @@
-# yet another python formatter
-- repo: git://github.com/pre-commit/mirrors-yapf
-  rev: v0.29.0
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.2.3
   hooks:
-  - id: yapf
-    language: system
-    files: >-
-      (?x)^(
-        seekpath/.*.py|
-        webservice/.*.py|
-        docs/source/conf.py|
-        run_tests.py|
-        setup.py
-      )$
+  - id: trailing-whitespace
 
-# prospector: collection of linters
-#- repo: git://github.com/guykisel/prospector-mirror
-#  rev: b27f281eb9398fc8504415d7fbdabf119ea8c5e1
+- repo: https://github.com/ambv/black
+  rev: 19.10b0
+  hooks:
+  - id: black
+
+#- repo: local
 #  hooks:
 #  - id: prospector
 #    language: system
 #    types: [file, python]
-#    files: >-
-#      (?x)^(
-#        seekpath/.*.py|
-#        webservice/.*.py|
-#        docs/source/conf.py|
-#        run_tests.py|
-#        setup.py
-#      )$
-
-
+#    name: prospector
+#    description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
+#    entry: prospector
