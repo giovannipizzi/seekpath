@@ -7,7 +7,7 @@ Author: Giovanni Pizzi, EPFL (2016-2020)
 Licence: MIT License, see LICENSE.txt file
 """
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 __author__ = "Giovanni Pizzi, EPFL"
 __copyright__ = (
     "Copyright (c), 2016-2020, Giovanni Pizzi, EPFL "
