@@ -23,6 +23,6 @@ __paper__ = (
     "Comp. Mat. Sci. 128, 140 (2017). DOI: 10.1016/j.commatsci.2016.10.015"
 )
 
-from .getpaths import get_path, get_explicit_k_path
+from .getpaths import get_path, get_explicit_k_path, get_path_orig_cell
 
 __all__ = ("get_path", "get_explicit_k_path")

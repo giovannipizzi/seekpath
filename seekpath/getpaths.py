@@ -325,3 +325,71 @@ def get_explicit_k_path(
     for k, v in explicit_res.items():
         res["explicit_{}".format(k)] = v
     return res
+
+
+def get_path_orig_cell(
+    structure,
+    with_time_reversal=True,
+    recipe="hpkot",
+    threshold=1.0e-7,
+    symprec=1e-05,
+    angle_tolerance=-1.0,
+):
+    r"""
+    TODO: Docstring
+    TODO: Supercell
+    TODO: Documentation
+    TODO: Example
+    TODO: Test
+    TODO: Explicit
+    """
+    if recipe == "hpkot":
+        from . import hpkot
+
+        res = hpkot.get_path(
+            structure=structure,
+            with_time_reversal=with_time_reversal,
+            threshold=threshold,
+            symprec=symprec,
+            angle_tolerance=angle_tolerance,
+        )
+
+        # points in the output of get_path are in scaled coordinates of the
+        # standardized primitive lattice
+        points_scaled_standard = res["point_coords"]
+
+        # Convert points from scaled coordinates of the standardiced primitive
+        # lattice to Cartesian coordinates
+        points_cartesian = {}
+        for pointname, coords in points_scaled_standard.items():
+            points_cartesian[pointname] = coords @ np.array(res["reciprocal_primitive_lattice"])
+
+        # Rotate points in Cartesian space
+        for pointname, coords in points_cartesian.items():
+            points_cartesian[pointname] = coords @ res["rotation_matrix"]
+
+        # Convert points from Cartesian coordinates to the scaled coordinates
+        # of the original lattice
+        points_scaled_original = {}
+        cell_orig = np.array(structure[0])
+        for pointname, coords in points_cartesian.items():
+            points_scaled_original[pointname] = list(coords @ cell_orig.T / np.pi / 2)
+
+        print(res["rotation_matrix"])
+        print(points_scaled_standard)
+        print(points_cartesian)
+        print(points_scaled_original)
+
+        res_orig = {
+            "point_coords": points_scaled_original,
+            "path": res["path"],
+            "augmented_path": res["augmented_path"],
+            "rotation_matrix": res["rotation_matrix"],
+        }
+
+    else:
+        raise ValueError(
+            "value for 'recipe' not recognized. The only value "
+            "currently accepted is 'hpkot'."
+        )
+    return res_orig
