@@ -336,60 +336,112 @@ def get_path_orig_cell(
     angle_tolerance=-1.0,
 ):
     r"""
-    TODO: Docstring
-    TODO: Supercell
-    TODO: Documentation
-    TODO: Example
-    TODO: Explicit
+    Return the kpoint path information for band structure given a
+    crystal structure, using the paths from the chosen recipe/reference.
+    The original unit cell is used. Standardization or symmetrization of the
+    input unit cell is not performed.
+
+    If you use this module, please cite the paper of the corresponding
+    recipe (see parameter below).
+
+    :param structure: The crystal structure for which we want to obtain
+        the suggested path. It should be a tuple in the format
+        accepted by spglib: ``(cell, positions, numbers)``, where
+        (if N is the number of atoms):
+
+        - ``cell`` is a :math:`3 \times 3` list of floats (``cell[0]`` is the first lattice
+          vector, ...)
+        - ``positions`` is a :math:`N \times 3` list of floats with the atomic coordinates
+          in scaled coordinates (i.e., w.r.t. the cell vectors)
+        - ``numbers`` is a length-:math:`N` list with integers identifying uniquely
+          the atoms in the cell (e.g., the Z number of the atom, but
+          any other positive non-zero integer will work - e.g. if you
+          want to distinguish two Carbon atoms, you can set one number
+          to 6 and the other to 1006)
+
+    :param with_time_reversal: if False, and the group has no inversion
+        symmetry, additional lines are returned as described in the HPKOT
+        paper.
+
+    :param recipe: choose the reference publication that defines the special
+       points and paths.
+       Currently, the following value is implemented:
+
+       - ``hpkot``: HPKOT paper:
+         Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure
+         diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+         DOI: 10.1016/j.commatsci.2016.10.015
+
+    :param threshold: the threshold to use to verify if we are in
+        and edge case (e.g., a tetragonal cell, but ``a==c``). For instance,
+        in the tI lattice, if ``abs(a-c) < threshold``, a
+        :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued.
+        Note that depending on the bravais lattice, the meaning of the
+        threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB
+
+
+    :return: a dictionary with the following
+      keys:
+
+        - ``point_coords``: a dictionary with label -> float coordinates
+        - ``path``: a list of length-2 tuples, with the labels of the starting
+          and ending point of each label section
+          input crystal structure has inversion symmetry or not.
+        - ``augmented_path``: if True, it means that the path was
+          augmented with the :math:`-k` points (this happens if both
+          has_inversion_symmetry is False, and the user set
+          with_time_reversal=False in the input)
+
+    :note: An :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued for
+        edge cases (e.g. if ``a==b==c`` for
+        orthorhombic systems). In this case, still one of the valid cases
+        is picked.
     """
-    if recipe == "hpkot":
-        from . import hpkot
 
-        res = hpkot.get_path(
-            structure=structure,
-            with_time_reversal=with_time_reversal,
-            threshold=threshold,
-            symprec=symprec,
-            angle_tolerance=angle_tolerance,
-        )
+    # TODO: Supercell
+    # TODO: Documentation
+    # TODO: Example
 
-        # points in the output of get_path are in scaled coordinates of the
-        # standardized primitive lattice
-        points_scaled_standard = res["point_coords"]
+    res = get_path(
+        structure=structure,
+        with_time_reversal=with_time_reversal,
+        threshold=threshold,
+        symprec=symprec,
+        angle_tolerance=angle_tolerance,
+        recipe=recipe,
+    )
 
-        # Convert points from scaled coordinates of the standardiced primitive
-        # lattice to Cartesian coordinates
-        points_cartesian = {}
-        for pointname, coords in points_scaled_standard.items():
-            points_cartesian[pointname] = coords @ np.array(res["reciprocal_primitive_lattice"])
+    # points in the output of get_path are in scaled coordinates of the
+    # standardized primitive lattice
+    points_scaled_standard = res["point_coords"]
 
-        # Rotate points in Cartesian space
-        for pointname, coords in points_cartesian.items():
-            points_cartesian[pointname] = coords @ res["rotation_matrix"]
+    # Convert points from scaled coordinates of the standardiced primitive
+    # lattice to Cartesian coordinates
+    points_cartesian = {}
+    for pointname, coords in points_scaled_standard.items():
+        points_cartesian[pointname] = coords @ np.array(res["reciprocal_primitive_lattice"])
 
-        # Convert points from Cartesian coordinates to the scaled coordinates
-        # of the original lattice
-        points_scaled_original = {}
-        cell_orig = np.array(structure[0])
-        for pointname, coords in points_cartesian.items():
-            points_scaled_original[pointname] = list(coords @ cell_orig.T / np.pi / 2)
+    # Rotate points in Cartesian space
+    for pointname, coords in points_cartesian.items():
+        points_cartesian[pointname] = coords @ res["rotation_matrix"]
 
-        # TODO: Remove print
-        print(points_scaled_standard)
-        print(points_cartesian)
-        print(points_scaled_original)
+    # Convert points from Cartesian coordinates to the scaled coordinates
+    # of the original lattice
+    points_scaled_original = {}
+    cell_orig = np.array(structure[0])
+    for pointname, coords in points_cartesian.items():
+        points_scaled_original[pointname] = list(coords @ cell_orig.T / np.pi / 2)
 
-        res_orig = {
-            "point_coords": points_scaled_original,
-            "path": res["path"],
-            "augmented_path": res["augmented_path"],
-        }
+    res_orig = {
+        "point_coords": points_scaled_original,
+        "path": res["path"],
+        "augmented_path": res["augmented_path"],
+    }
 
-    else:
-        raise ValueError(
-            "value for 'recipe' not recognized. The only value "
-            "currently accepted is 'hpkot'."
-        )
     return res_orig
 
 
