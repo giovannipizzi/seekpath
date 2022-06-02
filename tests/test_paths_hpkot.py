@@ -848,6 +848,8 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
                     )
                 )
 
+        return res_original
+
     def test_nonstandard_cubic(self):
         """
         Obtain the k-path for a non-standard cubic system.
@@ -866,7 +868,8 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         positions = positions @ np.linalg.inv(T)
         structure = (cell, positions, atomic_numbers)
 
-        self.base_test(structure)
+        res = self.base_test(structure)
+        self.assertEqual(res["is_supercell"], False)
 
     def test_nonstandard_fcc(self):
         """
@@ -886,7 +889,29 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         positions = positions @ np.linalg.inv(T)
         structure = (cell, positions, atomic_numbers)
 
-        self.base_test(structure)
+        res = self.base_test(structure)
+        self.assertEqual(res["is_supercell"], False)
+
+    def test_nonstandard_cubic_supercell(self):
+        """
+        Obtain the k-path for a non-standard cubic system.
+        """
+        cell = [[4., 0., 0.], [0., 4., 0.], [0., 0., 4.]]
+        positions = [[0., 0., 0.], [0.5, 0., 0.]]
+        atomic_numbers = [0, 0]
+
+        s = np.sin(0.3)
+        c = np.cos(0.3)
+        R = np.array([[-1., 0., 0.], [0., c, s], [0., -s, c]])
+
+        T = np.array([[1, 0, 1], [0, 1, 2], [0, 0, -1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        structure = (cell, positions, atomic_numbers)
+
+        res = self.base_test(structure)
+        self.assertEqual(res["is_supercell"], True)
 
 
 class TestExplicitPaths_Orig_Cell(unittest.TestCase):
@@ -914,6 +939,7 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
                 "explicit_kpoints_linearcoord",
                 "explicit_kpoints_rel",
                 "explicit_segments",
+                "is_supercell",
                 "path",
                 "point_coords",
             ]

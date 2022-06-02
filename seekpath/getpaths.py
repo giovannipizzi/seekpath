@@ -341,6 +341,12 @@ def get_path_orig_cell(
     The original unit cell is used. Standardization or symmetrization of the
     input unit cell is not performed.
 
+    If the provided unit cell is a supercell of a smaller primitive cell,
+    return the standard k path of the smaller primitive cell in the basis
+    of the supercell reciprocal lattice vectors. In this case, the k point
+    labels lose their meaning: they are not at the high-symmetry points of
+    the first BZ of the given supercell.
+
     If you use this module, please cite the paper of the corresponding
     recipe (see parameter below).
 
@@ -395,6 +401,8 @@ def get_path_orig_cell(
           augmented with the :math:`-k` points (this happens if both
           has_inversion_symmetry is False, and the user set
           with_time_reversal=False in the input)
+        - ``is_supercell``: True if the input unit cell is a supercell of
+          a smaller primitive cell.
 
     :note: An :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued for
         edge cases (e.g. if ``a==b==c`` for
@@ -414,6 +422,13 @@ def get_path_orig_cell(
         angle_tolerance=angle_tolerance,
         recipe=recipe,
     )
+
+    is_supercell = abs(res['volume_original_wrt_prim'] - 1) > 0.1
+
+    if is_supercell:
+        print("The provided cell is a supercell: the returned k-path is the "
+            "standard k-path of the associated primitive cell in the basis of "
+            "the supercell reciprocal lattice.")
 
     # points in the output of get_path are in scaled coordinates of the
     # standardized primitive lattice
@@ -440,6 +455,7 @@ def get_path_orig_cell(
         "point_coords": points_scaled_original,
         "path": res["path"],
         "augmented_path": res["augmented_path"],
+        "is_supercell": is_supercell,
     }
 
     return res_orig
