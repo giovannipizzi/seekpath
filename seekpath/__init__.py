@@ -25,4 +25,4 @@ __paper__ = (
 
 from .getpaths import get_path, get_explicit_k_path, get_path_orig_cell
 
-__all__ = ("get_path", "get_explicit_k_path")
+__all__ = ("get_path", "get_explicit_k_path", "get_path_orig_cell")

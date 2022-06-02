@@ -340,7 +340,6 @@ def get_path_orig_cell(
     TODO: Supercell
     TODO: Documentation
     TODO: Example
-    TODO: Test
     TODO: Explicit
     """
     if recipe == "hpkot":

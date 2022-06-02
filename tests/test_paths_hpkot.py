@@ -1,5 +1,6 @@
 """Test the HPKOT paths."""
 # pylint: disable=invalid-name,too-many-public-methods
+import numpy as np
 import unittest
 from seekpath.util import atoms_num_dict
 
@@ -797,3 +798,97 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         Bravais lattice (extended) tP1.
         """
         self.base_test(ext_bravais="tP1", with_inv=False)
+
+
+class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
+    """
+    Class to test get_path_orig_cell
+    """
+
+    # If True, print on stdout the band paths
+    verbose_tests = False
+
+    def base_test(self, structure):
+        """
+        Test get_path_orig_cell for given structure.a specific extended Bravais symol,
+        with or without inversion (uses the cell whose
+        POSCAR is stored in the directories - they have been obtained by
+        Y. Hinuma from the Materials Project).
+
+        :param structure: The crystal structure for which we want to test
+            the suggested path. It should be a tuple in the format
+            accepted by spglib: (cell, positions, numbers), where
+            (if N is the number of atoms).
+        """
+        import os
+
+        from seekpath import get_path, get_path_orig_cell
+
+        res_standard = get_path(structure, with_time_reversal=False, recipe="hpkot")
+        res_original = get_path_orig_cell(structure, with_time_reversal=False, recipe="hpkot")
+
+        points_standard = res_standard["point_coords"]
+        points_original = res_original["point_coords"]
+
+        self.assertEqual(res_original["path"], res_standard["path"])
+        self.assertEqual(res_original["augmented_path"], res_standard["augmented_path"])
+        self.assertEqual(set(points_original.keys()), set(points_standard.keys()))
+
+        # Test that the k path for the original cell in Cartesian coordinates
+        # is identical to that of the standardized cell rotated by the rotation
+        # matrix.
+        for key in points_standard:
+            k_cart_standard = np.array(points_standard[key]) @ res_standard["reciprocal_primitive_lattice"]
+            k_cart_standard = k_cart_standard @ res_standard["rotation_matrix"]
+
+            reciprocal_original_lattice = np.linalg.inv(structure[0]).T * 2 * np.pi
+            k_cart_original = np.array(points_original[key]) @ reciprocal_original_lattice
+            np.testing.assert_array_almost_equal(k_cart_original, k_cart_standard)
+
+        if self.verbose_tests:
+            for p1, p2 in res_original["path"]:
+                print(
+                    "   {} -- {}: {} -- {}".format(
+                        p1, p2, res_original["point_coords"][p1], res_original["point_coords"][p2]
+                    )
+                )
+
+    def test_nonstandard_cubic(self):
+        """
+        Obtain the k-path for a non-standard cubic system.
+        """
+        cell = np.array([[4., 0., 0.], [0., 4., 0.], [0., 0., 4.]])
+        positions = np.array([[0., 0., 0.], [0.1, 0., 0.], [0.11, 0., 0.]])
+        numbers = [0, 1, 2]
+
+        s = np.sin(0.3)
+        c = np.cos(0.3)
+        R = np.array([[-1., 0., 0.], [0., c, s], [0., -s, c]])
+
+        T = np.array([[1, 0, 1], [0, 1, 2], [0, 0, -1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        structure = (cell, positions, numbers)
+
+        self.base_test(structure)
+
+    def test_nonstandard_fcc(self):
+        """
+        Obtain the k-path for a non-standard fcc system.
+        """
+        cell = [[-3.0, 0.0, 3.0], [0.0, 3.0, 3.0], [-3.0, 3.0, 0.0]]
+        positions = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
+        numbers = [0, 0]
+
+        s = np.sin(0.1)
+        c = np.cos(0.1)
+        R = np.array([[c, s, 0.], [-s, c, 0.], [0., 0., 1.]])
+
+        T = np.array([[1, 0, 0], [0, 1, 0], [1, 0, 1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        structure = (cell, positions, numbers)
+
+        self.base_test(structure)
