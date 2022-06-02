@@ -410,10 +410,6 @@ def get_path_orig_cell(
         is picked.
     """
 
-    # TODO: Supercell
-    # TODO: Documentation
-    # TODO: Example
-
     res = get_path(
         structure=structure,
         with_time_reversal=with_time_reversal,
