@@ -866,9 +866,9 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
 
         cell = T @ cell @ R
         positions = positions @ np.linalg.inv(T)
-        structure = (cell, positions, atomic_numbers)
+        system = (cell, positions, atomic_numbers)
 
-        res = self.base_test(structure)
+        res = self.base_test(system)
         self.assertEqual(res["is_supercell"], False)
 
     def test_nonstandard_fcc(self):
@@ -887,9 +887,9 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
 
         cell = T @ cell @ R
         positions = positions @ np.linalg.inv(T)
-        structure = (cell, positions, atomic_numbers)
+        system = (cell, positions, atomic_numbers)
 
-        res = self.base_test(structure)
+        res = self.base_test(system)
         self.assertEqual(res["is_supercell"], False)
 
     def test_nonstandard_cubic_supercell(self):
@@ -908,10 +908,29 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
 
         cell = T @ cell @ R
         positions = positions @ np.linalg.inv(T)
-        structure = (cell, positions, atomic_numbers)
+        system = (cell, positions, atomic_numbers)
 
-        res = self.base_test(structure)
+        res = self.base_test(system)
         self.assertEqual(res["is_supercell"], True)
+
+    def test_no_symmetrization(self):
+        """
+        Test that symmetrization is not performed so that the k path is on
+        a non-high-symmetric points when the cell is slightly distorted below
+        the symmetry precision.
+        """
+        cell = [[1., 0., 0.], [0., 1., 0.], [0., 0., 1. + 1e-6]]
+        positions = [[0, 0, 0]]
+        atomic_numbers = [0]
+        system = (cell, positions, atomic_numbers)
+
+        import seekpath
+        res_standard = seekpath.get_path(system)
+        res_original = seekpath.get_path_orig_cell(system)
+
+        xk_R = np.array([0.5, 0.5, 0.5])
+        np.testing.assert_almost_equal(res_standard["point_coords"]["R"], xk_R)
+        self.assertGreater(np.sum(abs(res_original["point_coords"]["R"] - xk_R)), 1e-7)
 
 
 class TestExplicitPaths_Orig_Cell(unittest.TestCase):
