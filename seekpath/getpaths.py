@@ -374,7 +374,7 @@ def get_path_orig_cell(
         for pointname, coords in points_cartesian.items():
             points_scaled_original[pointname] = list(coords @ cell_orig.T / np.pi / 2)
 
-        print(res["rotation_matrix"])
+        # TODO: Remove print
         print(points_scaled_standard)
         print(points_cartesian)
         print(points_scaled_original)
@@ -383,7 +383,6 @@ def get_path_orig_cell(
             "point_coords": points_scaled_original,
             "path": res["path"],
             "augmented_path": res["augmented_path"],
-            "rotation_matrix": res["rotation_matrix"],
         }
 
     else:
@@ -392,3 +391,134 @@ def get_path_orig_cell(
             "currently accepted is 'hpkot'."
         )
     return res_orig
+
+
+def get_explicit_k_path_orig_cell(
+    structure,
+    with_time_reversal=True,
+    reference_distance=0.025,
+    recipe="hpkot",
+    threshold=1.0e-7,
+    symprec=1e-05,
+    angle_tolerance=-1.0,
+):
+    r"""
+    Return the kpoint path for band structure (in scaled and absolute
+    coordinates), given a crystal structure,
+    using the paths proposed in the various publications (see description
+    of the 'recipe' input parameter) for the given unit cell.
+    Standardization or symmetrization of the input unit cell is not performed.
+
+    If you use this module, please cite the paper of the corresponding
+    recipe (see parameter below).
+
+    :param structure: The crystal structure for which we want to obtain
+        the suggested path. It should be a tuple in the format
+        accepted by spglib: (cell, positions, numbers), where
+        (if N is the number of atoms):
+
+        - ``cell`` is a :math:`3 \times 3` list of floats (``cell[0]`` is the first lattice
+          vector, ...)
+        - ``positions`` is a :math:`N \times 3` list of floats with the atomic coordinates
+          in scaled coordinates (i.e., w.r.t. the cell vectors)
+        - ``numbers`` is a length-:math:`N` list with integers identifying uniquely
+          the atoms in the cell (e.g., the Z number of the atom, but
+          any other positive non-zero integer will work - e.g. if you
+          want to distinguish two Carbon atoms, you can set one number
+          to 6 and the other to 1006)
+
+    :param with_time_reversal: if False, and the group has no inversion
+        symmetry, additional lines are returned.
+
+    :param reference_distance: a reference target distance between neighboring
+        k-points in the path, in units of 1/ang. The actual value will be as
+        close as possible to this value, to have an integer number of points in
+        each path.
+
+    :param recipe: choose the reference publication that defines the special
+       points and paths.
+       Currently, the following value is implemented:
+
+       - ``hpkot``: HPKOT paper:
+         Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure
+         diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).
+         DOI: 10.1016/j.commatsci.2016.10.015
+
+    :param threshold: the threshold to use to verify if we are in
+        and edge case (e.g., a tetragonal cell, but ``a==c``). For instance,
+        in the tI lattice, if ``abs(a-c) < threshold``, a
+        :py:exc:`~seekpath.hpkot.EdgeCaseWarning` is issued.
+        Note that depending on the bravais lattice, the meaning of the
+        threshold is different (angle, length, ...)
+
+    :param symprec: the symmetry precision used internally by SPGLIB
+
+    :param angle_tolerance: the angle_tolerance used internally by SPGLIB
+
+    .. versionchanged:: 1.8
+        The key ``segments`` has been renamed ``explicit_segments``
+        for consistency.
+
+    :return: a dictionary with a number of keys. They are the same as
+        ``get_path_orig_cell``, plus a few ones:
+
+        - ``explicit_kpoints_abs``: List of the kpoints along the specific path in
+          absolute (Cartesian) coordinates. The two endpoints are always
+          included, independently of the length.
+        - ``explicit_kpoints_rel``: List of the kpoints along the specific path in
+          relative (fractional) coordinates (same length as
+          explicit_kpoints_abs).
+        - ``explicit_kpoints_labels``: list of strings with kpoints labels. It has
+          the same length as explicit_kpoints_abs and explicit_kpoints_rel.
+          Empty if the point is not a special point.
+        - ``explicit_kpoints_linearcoord``: array of floats, giving the coordinate
+          at which to plot the corresponding point.
+        - ``explicit_segments``: a list of length-2 tuples, with the start and end
+          index of each segment. **Note**! The indices are supposed to be
+          used as follows: the labels for the i-th segment are given by::
+
+            segment_indices = explicit_segments[i]
+            segment_labels = explicit_kpoints_labels[slice(*segment_indices)]
+
+          This means, in particular, that if you want the label of the start
+          and end points, you should do::
+
+            start_label = explicit_kpoints_labels[segment_indices[0]]
+            stop_label = explicit_kpoints_labels[segment_indices[1]-1]
+
+          (note the minus one!)
+
+          Also, note that if
+          ``explicit_segments[i-1][1] == explicit_segments[i][0] + 1`` it means
+          that the point was calculated only once, and it belongs to both
+          paths. Instead, if
+          ``explicit_segments[i-1][1] == explicit_segments[i][0]``, then
+          this is a 'break' point in the path (e.g., ``explicit_segments[i-1][1]``
+          is the X point, and ``explicit_segments[i][0]`` is the R point,
+          and typically in a graphical representation they are shown at the
+          same coordinate, with a label ``R|X``).
+    """
+    from .hpkot.tools import get_reciprocal_cell_rows
+
+    res = get_path_orig_cell(
+        structure=structure,
+        with_time_reversal=with_time_reversal,
+        threshold=threshold,
+        symprec=symprec,
+        angle_tolerance=angle_tolerance,
+        recipe=recipe,
+    )
+
+    # Set reciprocal_primitive_lattice as the reciprocal lattice of the original
+    # cell. To be used only in the get_explicit_from_implicit function.
+    res["reciprocal_primitive_lattice"] = get_reciprocal_cell_rows(structure[0])
+
+    explicit_res = get_explicit_from_implicit(
+        res, reference_distance=reference_distance
+    )
+
+    res.pop("reciprocal_primitive_lattice")
+
+    for k, v in explicit_res.items():
+        res["explicit_{}".format(k)] = v
+    return res
