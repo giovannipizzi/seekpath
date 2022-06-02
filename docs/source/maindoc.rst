@@ -61,14 +61,33 @@ The output of the function is a dictionary containing, among other quantities, t
 A detailed description of all output information and their format can be found in the function docstring. (Note that the ``threshold`` is the one used by seekpath to identify
 e.g. the order of axes in an orthorhombic cell; instead ``symprec`` and ``angle_tolerance`` are just passed to spglib).
 
+----------------------------------------
+K-point path for non-standard unit cells
+----------------------------------------
+
+If you want a k-point path for a non-standardized cell, for example because you
+already have done calculations with a non-standardized cell, you can use the
+:py:func:`~seekpath.getpaths.get_path_orig_cell` function::
+
+     seekpath.get_path_orig_cell
+
+If the input cell is a non-standard primitive unit cell, the returned k path is equivalent to the k path for the standard cell.
+For example, the band structure calculated along the k path for the standard and non-standard unit cells will be the same up to numerical errors.
+
+If the input cell is a supercell of a smaller primitive cell, the returned k path is that of the associated primitive cell, in the basis of supercell reciprocal lattice.
+In this case, the k points are **not** the high-symmetry points of the first Brillouin zone of the given supercell, but the high-symmetry points of the Brillouin zone of the associated primitive cell.
+
+Note that contrary to ``get_path``, ``get_path_orig_cell`` calculates the k path based on the symmetrized structure but does not symmetrize the input structure itself.
+Hence, if the symmetry of the input structure is slightly broken below the symmetry precision ``symprec``, the output k points may not be exactly on the high-symmetry k points.
+
 ---------------------------------------------------------------
 A warning on how to use (and crystal structure standardization)
 ---------------------------------------------------------------
-SeeK-path standardizes the crystal structure
+The ``get_path`` and ``get_explicit_k_path`` functions standardizes the crystal structure
 (e.g., rotates the tetragonal system so that the *c* axis is along *z*,
 etc.) and can compute the suggested band paths only of standardized
-(crystallographic) primitive cells. Therefore, the
-**correct approach to use this tool is the following**:
+(crystallographic) primitive cells. The
+**correct approach to use these functions is the following**:
 
 1. You first find the standardized primitive cell with SeeK-path (returned in
    output) and store it somewhere, together with the k-point coordinates
@@ -76,9 +95,8 @@ etc.) and can compute the suggested band paths only of standardized
 
 2. You then run all your calculations using the standardized primitive cell
 
-If you already have done calculations with a non-standardized cell, you will
-then need to figure out how to remap the labeled k-points in the choice of
-cell you did.
+If you want a k-point path for a non-standardized cell, you can use the
+``get_path_orig_cell`` and ``get_explicit_k_path_orig_cell`` functions: see the above subsection.
 
 ---------------
 Explicit k path
@@ -91,6 +109,10 @@ You might also be interested in the :py:func:`~seekpath.getpaths.get_explicit_k_
 that has a very similar interface, that produces an explicit list of k-points along
 the suggested band path. The function has the same interface as :py:func:`~seekpath.getpaths.get_path`, but
 has also an additional optional parameter ``reference_distance``, that is used as a reference target distance between neighboring k-points along the path. More detailed information can be found in the docstrings of :py:func:`~seekpath.getpaths.get_explicit_k_path`.
+
+An analogous function that gives the explicit list of k-points for the original (possibly non-standard) cell also exists. :py:func:`~seekpath.getpaths.get_explicit_k_path_orig_cell`::
+
+     seekpath.get_explicit_k_path_orig_cell
 
 =================
 AiiDA integration
