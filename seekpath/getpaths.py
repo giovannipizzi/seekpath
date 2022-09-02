@@ -419,12 +419,14 @@ def get_path_orig_cell(
         recipe=recipe,
     )
 
-    is_supercell = abs(res['volume_original_wrt_prim'] - 1) > 0.1
+    is_supercell = abs(res["volume_original_wrt_prim"] - 1) > 0.1
 
     if is_supercell:
-        print("The provided cell is a supercell: the returned k-path is the "
+        print(
+            "The provided cell is a supercell: the returned k-path is the "
             "standard k-path of the associated primitive cell in the basis of "
-            "the supercell reciprocal lattice.")
+            "the supercell reciprocal lattice."
+        )
 
     # points in the output of get_path are in scaled coordinates of the
     # standardized primitive lattice
@@ -434,7 +436,9 @@ def get_path_orig_cell(
     # lattice to Cartesian coordinates
     points_cartesian = {}
     for pointname, coords in points_scaled_standard.items():
-        points_cartesian[pointname] = coords @ np.array(res["reciprocal_primitive_lattice"])
+        points_cartesian[pointname] = coords @ np.array(
+            res["reciprocal_primitive_lattice"]
+        )
 
     # Rotate points in Cartesian space
     for pointname, coords in points_cartesian.items():

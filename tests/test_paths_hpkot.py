@@ -820,7 +820,9 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         from seekpath import get_path, get_path_orig_cell
 
         res_standard = get_path(system, with_time_reversal=False, recipe="hpkot")
-        res_original = get_path_orig_cell(system, with_time_reversal=False, recipe="hpkot")
+        res_original = get_path_orig_cell(
+            system, with_time_reversal=False, recipe="hpkot"
+        )
 
         points_standard = res_standard["point_coords"]
         points_original = res_original["point_coords"]
@@ -833,18 +835,26 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         # is identical to that of the standardized cell rotated by the rotation
         # matrix.
         for key in points_standard:
-            k_cart_standard = np.array(points_standard[key]) @ res_standard["reciprocal_primitive_lattice"]
+            k_cart_standard = (
+                np.array(points_standard[key])
+                @ res_standard["reciprocal_primitive_lattice"]
+            )
             k_cart_standard = k_cart_standard @ res_standard["rotation_matrix"]
 
             reciprocal_original_lattice = np.linalg.inv(system[0]).T * 2 * np.pi
-            k_cart_original = np.array(points_original[key]) @ reciprocal_original_lattice
+            k_cart_original = (
+                np.array(points_original[key]) @ reciprocal_original_lattice
+            )
             np.testing.assert_array_almost_equal(k_cart_original, k_cart_standard)
 
         if self.verbose_tests:
             for p1, p2 in res_original["path"]:
                 print(
                     "   {} -- {}: {} -- {}".format(
-                        p1, p2, res_original["point_coords"][p1], res_original["point_coords"][p2]
+                        p1,
+                        p2,
+                        res_original["point_coords"][p1],
+                        res_original["point_coords"][p2],
                     )
                 )
 
@@ -854,13 +864,13 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         """
         Obtain the k-path for a non-standard cubic system.
         """
-        cell = [[4., 0., 0.], [0., 4., 0.], [0., 0., 4.]]
-        positions = [[0., 0., 0.], [0.1, 0., 0.], [0.11, 0., 0.]]
+        cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        positions = [[0.0, 0.0, 0.0], [0.1, 0.0, 0.0], [0.11, 0.0, 0.0]]
         atomic_numbers = [0, 1, 2]
 
         s = np.sin(0.3)
         c = np.cos(0.3)
-        R = np.array([[-1., 0., 0.], [0., c, s], [0., -s, c]])
+        R = np.array([[-1.0, 0.0, 0.0], [0.0, c, s], [0.0, -s, c]])
 
         T = np.array([[1, 0, 1], [0, 1, 2], [0, 0, -1]])
 
@@ -881,7 +891,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
 
         s = np.sin(0.1)
         c = np.cos(0.1)
-        R = np.array([[c, s, 0.], [-s, c, 0.], [0., 0., 1.]])
+        R = np.array([[c, s, 0.0], [-s, c, 0.0], [0.0, 0.0, 1.0]])
 
         T = np.array([[1, 0, 0], [0, 1, 0], [1, 0, 1]])
 
@@ -896,13 +906,13 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         """
         Obtain the k-path for a non-standard cubic system.
         """
-        cell = [[4., 0., 0.], [0., 4., 0.], [0., 0., 4.]]
-        positions = [[0., 0., 0.], [0.5, 0., 0.]]
+        cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        positions = [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]]
         atomic_numbers = [0, 0]
 
         s = np.sin(0.3)
         c = np.cos(0.3)
-        R = np.array([[-1., 0., 0.], [0., c, s], [0., -s, c]])
+        R = np.array([[-1.0, 0.0, 0.0], [0.0, c, s], [0.0, -s, c]])
 
         T = np.array([[1, 0, 1], [0, 1, 2], [0, 0, -1]])
 
@@ -919,12 +929,13 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         a non-high-symmetric points when the cell is slightly distorted below
         the symmetry precision.
         """
-        cell = [[1., 0., 0.], [0., 1., 0.], [0., 0., 1. + 1e-6]]
+        cell = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0 + 1e-6]]
         positions = [[0, 0, 0]]
         atomic_numbers = [0]
         system = (cell, positions, atomic_numbers)
 
         import seekpath
+
         res_standard = seekpath.get_path(system)
         res_original = seekpath.get_path_orig_cell(system)
 
@@ -968,9 +979,10 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
         if missing_known_keys:
             raise AssertionError(
                 "Some keys are not returned from the "
-                "get_explicit_k_path_orig_cell function: {}".format(", ".join(missing_known_keys))
+                "get_explicit_k_path_orig_cell function: {}".format(
+                    ", ".join(missing_known_keys)
+                )
             )
-
 
     def test_path(self):  # pylint: disable=no-self-use
         """
@@ -985,7 +997,7 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
 
         s = np.sin(0.3)
         c = np.cos(0.3)
-        R = np.array([[-1., 0., 0.], [0., c, s], [0., -s, c]])
+        R = np.array([[-1.0, 0.0, 0.0], [0.0, c, s], [0.0, -s, c]])
         cell = cell @ R
 
         system = (cell, positions, atomic_numbers)
@@ -995,11 +1007,25 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
 
         self.assertEqual(res_original["path"], res_standard["path"])
         self.assertEqual(res_original["augmented_path"], res_standard["augmented_path"])
-        self.assertEqual(res_original["explicit_kpoints_labels"], res_standard["explicit_kpoints_labels"])
-        self.assertEqual(res_original["explicit_segments"], res_standard["explicit_segments"])
-        self.assertEqual(res_original["explicit_kpoints_abs"].shape, res_standard["explicit_kpoints_abs"].shape)
-        self.assertEqual(res_original["explicit_kpoints_rel"].shape, res_standard["explicit_kpoints_rel"].shape)
-        np.testing.assert_array_almost_equal(res_original["explicit_kpoints_linearcoord"], res_standard["explicit_kpoints_linearcoord"])
+        self.assertEqual(
+            res_original["explicit_kpoints_labels"],
+            res_standard["explicit_kpoints_labels"],
+        )
+        self.assertEqual(
+            res_original["explicit_segments"], res_standard["explicit_segments"]
+        )
+        self.assertEqual(
+            res_original["explicit_kpoints_abs"].shape,
+            res_standard["explicit_kpoints_abs"].shape,
+        )
+        self.assertEqual(
+            res_original["explicit_kpoints_rel"].shape,
+            res_standard["explicit_kpoints_rel"].shape,
+        )
+        np.testing.assert_array_almost_equal(
+            res_original["explicit_kpoints_linearcoord"],
+            res_standard["explicit_kpoints_linearcoord"],
+        )
 
         # Test that the k path for the original cell in Cartesian coordinates
         # is identical to that of the standardized cell rotated by the rotation
@@ -1012,8 +1038,12 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
             k_rel = res_original["explicit_kpoints_rel"][ik]
             k_abs_standard = res_standard["explicit_kpoints_abs"][ik]
             # Test k_abs and k_rel are consistent with the unit cell
-            np.testing.assert_array_almost_equal(k_abs, k_rel @ reciprocal_original_lattice)
+            np.testing.assert_array_almost_equal(
+                k_abs, k_rel @ reciprocal_original_lattice
+            )
 
             # Test k_abs is identical to that of the standardized cell rotated
             # by the rotation matrix.
-            np.testing.assert_array_almost_equal(k_abs, k_abs_standard @ res_standard["rotation_matrix"])
+            np.testing.assert_array_almost_equal(
+                k_abs, k_abs_standard @ res_standard["rotation_matrix"]
+            )
