@@ -42,6 +42,12 @@ How to install and how to use
 
 Please check the SeeK-path `user guide on ReadTheDocs`_.
 
+================
+Acknowledgements
+================
+
+* Jae-Mo Lihm: k-point paths for the original unit cell (i.e., the one provided in input by the user) without standardization or symmetrization
+
 =======
 License
 =======

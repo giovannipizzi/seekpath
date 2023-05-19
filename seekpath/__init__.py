@@ -7,7 +7,7 @@ Author: Giovanni Pizzi, EPFL (2016-2020)
 Licence: MIT License, see LICENSE.txt file
 """
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 __author__ = "Giovanni Pizzi, EPFL"
 __copyright__ = (
     "Copyright (c), 2016-2020, Giovanni Pizzi, EPFL "
@@ -15,7 +15,7 @@ __copyright__ = (
     "for Computational Design and Discovery of Novel Materials "
     "(NCCR MARVEL)), Switzerland."
 )
-__credits__ = ["Yoyo Hinuma"]
+__credits__ = ["Yoyo Hinuma", "Jae-Mo Lihm"]
 __license__ = "MIT license"
 __paper__ = (
     "Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, "
@@ -23,6 +23,32 @@ __paper__ = (
     "Comp. Mat. Sci. 128, 140 (2017). DOI: 10.1016/j.commatsci.2016.10.015"
 )
 
-from .getpaths import get_path, get_explicit_k_path
 
-__all__ = ("get_path", "get_explicit_k_path")
+class SupercellWarning(UserWarning):
+    """
+    A warning issued when the cell is an undistorted supercell of a smaller
+    unit cell, and the kpoint path for a non-standardized cell (i.e., for the
+    original cell) is requested.
+    """
+
+    pass
+
+
+from .getpaths import (
+    get_path,
+    get_explicit_k_path,
+    get_path_orig_cell,
+    get_explicit_k_path_orig_cell,
+)
+
+from .hpkot import EdgeCaseWarning, SymmetryDetectionError
+
+__all__ = (
+    "get_path",
+    "get_explicit_k_path",
+    "get_path_orig_cell",
+    "get_explicit_k_path_orig_cell",
+    "EdgeCaseWarning",
+    "SymmetryDetectionError",
+    "SupercellWarning",
+)

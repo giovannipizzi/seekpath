@@ -120,6 +120,8 @@ def get_path(
         - ``inverse_primitive_transformation_matrix``: the inverse of the matrix :math:`P`
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
+        - ``rotation_matrix``: rotation matrix in Cartesian space from the input
+          cell to the standardized cell
         - ``volume_original_wrt_conv``: volume ratio of the user-provided cell
           with respect to the the crystallographic conventional cell
         - ``volume_original_wrt_prim``: volume ratio of the user-provided cell
@@ -515,4 +517,5 @@ def get_path(
         "volume_original_wrt_prim": volume_conv_wrt_original * np.linalg.det(invP),
         "spacegroup_number": dataset["number"],
         "spacegroup_international": dataset["international"],
+        "rotation_matrix": dataset["std_rotation_matrix"],
     }
