@@ -960,7 +960,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
 
     def test_nonstandard_cubic_supercell(self):
         """
-        Obtain the k-path for a non-standard cubic system.
+        Obtain the k-path for a 2*1*1 supercell of a non-standard cubic system.
         """
         import warnings
         from seekpath import SupercellWarning
