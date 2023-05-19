@@ -936,6 +936,28 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         np.testing.assert_almost_equal(res["point_coords"]["X"], [0.0, 0.0, 0.5])
         np.testing.assert_almost_equal(res["point_coords"]["Z"], [0.5, 0.0, 0.0])
 
+    def test_nonstandard_monoclinic(self):
+        """
+        Obtain the k-path for a non-standard monoclinic system.
+        """
+        cell = [[1.0, 0.0, 0.0], [0.0, 3.0, 0.0], [-2.0, 0.0, 5.0]]
+        positions = [[0.0, 0.0, 0.0], [0.1, 0.2, 0.3]]
+        atomic_numbers = [1, 2]
+
+        s = np.sin(-0.4)
+        c = np.cos(-0.4)
+        R = np.array([[c, s, 0.0], [-s, c, 0.0], [0.0, 0.0, 1.0]])
+
+        T = np.array([[1, 2, 0], [0, 1, 0], [1, 0, 1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        system = (cell, positions, atomic_numbers)
+
+        res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "Pm")
+        self.assertEqual(res["is_supercell"], False)
+
     def test_nonstandard_cubic_supercell(self):
         """
         Obtain the k-path for a non-standard cubic system.
