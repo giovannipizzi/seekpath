@@ -459,6 +459,11 @@ def get_path_orig_cell(
         "path": res["path"],
         "augmented_path": res["augmented_path"],
         "is_supercell": is_supercell,
+        "has_inversion_symmetry": res["has_inversion_symmetry"],
+        "bravais_lattice": res["bravais_lattice"],
+        "bravais_lattice_extended": res["bravais_lattice_extended"],
+        "spacegroup_number": res["spacegroup_number"],
+        "spacegroup_international": res["spacegroup_international"],
     }
 
     return res_orig
