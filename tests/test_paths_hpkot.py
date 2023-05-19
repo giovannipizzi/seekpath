@@ -1,5 +1,6 @@
 """Test the HPKOT paths."""
 # pylint: disable=invalid-name,too-many-public-methods
+import numpy as np
 import unittest
 from seekpath.util import atoms_num_dict
 
@@ -797,3 +798,356 @@ class TestPaths3D_HPKOT(unittest.TestCase):
         Bravais lattice (extended) tP1.
         """
         self.base_test(ext_bravais="tP1", with_inv=False)
+
+
+class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
+    """Test the paths for the original cell."""
+
+    # If True, print on stdout the band paths
+    verbose_tests = False
+
+    def base_test(self, system):
+        """
+        Test get_path_orig_cell for given system.
+
+        :param system: The crystal structure for which we want to test
+            the suggested path. It should be a tuple in the format
+            accepted by spglib: (cell, positions, numbers), where
+            (if N is the number of atoms).
+        """
+        import os
+
+        from seekpath import get_path, get_path_orig_cell
+
+        res_standard = get_path(system, with_time_reversal=False, recipe="hpkot")
+        res_original = get_path_orig_cell(
+            system, with_time_reversal=False, recipe="hpkot"
+        )
+        for key in [
+            "path",
+            "augmented_path",
+            "bravais_lattice_extended",
+            "bravais_lattice",
+            "bravais_lattice_extended",
+            "spacegroup_number",
+            "spacegroup_international",
+        ]:
+            self.assertEqual(res_original[key], res_standard[key])
+
+        points_standard = res_standard["point_coords"]
+        points_original = res_original["point_coords"]
+
+        self.assertEqual(set(points_original.keys()), set(points_standard.keys()))
+
+        # Test that the k path for the original cell in Cartesian coordinates
+        # is identical to that of the standardized cell rotated by the rotation
+        # matrix.
+        for key in points_standard:
+            k_cart_standard = (
+                np.array(points_standard[key])
+                @ res_standard["reciprocal_primitive_lattice"]
+            )
+            k_cart_standard = k_cart_standard @ res_standard["rotation_matrix"]
+
+            reciprocal_original_lattice = np.linalg.inv(system[0]).T * 2 * np.pi
+            k_cart_original = (
+                np.array(points_original[key]) @ reciprocal_original_lattice
+            )
+            np.testing.assert_array_almost_equal(k_cart_original, k_cart_standard)
+
+        if self.verbose_tests:
+            for p1, p2 in res_original["path"]:
+                print(
+                    "   {} -- {}: {} -- {}".format(
+                        p1,
+                        p2,
+                        res_original["point_coords"][p1],
+                        res_original["point_coords"][p2],
+                    )
+                )
+
+        return res_original
+
+    def test_nonstandard_cubic(self):
+        """
+        Obtain the k-path for a non-standard cubic system.
+        """
+        cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        positions = [[0.0, 0.0, 0.0]]
+        atomic_numbers = [1]
+
+        s = np.sin(0.3)
+        c = np.cos(0.3)
+        R = np.array([[-1.0, 0.0, 0.0], [0.0, c, s], [0.0, -s, c]])
+
+        T = np.array([[1, 0, 1], [0, 1, 2], [0, 0, -1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        system = (cell, positions, atomic_numbers)
+
+        res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "Pm-3m")
+        self.assertEqual(res["is_supercell"], False)
+
+    def test_nonstandard_fcc(self):
+        """
+        Obtain the k-path for a non-standard fcc system.
+        """
+        cell = [[-3.0, 0.0, 3.0], [0.0, 3.0, 3.0], [-3.0, 3.0, 0.0]]
+        positions = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
+        atomic_numbers = [1, 1]
+
+        s = np.sin(0.1)
+        c = np.cos(0.1)
+        R = np.array([[c, s, 0.0], [-s, c, 0.0], [0.0, 0.0, 1.0]])
+
+        T = np.array([[1, 0, 0], [0, 1, 0], [1, 0, 1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        system = (cell, positions, atomic_numbers)
+
+        res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "Fd-3m")
+        self.assertEqual(res["is_supercell"], False)
+
+    def test_nonstandard_tetragonal(self):
+        """
+        Obtain the k-path for a non-standard tetragonal system, rotated by
+        90 degrees to have the non-symmetric axis along x, not z.
+        """
+        cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 6.0]]
+        positions = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.2]]
+        atomic_numbers = [1, 2]
+
+        R = np.array([[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
+        T = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        system = (cell, positions, atomic_numbers)
+
+        np.testing.assert_almost_equal(
+            cell, [[6.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        )
+
+        res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "P4mm")
+        self.assertEqual(res["is_supercell"], False)
+        np.testing.assert_almost_equal(res["point_coords"]["GAMMA"], [0.0, 0.0, 0.0])
+        np.testing.assert_almost_equal(res["point_coords"]["A"], [0.5, 0.5, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["M"], [0.0, 0.5, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["R"], [0.5, 0.0, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["X"], [0.0, 0.0, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["Z"], [0.5, 0.0, 0.0])
+
+    def test_nonstandard_monoclinic(self):
+        """
+        Obtain the k-path for a non-standard monoclinic system.
+        """
+        cell = [[1.0, 0.0, 0.0], [0.0, 3.0, 0.0], [-2.0, 0.0, 5.0]]
+        positions = [[0.0, 0.0, 0.0], [0.1, 0.2, 0.3]]
+        atomic_numbers = [1, 2]
+
+        s = np.sin(-0.4)
+        c = np.cos(-0.4)
+        R = np.array([[c, s, 0.0], [-s, c, 0.0], [0.0, 0.0, 1.0]])
+
+        T = np.array([[1, 2, 0], [0, 1, 0], [1, 0, 1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        system = (cell, positions, atomic_numbers)
+
+        res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "Pm")
+        self.assertEqual(res["is_supercell"], False)
+
+    def test_nonstandard_cubic_supercell(self):
+        """
+        Obtain the k-path for a 2*1*1 supercell of a non-standard cubic system.
+        """
+        import warnings
+        from seekpath import SupercellWarning
+
+        cell = [[8.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        positions = [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]]
+        atomic_numbers = [1, 1]
+
+        s = np.sin(0.3)
+        c = np.cos(0.3)
+        R = np.array([[-1.0, 0.0, 0.0], [0.0, c, s], [0.0, -s, c]])
+
+        T = np.array([[1, 0, 1], [0, 1, 2], [0, 0, -1]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        system = (cell, positions, atomic_numbers)
+
+        with warnings.catch_warnings(record=True) as w:
+            res = self.base_test(system)
+            self.assertEqual(res["is_supercell"], True)
+
+            # Checks on issued warnings
+            relevant_w = [_ for _ in w if issubclass(_.category, SupercellWarning)]
+            self.assertEqual(
+                len(relevant_w),
+                1,
+                "Wrong number of warnings issued! "
+                "({} instead of 1)".format(len(relevant_w)),
+            )
+
+            check_string = "The provided cell is a supercell: the returned"
+            if check_string is not None:
+                self.assertIn(check_string, str(relevant_w[0].message))
+
+        self.assertEqual(res["spacegroup_international"], "Pm-3m")
+
+    def test_no_symmetrization(self):
+        """
+        Test that symmetrization is not performed so that the k path is on
+        a non-high-symmetric points when the cell is slightly distorted below
+        the symmetry precision.
+        """
+        cell = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0 + 1e-6]]
+        positions = [[0, 0, 0]]
+        atomic_numbers = [0]
+        system = (cell, positions, atomic_numbers)
+
+        import seekpath
+
+        res_standard = seekpath.get_path(system)
+        res_original = seekpath.get_path_orig_cell(system)
+
+        self.assertEqual(res_standard["spacegroup_international"], "Pm-3m")
+        self.assertEqual(res_original["spacegroup_international"], "Pm-3m")
+
+        xk_R = np.array([0.5, 0.5, 0.5])
+        np.testing.assert_almost_equal(res_standard["point_coords"]["R"], xk_R)
+        self.assertGreater(np.sum(abs(res_original["point_coords"]["R"] - xk_R)), 1e-7)
+
+
+class TestExplicitPaths_Orig_Cell(unittest.TestCase):
+    """Test the creation of explicit paths for the original cell."""
+
+    def test_keys(self):  # pylint: disable=no-self-use
+        """
+        Test the keys for a non-standard fcc unit cell.
+        """
+        import seekpath
+
+        cell = [[-3.0, 0.0, 3.0], [0.0, 3.0, 3.0], [-3.0, 3.0, 0.0]]
+        positions = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
+        atomic_numbers = [0, 0]
+
+        system = (cell, positions, atomic_numbers)
+
+        res = seekpath.get_explicit_k_path_orig_cell(system, recipe="hpkot")
+
+        known_keys = set(
+            [
+                "augmented_path",
+                "explicit_kpoints_abs",
+                "explicit_kpoints_labels",
+                "explicit_kpoints_linearcoord",
+                "explicit_kpoints_rel",
+                "explicit_segments",
+                "is_supercell",
+                "path",
+                "point_coords",
+            ]
+        )
+
+        missing_known_keys = known_keys - set(res.keys())
+        if missing_known_keys:
+            raise AssertionError(
+                "Some keys are not returned from the "
+                "get_explicit_k_path_orig_cell function: {}".format(
+                    ", ".join(missing_known_keys)
+                )
+            )
+
+    def test_path(self):  # pylint: disable=no-self-use
+        """
+        Test the explicit k path for a non-standard fcc unit cell by comparing
+        them with the k path for the standardized unit cell.
+        """
+        import seekpath
+        import warnings
+        from seekpath import SupercellWarning
+
+        cell = [[-3.0, 0.0, 3.0], [0.0, 3.0, 3.0], [-3.0, 3.0, 0.0]]
+        positions = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
+        atomic_numbers = [1, 1]
+
+        s = np.sin(0.3)
+        c = np.cos(0.3)
+        R = np.array([[-1.0, 0.0, 0.0], [0.0, c, s], [0.0, -s, c]])
+        cell = cell @ R
+
+        system = (cell, positions, atomic_numbers)
+
+        res_standard = seekpath.get_explicit_k_path(system, recipe="hpkot")
+
+        with warnings.catch_warnings(record=True) as w:
+            res_original = seekpath.get_explicit_k_path_orig_cell(
+                system, recipe="hpkot"
+            )
+            self.assertEqual(res_original["is_supercell"], True)
+
+            # Checks on issued warnings
+            relevant_w = [_ for _ in w if issubclass(_.category, SupercellWarning)]
+            self.assertEqual(
+                len(relevant_w),
+                1,
+                "Wrong number of warnings issued! "
+                "({} instead of 1)".format(len(relevant_w)),
+            )
+
+            check_string = "The provided cell is a supercell: the returned"
+            if check_string is not None:
+                self.assertIn(check_string, str(relevant_w[0].message))
+
+        self.assertEqual(res_original["path"], res_standard["path"])
+        self.assertEqual(res_original["augmented_path"], res_standard["augmented_path"])
+        self.assertEqual(
+            res_original["explicit_kpoints_labels"],
+            res_standard["explicit_kpoints_labels"],
+        )
+        self.assertEqual(
+            res_original["explicit_segments"], res_standard["explicit_segments"]
+        )
+        self.assertEqual(
+            res_original["explicit_kpoints_abs"].shape,
+            res_standard["explicit_kpoints_abs"].shape,
+        )
+        self.assertEqual(
+            res_original["explicit_kpoints_rel"].shape,
+            res_standard["explicit_kpoints_rel"].shape,
+        )
+        np.testing.assert_array_almost_equal(
+            res_original["explicit_kpoints_linearcoord"],
+            res_standard["explicit_kpoints_linearcoord"],
+        )
+
+        # Test that the k path for the original cell in Cartesian coordinates
+        # is identical to that of the standardized cell rotated by the rotation
+        # matrix.
+        # "explicit_kpoints_abs",
+        # "explicit_kpoints_rel",
+        reciprocal_original_lattice = np.linalg.inv(system[0]).T * 2 * np.pi
+        for ik in range(len(res_original["explicit_kpoints_abs"])):
+            k_abs = res_original["explicit_kpoints_abs"][ik]
+            k_rel = res_original["explicit_kpoints_rel"][ik]
+            k_abs_standard = res_standard["explicit_kpoints_abs"][ik]
+            # Test k_abs and k_rel are consistent with the unit cell
+            np.testing.assert_array_almost_equal(
+                k_abs, k_rel @ reciprocal_original_lattice
+            )
+
+            # Test k_abs is identical to that of the standardized cell rotated
+            # by the rotation matrix.
+            np.testing.assert_array_almost_equal(
+                k_abs, k_abs_standard @ res_standard["rotation_matrix"]
+            )

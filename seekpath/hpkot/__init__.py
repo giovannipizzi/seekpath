@@ -120,6 +120,8 @@ def get_path(
         - ``inverse_primitive_transformation_matrix``: the inverse of the matrix :math:`P`
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
+        - ``rotation_matrix``: rotation matrix in Cartesian space from the input
+          cell to the standardized cell
         - ``volume_original_wrt_conv``: volume ratio of the user-provided cell
           with respect to the the crystallographic conventional cell
         - ``volume_original_wrt_prim``: volume ratio of the user-provided cell
@@ -218,17 +220,17 @@ def get_path(
     elif bravais_lattice == "oP":
         ext_bravais = "oP1"
     elif bravais_lattice == "oF":
-        if abs(1.0 / (a ** 2) - (1.0 / (b ** 2) + 1.0 / (c ** 2))) < threshold:
+        if abs(1.0 / (a**2) - (1.0 / (b**2) + 1.0 / (c**2))) < threshold:
             warnings.warn(
                 "oF lattice, but 1/a^2 almost equal to 1/b^2 + 1/c^2", EdgeCaseWarning
             )
-        if abs(1.0 / (c ** 2) - (1.0 / (a ** 2) + 1.0 / (b ** 2))) < threshold:
+        if abs(1.0 / (c**2) - (1.0 / (a**2) + 1.0 / (b**2))) < threshold:
             warnings.warn(
                 "oF lattice, but 1/c^2 almost equal to 1/a^2 + 1/b^2", EdgeCaseWarning
             )
-        if 1.0 / (a ** 2) > 1.0 / (b ** 2) + 1.0 / (c ** 2):
+        if 1.0 / (a**2) > 1.0 / (b**2) + 1.0 / (c**2):
             ext_bravais = "oF1"
-        elif 1.0 / (c ** 2) > 1.0 / (a ** 2) + 1.0 / (b ** 2):
+        elif 1.0 / (c**2) > 1.0 / (a**2) + 1.0 / (b**2):
             ext_bravais = "oF2"
         else:  # 1/a^2, 1/b^2, 1/c^2 edges of a triangle
             ext_bravais = "oF3"
@@ -291,15 +293,15 @@ def get_path(
     elif bravais_lattice == "mP":
         ext_bravais = "mP1"
     elif bravais_lattice == "mC":
-        if abs(b - a * sqrt(1.0 - cosbeta ** 2)) < threshold:
+        if abs(b - a * sqrt(1.0 - cosbeta**2)) < threshold:
             warnings.warn(
                 "mC lattice, but b almost equal to a*sin(beta)", EdgeCaseWarning
             )
-        if b < a * sqrt(1.0 - cosbeta ** 2):
+        if b < a * sqrt(1.0 - cosbeta**2):
             ext_bravais = "mC1"
         else:
             if (
-                abs(-a * cosbeta / c + a ** 2 * (1.0 - cosbeta ** 2) / b ** 2 - 1.0)
+                abs(-a * cosbeta / c + a**2 * (1.0 - cosbeta**2) / b**2 - 1.0)
                 < threshold
             ):
                 warnings.warn(
@@ -307,7 +309,7 @@ def get_path(
                     "a^2*sin(beta)^2/b^2 almost equal to 1",
                     EdgeCaseWarning,
                 )
-            if -a * cosbeta / c + a ** 2 * (1.0 - cosbeta ** 2) / b ** 2 <= 1.0:
+            if -a * cosbeta / c + a**2 * (1.0 - cosbeta**2) / b**2 <= 1.0:
                 # 12-face
                 ext_bravais = "mC2"
             else:
@@ -515,4 +517,5 @@ def get_path(
         "volume_original_wrt_prim": volume_conv_wrt_original * np.linalg.det(invP),
         "spacegroup_number": dataset["number"],
         "spacegroup_international": dataset["international"],
+        "rotation_matrix": dataset["std_rotation_matrix"],
     }

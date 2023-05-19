@@ -43,9 +43,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"seekpath"
+project = "seekpath"
 copyright = (
-    u"2016-{}, Giovanni Pizzi, ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE (Theory and Simulation of Materials (THEOS) "
+    "2016-{}, Giovanni Pizzi, ECOLE POLYTECHNIQUE FEDERALE DE LAUSANNE (Theory and Simulation of Materials (THEOS) "
     "and National Centre for Computational Design and Discovery of Novel Materials (NCCR MARVEL)),Switzerland. "
     "All rights reserved.".format(time.localtime().tm_year)
 )

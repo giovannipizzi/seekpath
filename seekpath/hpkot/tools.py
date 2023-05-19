@@ -82,7 +82,7 @@ def eval_expr(  # pylint: disable=too-many-return-statements,unused-argument
     from math import sqrt
 
     # sinalpha = sqrt(1.0 - cosalpha ** 2)
-    sinbeta = sqrt(1.0 - cosbeta ** 2)
+    sinbeta = sqrt(1.0 - cosbeta**2)
     # singamma = sqrt(1.0 - cosgamma ** 2)
 
     try:
@@ -259,9 +259,9 @@ def get_cell_params(cell):
     .. note:: Rows are vectors: ``v1 = cell[0]``, ``v2 = cell[1]``, ``v3 = cell[3]``
     """
     v1, v2, v3 = numpy.array(cell)
-    a = sqrt(sum(v1 ** 2))
-    b = sqrt(sum(v2 ** 2))
-    c = sqrt(sum(v3 ** 2))
+    a = sqrt(sum(v1**2))
+    b = sqrt(sum(v2**2))
+    c = sqrt(sum(v3**2))
     cosalpha = numpy.dot(v2, v3) / b / c
     cosbeta = numpy.dot(v1, v3) / a / c
     cosgamma = numpy.dot(v1, v2) / a / b

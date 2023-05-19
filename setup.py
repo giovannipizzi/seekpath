@@ -41,11 +41,11 @@ setup(
     extras_require={
         "bz": ["scipy>=1"],
         "dev": [
-            "pre-commit>=1.4",
-            "black==19.10b0",
+            "pre-commit==3.3.2",
+            "black==23.3.0",
             "prospector==1.2.0",
             "pylint==2.4.4",
-            "pytest==5.3.5",
+            "pytest==7.3.1",
         ],
     },
     python_requires=">=3.5",
