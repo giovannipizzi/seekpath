@@ -2,13 +2,10 @@
 SeeK-path
 #########
 
-Test status: branch `master`: |travismaster|; branch `develop`: |travisdevelop|
+Test status for default branch: |continuousintegration|
 
-.. |travismaster| image:: https://travis-ci.org/giovannipizzi/seekpath.svg?branch=master
-    :target: https://travis-ci.org/giovannipizzi/seekpath
-
-.. |travisdevelop| image:: https://travis-ci.org/giovannipizzi/seekpath.svg?branch=develop
-    :target: https://travis-ci.org/giovannipizzi/seekpath
+.. |continuousintegration| image:: https://github.com/giovannipizzi/seekpath/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/giovannipizzi/seekpath/actions/workflows/ci.yml
 
 ``SeeK-path`` is a python module to obtain band paths in the
 Brillouin zone of crystal structures.
