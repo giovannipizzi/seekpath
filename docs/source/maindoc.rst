@@ -77,8 +77,8 @@ For example, the band structure calculated along the k path for the standard and
 If the input cell is a supercell of a smaller primitive cell, the returned k path is that of the associated primitive cell, in the basis of supercell reciprocal lattice.
 In this case, the k points are **not** the high-symmetry points of the first Brillouin zone of the given supercell, but the high-symmetry points of the Brillouin zone of the associated primitive cell.
 
-Note that contrary to ``get_path``, ``get_path_orig_cell`` calculates the k path based on the symmetrized structure but does not symmetrize the input structure itself.
-Hence, if the symmetry of the input structure is slightly broken below the symmetry precision ``symprec``, the output k points may not be exactly on the high-symmetry k points.
+**Note that contrary to ``get_path``, ``get_path_orig_cell`` calculates the k path based on the symmetrized structure but does not symmetrize the input structure itself.**
+Hence, if the symmetry of the input structure is slightly broken below the symmetry precision ``symprec``, the **output k points may not be exactly on the high-symmetry k points.**
 
 ---------------------------------------------------------------
 A warning on how to use (and crystal structure standardization)
@@ -96,7 +96,7 @@ etc.) and can compute the suggested band paths only of standardized
 2. You then run all your calculations using the standardized primitive cell
 
 If you want a k-point path for a non-standardized cell, you can use the
-``get_path_orig_cell`` and ``get_explicit_k_path_orig_cell`` functions: see the above subsection.
+``get_path_orig_cell`` and ``get_explicit_k_path_orig_cell`` functions: see the above subsection (and in particular, check the limitations if the symmetry of the input structure is slightly broken).
 
 ---------------
 Explicit k path
