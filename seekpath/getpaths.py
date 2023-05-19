@@ -339,7 +339,7 @@ def get_path_orig_cell(
     r"""
     Return the kpoint path information for band structure given a
     crystal structure, using the paths from the chosen recipe/reference.
-    The original unit cell (i.e., the one provided in input by the user) is used. 
+    The original unit cell (i.e., the one provided in input by the user) is used.
     Standardization or symmetrization of the input unit cell is not performed.
 
     If the provided unit cell is a supercell of a smaller primitive cell,
@@ -484,6 +484,13 @@ def get_explicit_k_path_orig_cell(
     using the paths proposed in the various publications (see description
     of the 'recipe' input parameter) for the given unit cell.
     Standardization or symmetrization of the input unit cell is not performed.
+
+    If the provided unit cell is a supercell of a smaller primitive cell,
+    return the standard k path of the smaller primitive cell in the basis
+    of the supercell reciprocal lattice vectors. In this case, the k point
+    labels lose their meaning: they are not at the high-symmetry points of
+    the first BZ of the given supercell. In this case, a
+    :py:exc:`~seekpath.SupercellWarning` is issued.
 
     If you use this module, please cite the paper of the corresponding
     recipe (see parameter below).
