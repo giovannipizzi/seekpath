@@ -823,12 +823,14 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         res_original = get_path_orig_cell(
             system, with_time_reversal=False, recipe="hpkot"
         )
+        for key in ["path", "augmented_path", "bravais_lattice_extended",
+                    "bravais_lattice", "bravais_lattice_extended",
+                    "spacegroup_number", "spacegroup_international"]:
+            self.assertEqual(res_original[key], res_standard[key])
 
         points_standard = res_standard["point_coords"]
         points_original = res_original["point_coords"]
 
-        self.assertEqual(res_original["path"], res_standard["path"])
-        self.assertEqual(res_original["augmented_path"], res_standard["augmented_path"])
         self.assertEqual(set(points_original.keys()), set(points_standard.keys()))
 
         # Test that the k path for the original cell in Cartesian coordinates
@@ -866,8 +868,8 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         """
         import seekpath
         cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
-        positions = [[0.0, 0.0, 0.0], [0.1, 0.0, 0.0], [0.11, 0.0, 0.0]]
-        atomic_numbers = [0, 1, 2]
+        positions = [[0.0, 0.0, 0.0]]
+        atomic_numbers = [1]
 
         s = np.sin(0.3)
         c = np.cos(0.3)
@@ -880,6 +882,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         system = (cell, positions, atomic_numbers)
 
         res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "Pm-3m")
         self.assertEqual(res["is_supercell"], False)
 
     def test_nonstandard_fcc(self):
@@ -888,7 +891,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         """
         cell = [[-3.0, 0.0, 3.0], [0.0, 3.0, 3.0], [-3.0, 3.0, 0.0]]
         positions = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
-        atomic_numbers = [0, 0]
+        atomic_numbers = [1, 1]
 
         s = np.sin(0.1)
         c = np.cos(0.1)
@@ -901,6 +904,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         system = (cell, positions, atomic_numbers)
 
         res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "Fd-3m")
         self.assertEqual(res["is_supercell"], False)
 
     def test_nonstandard_cubic_supercell(self):
@@ -910,9 +914,9 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         import warnings
         from seekpath import SupercellWarning
 
-        cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        cell = [[8.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
         positions = [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]]
-        atomic_numbers = [0, 0]
+        atomic_numbers = [1, 1]
 
         s = np.sin(0.3)
         c = np.cos(0.3)
@@ -926,6 +930,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
 
         with warnings.catch_warnings(record=True) as w:
             res = self.base_test(system)
+            self.assertEqual(res["is_supercell"], True)
 
             # Checks on issued warnings
             relevant_w = [_ for _ in w if issubclass(_.category, SupercellWarning)]
@@ -940,7 +945,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
             if check_string is not None:
                 self.assertIn(check_string, str(relevant_w[0].message))
 
-        self.assertEqual(res["is_supercell"], True)
+        self.assertEqual(res["spacegroup_international"], "Pm-3m")
 
     def test_no_symmetrization(self):
         """
@@ -1014,7 +1019,7 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
 
         cell = [[-3.0, 0.0, 3.0], [0.0, 3.0, 3.0], [-3.0, 3.0, 0.0]]
         positions = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
-        atomic_numbers = [0, 0]
+        atomic_numbers = [1, 1]
 
         s = np.sin(0.3)
         c = np.cos(0.3)
