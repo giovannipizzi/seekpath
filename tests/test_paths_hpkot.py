@@ -866,7 +866,6 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         """
         Obtain the k-path for a non-standard cubic system.
         """
-        import seekpath
         cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
         positions = [[0.0, 0.0, 0.0]]
         atomic_numbers = [1]
@@ -906,6 +905,36 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         res = self.base_test(system)
         self.assertEqual(res["spacegroup_international"], "Fd-3m")
         self.assertEqual(res["is_supercell"], False)
+
+    def test_nonstandard_tetragonal(self):
+        """
+        Obtain the k-path for a non-standard tetragonal system, rotated by
+        90 degrees to have the non-symmetric axis along x, not z.
+        """
+        cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 6.0]]
+        positions = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.2]]
+        atomic_numbers = [1, 2]
+
+        R = np.array([[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
+        T = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]])
+
+        cell = T @ cell @ R
+        positions = positions @ np.linalg.inv(T)
+        system = (cell, positions, atomic_numbers)
+
+        np.testing.assert_almost_equal(cell,
+            [[6.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        )
+
+        res = self.base_test(system)
+        self.assertEqual(res["spacegroup_international"], "P4mm")
+        self.assertEqual(res["is_supercell"], False)
+        np.testing.assert_almost_equal(res["point_coords"]["GAMMA"], [0.0, 0.0, 0.0])
+        np.testing.assert_almost_equal(res["point_coords"]["A"], [0.5, 0.5, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["M"], [0.0, 0.5, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["R"], [0.5, 0.0, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["X"], [0.0, 0.0, 0.5])
+        np.testing.assert_almost_equal(res["point_coords"]["Z"], [0.5, 0.0, 0.0])
 
     def test_nonstandard_cubic_supercell(self):
         """
@@ -962,6 +991,9 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
 
         res_standard = seekpath.get_path(system)
         res_original = seekpath.get_path_orig_cell(system)
+
+        self.assertEqual(res_standard["spacegroup_international"], "Pm-3m")
+        self.assertEqual(res_original["spacegroup_international"], "Pm-3m")
 
         xk_R = np.array([0.5, 0.5, 0.5])
         np.testing.assert_almost_equal(res_standard["point_coords"]["R"], xk_R)
