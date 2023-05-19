@@ -7,7 +7,7 @@ Author: Giovanni Pizzi, EPFL (2016-2020)
 Licence: MIT License, see LICENSE.txt file
 """
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 __author__ = "Giovanni Pizzi, EPFL"
 __copyright__ = (
     "Copyright (c), 2016-2020, Giovanni Pizzi, EPFL "
@@ -15,7 +15,7 @@ __copyright__ = (
     "for Computational Design and Discovery of Novel Materials "
     "(NCCR MARVEL)), Switzerland."
 )
-__credits__ = ["Yoyo Hinuma"]
+__credits__ = ["Yoyo Hinuma", "Jae-Mo Lihm"]
 __license__ = "MIT license"
 __paper__ = (
     "Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, "
