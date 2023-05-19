@@ -1,6 +1,7 @@
 The MIT License (MIT)
 
-Copyright (c), 2016-2018, Giovanni Pizzi, ECOLE POLYTECHNIQUE FEDERALE DE
+Copyright (c), 2016-2023, Giovanni Pizzi, PAUL SCHERRER INSTITUT (Laboratory
+for Materials Simulations), ECOLE POLYTECHNIQUE FEDERALE DE
 LAUSANNE (Theory and Simulation of Materials (THEOS) and National Centre for
 Computational Design and Discovery of Novel Materials (NCCR MARVEL)),
 Switzerland. All rights reserved.

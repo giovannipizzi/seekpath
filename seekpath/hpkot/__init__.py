@@ -3,7 +3,7 @@ The seekpath.hpkot module contains routines to get automatically the
 path in a 3D Brillouin zone to plot band structures according to the
 HPKOT paper (see references below).
 
-Author: Giovanni Pizzi, EPFL
+Author: Giovanni Pizzi, PSI
 
 Licence: MIT License, see LICENSE.txt
 
