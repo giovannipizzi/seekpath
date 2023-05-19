@@ -344,9 +344,9 @@ def get_path_orig_cell(
 
     If the provided unit cell is a supercell of a smaller primitive cell,
     return the standard k path of the smaller primitive cell in the basis
-    of the supercell reciprocal lattice vectors. In this case, the k point
-    labels lose their meaning: they are not at the high-symmetry points of
-    the first BZ of the given supercell. In this case, a
+    of the supercell reciprocal lattice vectors. In this case, the k-point
+    labels lose their meaning as the corresponding k-points are not at the
+    high-symmetry points of the first BZ of the given supercell. A
     :py:exc:`~seekpath.SupercellWarning` is issued.
 
     If you use this module, please cite the paper of the corresponding
@@ -487,9 +487,9 @@ def get_explicit_k_path_orig_cell(
 
     If the provided unit cell is a supercell of a smaller primitive cell,
     return the standard k path of the smaller primitive cell in the basis
-    of the supercell reciprocal lattice vectors. In this case, the k point
-    labels lose their meaning: they are not at the high-symmetry points of
-    the first BZ of the given supercell. In this case, a
+    of the supercell reciprocal lattice vectors. In this case, the k-point
+    labels lose their meaning as the corresponding k-points are not at the
+    high-symmetry points of the first BZ of the given supercell. A
     :py:exc:`~seekpath.SupercellWarning` is issued.
 
     If you use this module, please cite the paper of the corresponding
