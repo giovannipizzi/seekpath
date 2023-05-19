@@ -2,7 +2,8 @@
 This module contains the main functions to get a path and an explicit path.
 """
 import numpy as np
-
+import warnings
+from . import SupercellWarning
 
 def get_explicit_from_implicit(  # pylint: disable=too-many-locals
     seekpath_output, reference_distance
@@ -345,7 +346,8 @@ def get_path_orig_cell(
     return the standard k path of the smaller primitive cell in the basis
     of the supercell reciprocal lattice vectors. In this case, the k point
     labels lose their meaning: they are not at the high-symmetry points of
-    the first BZ of the given supercell.
+    the first BZ of the given supercell. In this case, a
+    :py:exc:`~seekpath.SupercellWarning` is issued.
 
     If you use this module, please cite the paper of the corresponding
     recipe (see parameter below).
@@ -422,10 +424,11 @@ def get_path_orig_cell(
     is_supercell = abs(res["volume_original_wrt_prim"] - 1) > 0.1
 
     if is_supercell:
-        print(
+        warnings.warn(
             "The provided cell is a supercell: the returned k-path is the "
             "standard k-path of the associated primitive cell in the basis of "
-            "the supercell reciprocal lattice."
+            "the supercell reciprocal lattice.",
+            SupercellWarning
         )
 
     # points in the output of get_path are in scaled coordinates of the

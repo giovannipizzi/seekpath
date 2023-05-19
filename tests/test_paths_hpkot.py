@@ -864,6 +864,7 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         """
         Obtain the k-path for a non-standard cubic system.
         """
+        import seekpath
         cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
         positions = [[0.0, 0.0, 0.0], [0.1, 0.0, 0.0], [0.11, 0.0, 0.0]]
         atomic_numbers = [0, 1, 2]
@@ -906,6 +907,9 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         """
         Obtain the k-path for a non-standard cubic system.
         """
+        import warnings
+        from seekpath import SupercellWarning
+
         cell = [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
         positions = [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]]
         atomic_numbers = [0, 0]
@@ -920,7 +924,22 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         positions = positions @ np.linalg.inv(T)
         system = (cell, positions, atomic_numbers)
 
-        res = self.base_test(system)
+        with warnings.catch_warnings(record=True) as w:
+            res = self.base_test(system)
+
+            # Checks on issued warnings
+            relevant_w = [_ for _ in w if issubclass(_.category, SupercellWarning)]
+            self.assertEqual(
+                len(relevant_w),
+                1,
+                "Wrong number of warnings issued! "
+                "({} instead of 1)".format(len(relevant_w)),
+            )
+
+            check_string = "The provided cell is a supercell: the returned"
+            if check_string is not None:
+                self.assertIn(check_string, str(relevant_w[0].message))
+
         self.assertEqual(res["is_supercell"], True)
 
     def test_no_symmetrization(self):
@@ -990,6 +1009,8 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
         them with the k path for the standardized unit cell.
         """
         import seekpath
+        import warnings
+        from seekpath import SupercellWarning
 
         cell = [[-3.0, 0.0, 3.0], [0.0, 3.0, 3.0], [-3.0, 3.0, 0.0]]
         positions = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
@@ -1003,7 +1024,24 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
         system = (cell, positions, atomic_numbers)
 
         res_standard = seekpath.get_explicit_k_path(system, recipe="hpkot")
-        res_original = seekpath.get_explicit_k_path_orig_cell(system, recipe="hpkot")
+
+        with warnings.catch_warnings(record=True) as w:
+            res_original = seekpath.get_explicit_k_path_orig_cell(system, recipe="hpkot")
+            self.assertEqual(res_original["is_supercell"], True)
+
+            # Checks on issued warnings
+            relevant_w = [_ for _ in w if issubclass(_.category, SupercellWarning)]
+            self.assertEqual(
+                len(relevant_w),
+                1,
+                "Wrong number of warnings issued! "
+                "({} instead of 1)".format(len(relevant_w)),
+            )
+
+            check_string = "The provided cell is a supercell: the returned"
+            if check_string is not None:
+                self.assertIn(check_string, str(relevant_w[0].message))
+
 
         self.assertEqual(res_original["path"], res_standard["path"])
         self.assertEqual(res_original["augmented_path"], res_standard["augmented_path"])

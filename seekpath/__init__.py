@@ -23,6 +23,17 @@ __paper__ = (
     "Comp. Mat. Sci. 128, 140 (2017). DOI: 10.1016/j.commatsci.2016.10.015"
 )
 
+
+class SupercellWarning(UserWarning):
+    """
+    A warning issued when the cell is an undistorted supercell of a smaller
+    unit cell, and the kpoint path for a non-standardized cell (i.e., for the
+    original cell) is requested.
+    """
+
+    pass
+
+
 from .getpaths import (
     get_path,
     get_explicit_k_path,
@@ -30,9 +41,14 @@ from .getpaths import (
     get_explicit_k_path_orig_cell,
 )
 
+from .hpkot import EdgeCaseWarning, SymmetryDetectionError
+
 __all__ = (
     "get_path",
     "get_explicit_k_path",
     "get_path_orig_cell",
     "get_explicit_k_path_orig_cell",
+    "EdgeCaseWarning",
+    "SymmetryDetectionError",
+    "SupercellWarning",
 )
