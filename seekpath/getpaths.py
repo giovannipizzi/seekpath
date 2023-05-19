@@ -339,8 +339,8 @@ def get_path_orig_cell(
     r"""
     Return the kpoint path information for band structure given a
     crystal structure, using the paths from the chosen recipe/reference.
-    The original unit cell is used. Standardization or symmetrization of the
-    input unit cell is not performed.
+    The original unit cell (i.e., the one provided in input by the user) is used. 
+    Standardization or symmetrization of the input unit cell is not performed.
 
     If the provided unit cell is a supercell of a smaller primitive cell,
     return the standard k path of the smaller primitive cell in the basis

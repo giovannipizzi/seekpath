@@ -120,7 +120,7 @@ def get_path(
         - ``inverse_primitive_transformation_matrix``: the inverse of the matrix :math:`P`
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
-        - ``rotation_matrix``: rotation matrix in the Cartesian space from the input
+        - ``rotation_matrix``: rotation matrix in Cartesian space from the input
           cell to the standardized cell
         - ``volume_original_wrt_conv``: volume ratio of the user-provided cell
           with respect to the the crystallographic conventional cell
