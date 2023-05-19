@@ -823,9 +823,15 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         res_original = get_path_orig_cell(
             system, with_time_reversal=False, recipe="hpkot"
         )
-        for key in ["path", "augmented_path", "bravais_lattice_extended",
-                    "bravais_lattice", "bravais_lattice_extended",
-                    "spacegroup_number", "spacegroup_international"]:
+        for key in [
+            "path",
+            "augmented_path",
+            "bravais_lattice_extended",
+            "bravais_lattice",
+            "bravais_lattice_extended",
+            "spacegroup_number",
+            "spacegroup_international",
+        ]:
             self.assertEqual(res_original[key], res_standard[key])
 
         points_standard = res_standard["point_coords"]
@@ -922,8 +928,8 @@ class TestPaths3D_HPKOT_Orig_Cell(unittest.TestCase):
         positions = positions @ np.linalg.inv(T)
         system = (cell, positions, atomic_numbers)
 
-        np.testing.assert_almost_equal(cell,
-            [[6.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+        np.testing.assert_almost_equal(
+            cell, [[6.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
         )
 
         res = self.base_test(system)
@@ -1085,7 +1091,9 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
         res_standard = seekpath.get_explicit_k_path(system, recipe="hpkot")
 
         with warnings.catch_warnings(record=True) as w:
-            res_original = seekpath.get_explicit_k_path_orig_cell(system, recipe="hpkot")
+            res_original = seekpath.get_explicit_k_path_orig_cell(
+                system, recipe="hpkot"
+            )
             self.assertEqual(res_original["is_supercell"], True)
 
             # Checks on issued warnings
@@ -1100,7 +1108,6 @@ class TestExplicitPaths_Orig_Cell(unittest.TestCase):
             check_string = "The provided cell is a supercell: the returned"
             if check_string is not None:
                 self.assertIn(check_string, str(relevant_w[0].message))
-
 
         self.assertEqual(res_original["path"], res_standard["path"])
         self.assertEqual(res_original["augmented_path"], res_standard["augmented_path"])

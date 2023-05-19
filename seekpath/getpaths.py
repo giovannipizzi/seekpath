@@ -5,6 +5,7 @@ import numpy as np
 import warnings
 from . import SupercellWarning
 
+
 def get_explicit_from_implicit(  # pylint: disable=too-many-locals
     seekpath_output, reference_distance
 ):
@@ -428,7 +429,7 @@ def get_path_orig_cell(
             "The provided cell is a supercell: the returned k-path is the "
             "standard k-path of the associated primitive cell in the basis of "
             "the supercell reciprocal lattice.",
-            SupercellWarning
+            SupercellWarning,
         )
 
     # points in the output of get_path are in scaled coordinates of the
