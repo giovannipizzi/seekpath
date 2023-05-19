@@ -80,7 +80,7 @@ def get_BZ(b1, b2, b3):
         normal = np.cross(center - points[1], center - points[0])
         # Normalize, then rescale to a small value
         normal = normal / np.linalg.norm(normal)
-        max_length = np.sqrt((points ** 2).sum(axis=1).max())
+        max_length = np.sqrt((points**2).sum(axis=1).max())
         normal /= max_length
         normal *= 1.0e-4
         point_up = center + normal
