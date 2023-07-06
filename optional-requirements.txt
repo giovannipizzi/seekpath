@@ -1,2 +1,2 @@
 # The following is needed to get the Brillouin zone
-scipy==1.4.1
+scipy==1.10.0
