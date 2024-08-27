@@ -43,6 +43,7 @@ from .getpaths import (
 )
 
 from .hpkot import EdgeCaseWarning, SymmetryDetectionError
+from .brillouinzone import brillouinzone
 
 __all__ = (
     "get_path",
@@ -52,4 +53,5 @@ __all__ = (
     "EdgeCaseWarning",
     "SymmetryDetectionError",
     "SupercellWarning",
+    "brillouinzone",
 )
