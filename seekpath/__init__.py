@@ -53,5 +53,5 @@ __all__ = (
     "EdgeCaseWarning",
     "SymmetryDetectionError",
     "SupercellWarning",
-    "brillouinzone"
+    "brillouinzone",
 )
