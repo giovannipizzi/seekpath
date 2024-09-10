@@ -1,4 +1,5 @@
 """Various utilities."""
+
 import numpy
 import numpy.linalg
 from math import sqrt
@@ -250,6 +251,35 @@ def check_spglib_version():
         )
 
     return spglib
+
+
+def get_dot_access_dataset(dataset):
+    """Return dataset with dot access.
+
+    From spglib 2.5, dataset is returned as dataclass.
+    To emulate it for older versions, this function is used.
+
+    """
+    import spglib
+
+    try:
+        version = spglib.__version__
+    except NameError:
+        version = "1.8.0"  # or older, version was introduced only recently
+
+    version_pieces = tuple(int(v) for v in version.split(".")[:3])
+    try:
+        if len(version_pieces) < 3:
+            raise ValueError
+    except ValueError:
+        raise ValueError("Unable to parse version number")
+
+    if version_pieces < (2, 5, 0):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(**dataset)
+    else:
+        return dataset
 
 
 def get_cell_params(cell):

@@ -144,6 +144,7 @@ def get_path(
         eval_expr,
         eval_expr_simple,
         get_cell_params,
+        get_dot_access_dataset,
         get_path_data,
         get_reciprocal_cell_rows,
         get_real_cell_from_reciprocal_rows,
@@ -162,22 +163,24 @@ def get_path(
 
     # Symmetry analysis by SPGlib, get crystallographic lattice,
     # and cell parameters for this lattice
-    dataset = spglib.get_symmetry_dataset(
-        structure_internal, symprec=symprec, angle_tolerance=angle_tolerance
+    dataset = get_dot_access_dataset(
+        spglib.get_symmetry_dataset(
+            structure_internal, symprec=symprec, angle_tolerance=angle_tolerance
+        )
     )
     if dataset is None:
         raise SymmetryDetectionError(
             "Spglib could not detect the symmetry of the system"
         )
-    conv_lattice = dataset["std_lattice"]
-    conv_positions = dataset["std_positions"]
-    conv_types = dataset["std_types"]
+    conv_lattice = dataset.std_lattice
+    conv_positions = dataset.std_positions
+    conv_types = dataset.std_types
     a, b, c, cosalpha, cosbeta, cosgamma = get_cell_params(conv_lattice)
-    spgrp_num = dataset["number"]
+    spgrp_num = dataset.number
     # This is the transformation from the original to the crystallographic
     # conventional (called std in spglib)
     #  Lattice^{crystallographic_bravais} = L^{original} * transf_matrix
-    transf_matrix = dataset["transformation_matrix"]
+    transf_matrix = dataset.transformation_matrix
     volume_conv_wrt_original = np.linalg.det(transf_matrix)
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
@@ -431,7 +434,7 @@ def get_path(
     else:
         raise ValueError(
             "Unknown type '{}' for spacegroup {}".format(
-                bravais_lattice, dataset["number"]
+                bravais_lattice, dataset.number
             )
         )
 
@@ -515,7 +518,7 @@ def get_path(
         #'transformation_matrix': transf_matrix,
         "volume_original_wrt_conv": volume_conv_wrt_original,
         "volume_original_wrt_prim": volume_conv_wrt_original * np.linalg.det(invP),
-        "spacegroup_number": dataset["number"],
-        "spacegroup_international": dataset["international"],
-        "rotation_matrix": dataset["std_rotation_matrix"],
+        "spacegroup_number": dataset.number,
+        "spacegroup_international": dataset.international,
+        "rotation_matrix": dataset.std_rotation_matrix,
     }
