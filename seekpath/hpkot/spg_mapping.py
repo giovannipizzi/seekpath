@@ -131,13 +131,14 @@ def get_spgroup_data_realtime():
     """
     import json
     import spglib
+    from .tools import get_dot_access_dataset
 
     info = {}
     for hall_n in range(1, 531):
-        data = spglib.get_spacegroup_type(hall_n)
-        number = data["number"]
-        int_short = data["international_short"]
-        pg_int = data["pointgroup_international"]
+        data = get_dot_access_dataset(spglib.get_spacegroup_type(hall_n))
+        number = data.number
+        int_short = data.international_short
+        pg_int = data.pointgroup_international
 
         if number not in info:
             info[int(number)] = (
