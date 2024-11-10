@@ -4,6 +4,15 @@ import numpy
 import numpy.linalg
 from math import sqrt
 
+import sys
+from packaging.version import Version
+
+# Use importlib.metadata for version retrieval based on Python version
+if sys.version_info < (3, 8):
+    from importlib_metadata import version  # For Python < 3.8
+else:
+    from importlib.metadata import version
+
 
 def eval_expr_simple(expr, kparam):  # pylint=disable: too-many-return-statements
     """
@@ -222,25 +231,15 @@ def check_spglib_version():
             "of the k-paths, but it could not be imported"
         )
 
-    try:
-        version = spglib.__version__
-    except NameError:
-        version = "1.8.0"  # or older, version was introduced only recently
+    spg_version = Version(version("spglib"))
 
-    try:
-        version_pieces = [int(_) for _ in version.split(".")]
-        if len(version_pieces) < 3:
-            raise ValueError
-    except ValueError:
-        raise ValueError("Unable to parse version number")
+    min_version = Version("1.9.4")
+    warning_version = Version("1.13")
 
-    if tuple(version_pieces[:2]) < (1, 9):
+    if spg_version < min_version:
         raise ValueError("Invalid spglib version, need >= 1.9.4")
 
-    if version_pieces[:2] == (1, 9) and version_pieces[2] < 4:
-        raise ValueError("Invalid spglib version, need >= 1.9.4")
-
-    if tuple(version_pieces[:2]) < (1, 13):
+    if spg_version < warning_version:
         import warnings
 
         warnings.warn(
@@ -260,21 +259,9 @@ def get_dot_access_dataset(dataset):
     To emulate it for older versions, this function is used.
 
     """
-    import spglib
+    spg_version = Version(version("spglib"))
 
-    try:
-        version = spglib.__version__
-    except NameError:
-        version = "1.8.0"  # or older, version was introduced only recently
-
-    version_pieces = tuple(int(v) for v in version.split(".")[:3])
-    try:
-        if len(version_pieces) < 3:
-            raise ValueError
-    except ValueError:
-        raise ValueError("Unable to parse version number")
-
-    if version_pieces < (2, 5, 0):
+    if spg_version < Version("2.5.0"):
         from types import SimpleNamespace
 
         return SimpleNamespace(**dataset)
