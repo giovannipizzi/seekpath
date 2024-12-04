@@ -5,12 +5,10 @@ from seekpath.brillouinzone import brillouinzone
 
 
 def has_scipy():
-    try:
-        import scipy
+    import importlib
 
-        return True
-    except ImportError:
-        return False
+    scipy_spec = importlib.util.find_spec('scipy')
+    return scipy_spec is not None
 
 
 def is_same_point(p1, p2):
@@ -73,8 +71,8 @@ def are_same_faces(faces1, faces2):
         return (
             False,
             (
-                "The two list of faces have different "
-                "length ({} vs. {})".format(len(faces1), len(faces2))
+                'The two list of faces have different '
+                f'length ({len(faces1)} vs. {len(faces2)})'
             ),
         )
 
@@ -95,11 +93,11 @@ def are_same_faces(faces1, faces2):
             return (
                 False,
                 (
-                    "The following item in the first list was not "
-                    "found in the second one: {}".format(f1)
+                    'The following item in the first list was not '
+                    'found in the second one: {}'.format(f1)
                 ),
             )
-    return True, ""
+    return True, ''
 
 
 class TestBZ(unittest.TestCase):
@@ -107,7 +105,7 @@ class TestBZ(unittest.TestCase):
     Test the search for BZ faces
     """
 
-    @unittest.skipIf(not has_scipy(), "No SciPy")
+    @unittest.skipIf(not has_scipy(), 'No SciPy')
     def test_cubic(self):
         b1 = [1, 0, 0]
         b2 = [0, 1, 0]
@@ -164,17 +162,17 @@ class TestBZ(unittest.TestCase):
 
         # The definition of triangles is not unique. I check directly the
         # faces (that should be obtained from the triangles
-        faces = bz["faces"]
+        faces = bz['faces']
 
         # theFaces = [Face(f) for f in faces]
         # theExpectedFaces = [Face(f) for f in expected_faces]
         is_same, info = are_same_faces(faces, expected_faces)
-        self.assertTrue(is_same, "The two sets of faces are different: {}".format(info))
+        self.assertTrue(is_same, f'The two sets of faces are different: {info}')
 
         is_same, info = are_same_faces(faces, unexpected_faces_1)
-        self.assertFalse(is_same, "The two sets of faces are not detected as different")
+        self.assertFalse(is_same, 'The two sets of faces are not detected as different')
 
-    @unittest.skipIf(not has_scipy(), "No SciPy")
+    @unittest.skipIf(not has_scipy(), 'No SciPy')
     def test_2(self):
         b1 = [1, 0, 0]
         b2 = [0, 1, 0]
@@ -266,7 +264,7 @@ class TestBZ(unittest.TestCase):
 
         # The definition of triangles is not unique. I check directly the
         # faces (that should be obtained from the triangles
-        faces = bz["faces"]
+        faces = bz['faces']
 
         # To print the actual output
         # print "["
@@ -280,8 +278,8 @@ class TestBZ(unittest.TestCase):
         # theFaces = [Face(f) for f in faces]
         # theExpectedFaces = [Face(f) for f in expected_faces]
         is_same, info = are_same_faces(faces, expected_faces)
-        self.assertTrue(is_same, "The two sets of faces are different: {}".format(info))
+        self.assertTrue(is_same, f'The two sets of faces are different: {info}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
