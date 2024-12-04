@@ -9,22 +9,22 @@ def get_crystal_family(number):
     :param number: the spacegroup number, from 1 to 230
     """
     if not isinstance(number, int):
-        raise TypeError("number should be integer")
+        raise TypeError('number should be integer')
     if number < 1:
-        raise ValueError("number should be >= 1")
+        raise ValueError('number should be >= 1')
     if number <= 2:
-        return "a"  # triclinic
+        return 'a'  # triclinic
     if number <= 15:
-        return "m"  # monoclinic
+        return 'm'  # monoclinic
     if number <= 74:
-        return "o"  # orthorhombic
+        return 'o'  # orthorhombic
     if number <= 142:
-        return "t"  # tetragonal
+        return 't'  # tetragonal
     if number <= 194:
-        return "h"  # trigonal + hexagonal
+        return 'h'  # trigonal + hexagonal
     if number <= 230:
-        return "c"  # cubic
-    raise ValueError("number should be <= 230")
+        return 'c'  # cubic
+    raise ValueError('number should be <= 230')
 
 
 def pointgroup_has_inversion(number):
@@ -60,7 +60,7 @@ def pointgroup_has_inversion(number):
         31,
     ]:
         return False
-    raise ValueError("number should be between 1 and 32")
+    raise ValueError('number should be between 1 and 32')
 
 
 def pgnum_from_pgint(pgint):
@@ -69,38 +69,38 @@ def pgnum_from_pgint(pgint):
     international pointgroup name.
     """
     table = {
-        "C1": 1,
-        "C2": 3,
-        "C2h": 5,
-        "C2v": 7,
-        "C3": 16,
-        "C3h": 22,
-        "C3i": 17,
-        "C3v": 19,
-        "C4": 9,
-        "C4h": 11,
-        "C4v": 13,
-        "C6": 21,
-        "C6h": 23,
-        "C6v": 25,
-        "Ci": 2,
-        "Cs": 4,
-        "D2": 6,
-        "D2d": 14,
-        "D2h": 8,
-        "D3": 18,
-        "D3d": 20,
-        "D3h": 26,
-        "D4": 12,
-        "D4h": 15,
-        "D6": 24,
-        "D6h": 27,
-        "O": 30,
-        "Oh": 32,
-        "S4": 10,
-        "T": 28,
-        "Td": 31,
-        "Th": 29,
+        'C1': 1,
+        'C2': 3,
+        'C2h': 5,
+        'C2v': 7,
+        'C3': 16,
+        'C3h': 22,
+        'C3i': 17,
+        'C3v': 19,
+        'C4': 9,
+        'C4h': 11,
+        'C4v': 13,
+        'C6': 21,
+        'C6h': 23,
+        'C6v': 25,
+        'Ci': 2,
+        'Cs': 4,
+        'D2': 6,
+        'D2d': 14,
+        'D2h': 8,
+        'D3': 18,
+        'D3d': 20,
+        'D3h': 26,
+        'D4': 12,
+        'D4h': 15,
+        'D6': 24,
+        'D6h': 27,
+        'O': 30,
+        'Oh': 32,
+        'S4': 10,
+        'T': 28,
+        'Td': 31,
+        'Th': 29,
     }
 
     return table[pgint]
@@ -129,7 +129,6 @@ def get_spgroup_data_realtime():
 
     got in real time using spglib methods.
     """
-    import json
     import spglib
     from .tools import get_dot_access_dataset
 
@@ -178,33 +177,33 @@ def get_P_matrix(bravais_lattice):
     """
     import numpy as np
 
-    if bravais_lattice in ["cP", "tP", "hP", "oP", "mP"]:
+    if bravais_lattice in ['cP', 'tP', 'hP', 'oP', 'mP']:
         P = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         invP = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-    elif bravais_lattice in ["cF", "oF"]:
+    elif bravais_lattice in ['cF', 'oF']:
         P = 1.0 / 2.0 * np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])
         invP = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]])
-    elif bravais_lattice in ["cI", "tI", "oI"]:
+    elif bravais_lattice in ['cI', 'tI', 'oI']:
         P = 1.0 / 2.0 * np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]])
         invP = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])
-    elif bravais_lattice == "hR":
+    elif bravais_lattice == 'hR':
         P = 1.0 / 3.0 * np.array([[2, -1, -1], [1, 1, -2], [1, 1, 1]])
         invP = np.array([[1, 0, 1], [-1, 1, 1], [0, -1, 1]])
-    elif bravais_lattice == "oC":
+    elif bravais_lattice == 'oC':
         P = 1.0 / 2.0 * np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]])
         invP = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 1]])
-    elif bravais_lattice == "oA":
+    elif bravais_lattice == 'oA':
         P = 1.0 / 2.0 * np.array([[0, 0, 2], [1, 1, 0], [-1, 1, 0]])
         invP = np.array([[0, 1, -1], [0, 1, 1], [1, 0, 0]])
-    elif bravais_lattice == "mC":
+    elif bravais_lattice == 'mC':
         P = 1.0 / 2.0 * np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]])
         invP = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 1]])
-    elif bravais_lattice == "aP":
+    elif bravais_lattice == 'aP':
         # For aP, I should have already obtained the primitive cell
         P = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         invP = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
     else:
-        raise ValueError("Invalid bravais_lattice {}".format(bravais_lattice))
+        raise ValueError(f'Invalid bravais_lattice {bravais_lattice}')
 
     return P, invP
 
@@ -293,10 +292,9 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
     wrong_count = [group for group, cnt in group_count.items() if cnt != volume_ratio]
     if wrong_count:
         raise ValueError(
-            "Problem creating primitive cell, I found the "
-            "following group of atoms with len != {}: {}".format(
-                volume_ratio, ", ".join(str(_) for _ in wrong_count)
-            )
+            'Problem creating primitive cell, I found the '
+            f'following group of atoms with len != {volume_ratio}:'
+            f' {", ".join(str(_) for _ in wrong_count)}'
         )
     # These are the groups of equivalent atoms; values are the positions in
     # the list from 0 to N-1
@@ -309,17 +307,16 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
         if len(type_set) != 1
     )
     if problematic_groups_idx:
+        problematic_groups_str = ', '.join(
+            [
+                str(group)
+                for group_idx, group in enumerate(groups)
+                if group_idx in problematic_groups_idx
+            ]
+        )
         raise ValueError(
-            "The following ids of atoms go on top of each other, "
-            "but they are of different type! {}".format(
-                ", ".join(
-                    [
-                        str(group)
-                        for group_idx, group in enumerate(groups)
-                        if group_idx in problematic_groups_idx
-                    ]
-                )
-            )
+            'The following ids of atoms go on top of each other, '
+            f'but they are of different type! {problematic_groups_str}'
         )
     # All good, just return the first (no wrapping to [0..1[ yet)
     chosen_idx = np.array([group[0] for group in groups])
@@ -331,8 +328,7 @@ def get_primitive(structure, bravais_lattice, wrap_to_zero_one=False):
             conv_prim_atoms_mapping[at_idx] = prim_idx
     if -1 in conv_prim_atoms_mapping:
         raise ValueError(
-            "Unable to recreate correctly the atom mapping! "
-            "{}".format(conv_prim_atoms_mapping)
+            f'Unable to recreate correctly the atom mapping! {conv_prim_atoms_mapping}'
         )
 
     prim_positions = prim_positions[chosen_idx]

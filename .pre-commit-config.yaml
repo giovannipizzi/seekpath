@@ -1,19 +1,27 @@
+exclude: ^seekpath/hpkot/band_path_data
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.2.3
+  rev: v4.6.0
   hooks:
   - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: double-quote-string-fixer
 
-- repo: https://github.com/ambv/black
-  rev: 23.3.0
+- repo: https://github.com/ikamensh/flynt/
+  rev: 1.0.1
   hooks:
-  - id: black
+  -   id: flynt
 
-#- repo: local
-#  hooks:
-#  - id: prospector
-#    language: system
-#    types: [file, python]
-#    name: prospector
-#    description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
-#    entry: prospector
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.8.0
+  hooks:
+  - id: ruff-format
+  - id: ruff
+    args: [--fix, --exit-non-zero-on-fix, --show-fixes]
+
+- repo: https://github.com/PyCQA/prospector
+  rev: v1.11.0
+  hooks:
+  - id: prospector
+    language: system
