@@ -1,7 +1,8 @@
 """Module to compute the Brillouin zone of a crystal."""
+
 from collections import defaultdict
 import warnings
-from typing import Union, List, Dict
+from typing import Union
 
 import numpy as np
 from scipy.spatial import Voronoi, ConvexHull, Delaunay
@@ -23,17 +24,17 @@ def get_BZ(
             time being)
     """
     warnings.warn(
-        "`get_BZ` is deprecated, use the `BZ` class instead, to represent a brillouine zone. "
-        "The faces and triangles can be accesses as attributes.",
+        '`get_BZ` is deprecated, use the `BZ` class instead, to represent a brillouine zone. '
+        'The faces and triangles can be accesses as attributes.',
         UserWarning,
     )
 
     bz = BZ(b1, b2, b3)
 
     faces_data = {
-        "triangles_vertices": bz.triangles_vertices,
-        "triangles": bz.triangles,
-        "faces": bz.faces,
+        'triangles_vertices': bz.triangles_vertices,
+        'triangles': bz.triangles,
+        'faces': bz.faces,
     }
 
     return faces_data
@@ -94,11 +95,11 @@ class BZ:
         for vertex in tr:
             if vertex not in (p1, p2):
                 if missing is not None:
-                    raise ValueError("Two missing points found...")
+                    raise ValueError('Two missing points found...')
                 missing = vertex
 
         if missing is None:
-            raise ValueError("No missing points!")
+            raise ValueError('No missing points!')
 
         return missing
 
@@ -157,11 +158,11 @@ class BZ:
 
         ## REORIENT TRIANGLES
         ## NOTE! TODO: I should do the same for faces
-        ret_data["triangles_vertices"] = hull.points.tolist()
+        ret_data['triangles_vertices'] = hull.points.tolist()
         ## Naive one
         # ret_data['triangles'] = hull.simplices.tolist()
         ## Instead, I orient them all
-        ret_data["triangles"] = []
+        ret_data['triangles'] = []
         for simplex in hull.simplices:
             points = np.array([hull.points[i] for i in simplex])
             center = points.sum(axis=0) / float(len(points))
@@ -184,17 +185,16 @@ class BZ:
             elif not is_up_inside and is_down_inside:
                 correct_orientation = False
             else:
-                inside_outside_string = "inside" if is_up_inside else "outside"
+                inside_outside_string = 'inside' if is_up_inside else 'outside'
                 print(
-                    "WARNING! Both vectors are {}..."
-                    " not changing orientation".format(inside_outside_string)
+                    f'WARNING! Both vectors are {inside_outside_string}... not changing orientation'
                 )
                 correct_orientation = True
 
             if correct_orientation:
-                ret_data["triangles"].append(simplex.tolist())
+                ret_data['triangles'].append(simplex.tolist())
             else:
-                ret_data["triangles"].append(simplex[::-1].tolist())
+                ret_data['triangles'].append(simplex[::-1].tolist())
 
         # print hull.area, hull.volume
 
@@ -220,7 +220,8 @@ class BZ:
 
         # List of found simplices that have been merged; will be used at the
         # end to add the triangles that have not been merged, if any
-        merged_simplices = []
+        # TODO (was not commented out before but never used)
+        # merged_simplices = []
         for (p1, p2), triangles in edges.items():
             # I do it many times, but it's the easiest way (and anyway it's
             # a set, so it should be fast: I add a point to be merged with
@@ -230,8 +231,7 @@ class BZ:
 
             if len(triangles) != 2:
                 # An edge shared by less (or more) than 2 triangles?
-                print("Warning!", p1, p2, triangles)
-                continue
+                print('Warning!', p1, p2, triangles)
             else:
                 # Check if two triangles are coplanar: get the other two
                 # vertices that are not on the shared edge
@@ -341,14 +341,14 @@ class BZ:
                     [hull.points[point_idx].tolist() for point_idx in actual_points_idx]
                 )
 
-        ret_data["faces"] = faces
+        ret_data['faces'] = faces
 
         self._hull = hull
         self._delaunay = Delaunay(hull.points)
 
-        self._triangles_vertices = ret_data["triangles_vertices"]
-        self._triangles = ret_data["triangles"]
-        self._faces = ret_data["faces"]
+        self._triangles_vertices = ret_data['triangles_vertices']
+        self._triangles = ret_data['triangles']
+        self._faces = ret_data['faces']
 
     def is_inside_bz(self, p: Union[list, np.array]) -> bool:
         """Check if a point is within the convex hull of the Brillouin zone.
@@ -363,20 +363,20 @@ class BZ:
         return self._delaunay.find_simplex(p) >= 0
 
 
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt  # pylint: disable=import-error
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection  # pylint: disable=import-error
 
     # draw a vector
-    from matplotlib.patches import FancyArrowPatch
-    from mpl_toolkits.mplot3d import proj3d
+    from matplotlib.patches import FancyArrowPatch  # pylint: disable=import-error
+    from mpl_toolkits.mplot3d import proj3d  # pylint: disable=import-error
 
     class Arrow3D(FancyArrowPatch):
         def __init__(self, xs, ys, zs, *args, **kwargs):
             FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
             self._verts3d = xs, ys, zs
 
-        def do_3d_projection(self, renderer=None):
+        def do_3d_projection(self, renderer=None):  # pylint: disable=unused-argument
             xs3d, ys3d, zs3d = self._verts3d
             xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
             self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
@@ -396,18 +396,18 @@ if __name__ == "__main__":
         faces_count[len(face)] += 1
 
     for num_sides in sorted(faces_count.keys()):
-        print("{} faces: {}".format(num_sides, faces_count[num_sides]))
+        print(f'{num_sides} faces: {faces_count[num_sides]}')
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    ax = fig.add_subplot(111, projection='3d')
     ax.add_collection(
         Poly3DCollection(
-            faces_coords, linewidth=1, alpha=0.9, edgecolor="k", facecolor="#ccccff"
+            faces_coords, linewidth=1, alpha=0.9, edgecolor='k', facecolor='#ccccff'
         )
     )
 
     # draw origin
-    ax.scatter([0], [0], [0], color="g", s=100)
+    ax.scatter([0], [0], [0], color='g', s=100)
 
     axes_length = 2
     # Add axes
@@ -418,8 +418,8 @@ if __name__ == "__main__":
             (0, 0),
             mutation_scale=20,
             lw=1,
-            arrowstyle="-|>",
-            color="k",
+            arrowstyle='-|>',
+            color='k',
         )
     )
     ax.add_artist(
@@ -429,8 +429,8 @@ if __name__ == "__main__":
             (0, 0),
             mutation_scale=20,
             lw=1,
-            arrowstyle="-|>",
-            color="k",
+            arrowstyle='-|>',
+            color='k',
         )
     )
     ax.add_artist(
@@ -440,8 +440,8 @@ if __name__ == "__main__":
             (0, axes_length),
             mutation_scale=20,
             lw=1,
-            arrowstyle="-|>",
-            color="k",
+            arrowstyle='-|>',
+            color='k',
         )
     )
 
@@ -449,7 +449,7 @@ if __name__ == "__main__":
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
     ax.set_zlim(-1, 1)
-    ax.axis("off")
+    ax.axis('off')
     ax.view_init(elev=0, azim=60)
 
     plt.show()

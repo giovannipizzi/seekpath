@@ -20,4 +20,3 @@ The HPKOT module
 
 .. automodule:: seekpath.hpkot.tools
    :members:
-
