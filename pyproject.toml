@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seekpath"
+dynamic = ["version"]
+description = "A module to obtain and visualize k-vector coefficients and obtain band paths in the Brillouin zone of crystal structures"
+readme = "README.rst"
+requires-python = ">=3.5"
+license = {text = "MIT License"}
+authors = [
+    { name = "Giovanni Pizzi" }
+]
+keywords = ["path", "band structure", "Brillouin", "crystallography", "physics", "primitive cell", "conventional cell"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+dependencies = [
+    "numpy>=1.0",
+    "spglib>=1.14.1"
+]
+
+[project.optional-dependencies]
+bz = ["scipy>=1"]
+dev = [
+    "pre-commit==3.3.2",
+    "black==23.3.0",
+    "prospector==1.2.0",
+    "pylint==2.4.4",
+    "pytest==7.3.1"
+]
+
+[project.urls]
+Repository = "http://github.com/giovannipizzi/seekpath"
+
+[tool.setuptools]
+packages = ["seekpath"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "seekpath.__version__"}
+
