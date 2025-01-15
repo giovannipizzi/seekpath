@@ -1,3 +1,6 @@
+[build-system]
+build-backend = 'flit_core.buildapi'
+requires = ['flit_core >=3.4,<4']
 
 [project]
 name = "seekpath"
@@ -46,6 +49,5 @@ dev = [
     "pytest==7.3.1",
 ]
 
-[build-system]
-build-backend = 'flit_core.buildapi'
-requires = ['flit_core >=3.4,<4']
+[tool.ruff.format]
+quote-style = 'single'
