@@ -26,6 +26,9 @@ If you use this tool, please cite the following work:
 Please check the SeeK-path [user guide on ReadTheDocs](http://seekpath.readthedocs.io).
 
 ## Acknowledgements
+The `SeeK-path` package was mainly developed by [Giovanni Pizzi](https://github.com/giovannipizzi) and is now maintained by [Timo Reents](https://github.com/t-reents).
+
+Further Acknowledgements:
 
 - Jae-Mo Lihm: k-point paths for the original unit cell (i.e., the one provided in input by the user) without standardization or symmetrization
 
