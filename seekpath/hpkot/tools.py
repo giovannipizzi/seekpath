@@ -18,32 +18,32 @@ def eval_expr_simple(expr, kparam):  # pylint=disable: too-many-return-statement
     """
     To evaluate expressions tha only require kparams and not a, b, c, ...
     """
-    if expr == "0":
+    if expr == '0':
         return 0.0
-    if expr == "1/2":
+    if expr == '1/2':
         return 1.0 / 2.0
-    if expr == "1":
+    if expr == '1':
         return 1.0
-    if expr == "-1/2":
+    if expr == '-1/2':
         return -1.0 / 2.0
-    if expr == "1/4":
+    if expr == '1/4':
         return 1.0 / 4.0
-    if expr == "3/8":
+    if expr == '3/8':
         return 3.0 / 8.0
-    if expr == "3/4":
+    if expr == '3/4':
         return 3.0 / 4.0
-    if expr == "5/8":
+    if expr == '5/8':
         return 5.0 / 8.0
-    if expr == "1/3":
+    if expr == '1/3':
         return 1.0 / 3.0
     try:
         return kparam[expr]
     except KeyError as exc:
         raise ValueError(
-            "Asking for evaluation of symbol '{}' in "
-            "eval_expr_simple but this has not been defined or not "
-            "yet computed".format(str(exc))
-        )
+            f"Asking for evaluation of symbol '{str(exc)}' in "
+            'eval_expr_simple but this has not been defined or not '
+            'yet computed'
+        ) from exc
 
 
 def extend_kparam(kparam):
@@ -57,11 +57,11 @@ def extend_kparam(kparam):
     kparam_extended = {}
     for key, val in kparam.items():
         kparam_extended[key] = val
-        kparam_extended["-{}".format(key)] = -val
-        kparam_extended["1-{}".format(key)] = 1.0 - val
-        kparam_extended["-1+{}".format(key)] = -1.0 + val
-        kparam_extended["1/2-{}".format(key)] = 1.0 / 2.0 - val
-        kparam_extended["1/2+{}".format(key)] = 1.0 / 2.0 + val
+        kparam_extended[f'-{key}'] = -val
+        kparam_extended[f'1-{key}'] = 1.0 - val
+        kparam_extended[f'-1+{key}'] = -1.0 + val
+        kparam_extended[f'1/2-{key}'] = 1.0 / 2.0 - val
+        kparam_extended[f'1/2+{key}'] = 1.0 / 2.0 + val
 
     return kparam_extended
 
@@ -89,30 +89,29 @@ def eval_expr(  # pylint: disable=too-many-return-statements,unused-argument
         DB rather than parsing the string (to avoid additional dependencies and
         avoid the use of ``eval``).
     """
-    from math import sqrt
 
     # sinalpha = sqrt(1.0 - cosalpha ** 2)
     sinbeta = sqrt(1.0 - cosbeta**2)
     # singamma = sqrt(1.0 - cosgamma ** 2)
 
     try:
-        if expr == "(a*a/b/b+(1+a/c*cosbeta)/sinbeta/sinbeta)/4":
+        if expr == '(a*a/b/b+(1+a/c*cosbeta)/sinbeta/sinbeta)/4':
             return (a * a / b / b + (1.0 + a / c * cosbeta) / sinbeta / sinbeta) / 4.0
-        if expr == "1-Z*b*b/a/a":
-            Z = kparam["Z"]
+        if expr == '1-Z*b*b/a/a':
+            Z = kparam['Z']
             return 1.0 - Z * b * b / a / a
-        if expr == "1/2-2*Z*c*cosbeta/a":
-            Z = kparam["Z"]
+        if expr == '1/2-2*Z*c*cosbeta/a':
+            Z = kparam['Z']
             return 1.0 / 2.0 - 2.0 * Z * c * cosbeta / a
-        if expr == "E/2+a*a/4/b/b+a*c*cosbeta/2/b/b":
-            E = kparam["E"]
+        if expr == 'E/2+a*a/4/b/b+a*c*cosbeta/2/b/b':
+            E = kparam['E']
             return E / 2.0 + a * a / 4.0 / b / b + a * c * cosbeta / 2.0 / b / b
-        if expr == "2*F-Z":
-            F = kparam["F"]
-            Z = kparam["Z"]
+        if expr == '2*F-Z':
+            F = kparam['F']
+            Z = kparam['Z']
             return 2.0 * F - Z
-        if expr == "c/2/a/cosbeta*(1-4*U+a*a*sinbeta*sinbeta/b/b)":
-            U = kparam["U"]
+        if expr == 'c/2/a/cosbeta*(1-4*U+a*a*sinbeta*sinbeta/b/b)':
+            U = kparam['U']
             return (
                 c
                 / 2.0
@@ -120,96 +119,96 @@ def eval_expr(  # pylint: disable=too-many-return-statements,unused-argument
                 / cosbeta
                 * (1.0 - 4.0 * U + a * a * sinbeta * sinbeta / b / b)
             )
-        if expr == "-1/4+W/2-Z*c*cosbeta/a":
-            W = kparam["W"]
-            Z = kparam["Z"]
+        if expr == '-1/4+W/2-Z*c*cosbeta/a':
+            W = kparam['W']
+            Z = kparam['Z']
             return -1.0 / 4.0 + W / 2.0 - Z * c * cosbeta / a
-        if expr == "(2+a/c*cosbeta)/4/sinbeta/sinbeta":
+        if expr == '(2+a/c*cosbeta)/4/sinbeta/sinbeta':
             return (2.0 + a / c * cosbeta) / 4.0 / sinbeta / sinbeta
-        if expr == "3/4-b*b/4/a/a/sinbeta/sinbeta":
+        if expr == '3/4-b*b/4/a/a/sinbeta/sinbeta':
             return 3.0 / 4.0 - b * b / 4.0 / a / a / sinbeta / sinbeta
-        if expr == "S-(3/4-S)*a*cosbeta/c":
-            S = kparam["S"]
+        if expr == 'S-(3/4-S)*a*cosbeta/c':
+            S = kparam['S']
             return S - (3.0 / 4.0 - S) * a * cosbeta / c
-        if expr == "(1+a*a/b/b)/4":
+        if expr == '(1+a*a/b/b)/4':
             return (1.0 + a * a / b / b) / 4.0
-        if expr == "-a*c*cosbeta/2/b/b":
+        if expr == '-a*c*cosbeta/2/b/b':
             return -a * c * cosbeta / 2.0 / b / b
-        if expr == "1+Z-2*M":
-            Z = kparam["Z"]
-            M = kparam["M"]
+        if expr == '1+Z-2*M':
+            Z = kparam['Z']
+            M = kparam['M']
             return 1.0 + Z - 2.0 * M
-        if expr == "X-2*D":
-            X = kparam["X"]
-            D = kparam["D"]
+        if expr == 'X-2*D':
+            X = kparam['X']
+            D = kparam['D']
             return X - 2 * D
-        if expr == "(1+a/c*cosbeta)/2/sinbeta/sinbeta":
+        if expr == '(1+a/c*cosbeta)/2/sinbeta/sinbeta':
             return (1.0 + a / c * cosbeta) / 2.0 / sinbeta / sinbeta
-        if expr == "1/2+Y*c*cosbeta/a":
-            Y = kparam["Y"]
+        if expr == '1/2+Y*c*cosbeta/a':
+            Y = kparam['Y']
             return 1.0 / 2.0 + Y * c * cosbeta / a
-        if expr == "a*a/4/c/c":
+        if expr == 'a*a/4/c/c':
             return a * a / 4.0 / c / c
-        if expr == "5/6-2*D":
-            D = kparam["D"]
+        if expr == '5/6-2*D':
+            D = kparam['D']
             return 5.0 / 6.0 - 2.0 * D
-        if expr == "1/3+D":
-            D = kparam["D"]
+        if expr == '1/3+D':
+            D = kparam['D']
             return 1.0 / 3.0 + D
-        if expr == "1/6-c*c/9/a/a":
+        if expr == '1/6-c*c/9/a/a':
             return 1.0 / 6.0 - c * c / 9.0 / a / a
-        if expr == "1/2-2*Z":
-            Z = kparam["Z"]
+        if expr == '1/2-2*Z':
+            Z = kparam['Z']
             return 1.0 / 2.0 - 2.0 * Z
-        if expr == "1/2+Z":
-            Z = kparam["Z"]
+        if expr == '1/2+Z':
+            Z = kparam['Z']
             return 1.0 / 2.0 + Z
-        if expr == "(1+b*b/c/c)/4":
+        if expr == '(1+b*b/c/c)/4':
             return (1.0 + b * b / c / c) / 4.0
-        if expr == "(1+c*c/b/b)/4":
+        if expr == '(1+c*c/b/b)/4':
             return (1.0 + c * c / b / b) / 4.0
-        if expr == "(1+b*b/a/a)/4":
+        if expr == '(1+b*b/a/a)/4':
             return (1.0 + b * b / a / a) / 4.0
-        if expr == "(1+a*a/b/b-a*a/c/c)/4":
+        if expr == '(1+a*a/b/b-a*a/c/c)/4':
             return (1.0 + a * a / b / b - a * a / c / c) / 4.0
-        if expr == "(1+a*a/b/b+a*a/c/c)/4":
+        if expr == '(1+a*a/b/b+a*a/c/c)/4':
             return (1.0 + a * a / b / b + a * a / c / c) / 4.0
-        if expr == "(1+c*c/a/a-c*c/b/b)/4":
+        if expr == '(1+c*c/a/a-c*c/b/b)/4':
             return (1.0 + c * c / a / a - c * c / b / b) / 4.0
-        if expr == "(1+c*c/a/a+c*c/b/b)/4":
+        if expr == '(1+c*c/a/a+c*c/b/b)/4':
             return (1.0 + c * c / a / a + c * c / b / b) / 4.0
-        if expr == "(1+b*b/a/a-b*b/c/c)/4":
+        if expr == '(1+b*b/a/a-b*b/c/c)/4':
             return (1.0 + b * b / a / a - b * b / c / c) / 4.0
-        if expr == "(1+c*c/b/b-c*c/a/a)/4":
+        if expr == '(1+c*c/b/b-c*c/a/a)/4':
             return (1.0 + c * c / b / b - c * c / a / a) / 4.0
-        if expr == "(1+a*a/c/c)/4":
+        if expr == '(1+a*a/c/c)/4':
             return (1.0 + a * a / c / c) / 4.0
-        if expr == "(b*b-a*a)/4/c/c":
+        if expr == '(b*b-a*a)/4/c/c':
             return (b * b - a * a) / 4.0 / c / c
-        if expr == "(a*a+b*b)/4/c/c":
+        if expr == '(a*a+b*b)/4/c/c':
             return (a * a + b * b) / 4.0 / c / c
-        if expr == "(1+c*c/a/a)/4":
+        if expr == '(1+c*c/a/a)/4':
             return (1.0 + c * c / a / a) / 4.0
-        if expr == "(c*c-b*b)/4/a/a":
+        if expr == '(c*c-b*b)/4/a/a':
             return (c * c - b * b) / 4.0 / a / a
-        if expr == "(b*b+c*c)/4/a/a":
+        if expr == '(b*b+c*c)/4/a/a':
             return (b * b + c * c) / 4.0 / a / a
-        if expr == "(a*a-c*c)/4/b/b":
+        if expr == '(a*a-c*c)/4/b/b':
             return (a * a - c * c) / 4.0 / b / b
-        if expr == "(c*c+a*a)/4/b/b":
+        if expr == '(c*c+a*a)/4/b/b':
             return (c * c + a * a) / 4.0 / b / b
-        if expr == "a*a/2/c/c":
+        if expr == 'a*a/2/c/c':
             return a * a / 2.0 / c / c
         raise ValueError(
-            "Unknown expression, define a new case:\n"
-            '        elif expr == "{0}":\n'
-            "            return {0}".format(expr)
+            'Unknown expression, define a new case:\n'
+            f'        elif expr == "{expr}":\n'
+            f'            return {expr}'
         )
     except KeyError as exc:
         raise ValueError(
-            "Asking for evaluation of symbol '{}' but this has "
-            "not been defined or not yet computed".format(str(exc))
-        )
+            f"Asking for evaluation of symbol '{str(exc)}' but this has "
+            'not been defined or not yet computed'
+        ) from exc
 
 
 def check_spglib_version():
@@ -225,27 +224,27 @@ def check_spglib_version():
     """
     try:
         import spglib
-    except ImportError:
+    except ImportError as exc:
         raise ValueError(
-            "spglib >= 1.9.4 is required for the creation "
-            "of the k-paths, but it could not be imported"
-        )
+            'spglib >= 1.9.4 is required for the creation '
+            'of the k-paths, but it could not be imported'
+        ) from exc
 
-    spg_version = Version(version("spglib"))
+    spg_version = Version(version('spglib'))
 
-    min_version = Version("1.9.4")
-    warning_version = Version("1.13")
+    min_version = Version('1.9.4')
+    warning_version = Version('1.13')
 
     if spg_version < min_version:
-        raise ValueError("Invalid spglib version, need >= 1.9.4")
+        raise ValueError('Invalid spglib version, need >= 1.9.4')
 
     if spg_version < warning_version:
         import warnings
 
         warnings.warn(
-            "You have a version of SPGLIB older than 1.13, "
-            "please consider upgrading to 1.13 or later since some bugs "
-            "have been fixed",
+            'You have a version of SPGLIB older than 1.13, '
+            'please consider upgrading to 1.13 or later since some bugs '
+            'have been fixed',
             RuntimeWarning,
         )
 
@@ -259,14 +258,14 @@ def get_dot_access_dataset(dataset):
     To emulate it for older versions, this function is used.
 
     """
-    spg_version = Version(version("spglib"))
+    spg_version = Version(version('spglib'))
 
-    if spg_version < Version("2.5.0"):
+    if spg_version < Version('2.5.0'):
         from types import SimpleNamespace
 
         return SimpleNamespace(**dataset)
-    else:
-        return dataset
+
+    return dataset
 
 
 def get_cell_params(cell):
@@ -340,32 +339,32 @@ def get_path_data(ext_bravais):
 
     # Get the data from the band_data folder
     this_folder = os.path.split(os.path.abspath(__file__))[0]
-    folder = os.path.join(this_folder, "band_path_data", ext_bravais)
-    path_file = os.path.join(folder, "path.txt")
-    points_file = os.path.join(folder, "points.txt")
-    kparam_file = os.path.join(folder, "k_vector_parameters.txt")
-    with open(kparam_file) as f:
+    folder = os.path.join(this_folder, 'band_path_data', ext_bravais)
+    path_file = os.path.join(folder, 'path.txt')
+    points_file = os.path.join(folder, 'points.txt')
+    kparam_file = os.path.join(folder, 'k_vector_parameters.txt')
+    with open(kparam_file, encoding='utf-8') as f:
         kparam_raw = [_.split() for _ in f.readlines() if _.strip()]
-    with open(points_file) as f:
+    with open(points_file, encoding='utf-8') as f:
         points_raw = [_.split() for _ in f.readlines()]
-    with open(path_file) as f:
+    with open(path_file, encoding='utf-8') as f:
         path_raw = [_.split() for _ in f.readlines()]
 
     # check
     if any(len(_) != 2 for _ in kparam_raw):
-        raise ValueError("Invalid line length in {}".format(kparam_file))
+        raise ValueError(f'Invalid line length in {kparam_file}')
     if any(len(_) != 2 for _ in path_raw):
-        raise ValueError("Invalid line length in {}".format(path_file))
+        raise ValueError(f'Invalid line length in {path_file}')
     if any(len(_) != 4 for _ in points_raw):
-        raise ValueError("Invalid line length in {}".format(points_file))
+        raise ValueError(f'Invalid line length in {points_file}')
     # order must be preserved here
     kparam_def = [(_[0], _[1].strip()) for _ in kparam_raw]
     points_def = {}
     for label, kPx, kPy, kPz in points_raw:
         if label in points_def:
             raise ValueError(
-                "Internal error! Point {} defined multiple times "
-                "for Bravais lattice {}".format(label, ext_bravais)
+                f'Internal error! Point {label} defined multiple times '
+                f'for Bravais lattice {ext_bravais}'
             )
         points_def[label] = (kPx, kPy, kPz)
     path = [(_[0], _[1]) for _ in path_raw]
@@ -374,11 +373,11 @@ def get_path_data(ext_bravais):
     for p1, p2 in path:
         if p1 not in points_def:
             raise ValueError(
-                "Point {} found in path (for {}) but undefined!".format(p1, ext_bravais)
+                f'Point {p1} found in path (for {ext_bravais}) but undefined!'
             )
         if p2 not in points_def:
             raise ValueError(
-                "Point {} found in path (for {}) but undefined!".format(p2, ext_bravais)
+                f'Point {p2} found in path (for {ext_bravais}) but undefined!'
             )
 
     return (kparam_def, points_def, path)

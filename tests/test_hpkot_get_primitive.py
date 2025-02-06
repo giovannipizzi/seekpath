@@ -22,7 +22,7 @@ class TestGetPrimitive(unittest.TestCase):
         atomic_numbers = [6, 6, 8, 8]
 
         system = (cell, positions, atomic_numbers)
-        prim, PinvP, mapping = get_primitive(system, "cI")
+        prim, PinvP, mapping = get_primitive(system, 'cI')
 
         self.assertEqual(mapping.tolist(), [0, 0, 1, 1])
         self.assertAlmostEqual(prim[1].tolist(), [[0.0, 0.0, 0.0], [0.25, 0.0, 0.25]])
@@ -43,7 +43,7 @@ class TestGetPrimitive(unittest.TestCase):
         atomic_numbers = [6, 8, 8, 8, 6, 8]
 
         system = (cell, positions, atomic_numbers)
-        prim, PinvP, mapping = get_primitive(system, "oA")
+        prim, PinvP, mapping = get_primitive(system, 'oA')
 
         self.assertAlmostEqual(
             prim[0].tolist(), [[0.0, 1.5, -1.5], [0.0, 1.5, 1.5], [9.0, 0.0, 0.0]]
@@ -81,7 +81,7 @@ class TestGetPrimitive(unittest.TestCase):
         atomic_numbers = [6, 8, 8, 8, 6, 8]
 
         system = (cell, positions, atomic_numbers)
-        prim, PinvP, mapping = get_primitive(system, "oA", wrap_to_zero_one=True)
+        prim, PinvP, mapping = get_primitive(system, 'oA', wrap_to_zero_one=True)
 
         self.assertAlmostEqual(
             prim[0].tolist(), [[0.0, 1.5, -1.5], [0.0, 1.5, 1.5], [9.0, 0.0, 0.0]]

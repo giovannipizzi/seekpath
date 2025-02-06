@@ -1,14 +1,13 @@
 """
 This module contains the main functions to get a path and an explicit path.
 """
+
 import numpy as np
 import warnings
 from . import SupercellWarning
 
 
-def get_explicit_from_implicit(  # pylint: disable=too-many-locals
-    seekpath_output, reference_distance
-):
+def get_explicit_from_implicit(seekpath_output, reference_distance):
     """
     Given the output of ``get_path`` by seekpath, compute an "explicit" path,
     i.e. instead of just giving the endpoints and their coordinates, compute
@@ -28,14 +27,14 @@ def get_explicit_from_implicit(  # pylint: disable=too-many-locals
     kpoints_linearcoord = []
     previous_linearcoord = 0.0
     segments = []
-    for start_label, stop_label in seekpath_output["path"]:
-        start_coord = np.array(seekpath_output["point_coords"][start_label])
-        stop_coord = np.array(seekpath_output["point_coords"][stop_label])
+    for start_label, stop_label in seekpath_output['path']:
+        start_coord = np.array(seekpath_output['point_coords'][start_label])
+        stop_coord = np.array(seekpath_output['point_coords'][stop_label])
         start_coord_abs = np.dot(
-            start_coord, seekpath_output["reciprocal_primitive_lattice"]
+            start_coord, seekpath_output['reciprocal_primitive_lattice']
         )
         stop_coord_abs = np.dot(
-            stop_coord, seekpath_output["reciprocal_primitive_lattice"]
+            stop_coord, seekpath_output['reciprocal_primitive_lattice']
         )
         segment_length = np.linalg.norm(stop_coord_abs - start_coord_abs)
         num_points = max(2, int(segment_length / reference_distance))
@@ -59,19 +58,19 @@ def get_explicit_from_implicit(  # pylint: disable=too-many-locals
             elif i == num_points - 1:
                 kpoints_labels.append(stop_label)
             else:
-                kpoints_labels.append("")
+                kpoints_labels.append('')
             kpoints_linearcoord.append(previous_linearcoord + segment_linearcoord[i])
         previous_linearcoord += segment_length
         segment_end = len(kpoints_labels)
         segments.append((segment_start, segment_end))
 
-    retdict["kpoints_rel"] = np.array(kpoints_rel)
-    retdict["kpoints_linearcoord"] = np.array(kpoints_linearcoord)
-    retdict["kpoints_labels"] = kpoints_labels
-    retdict["kpoints_abs"] = np.dot(
-        retdict["kpoints_rel"], seekpath_output["reciprocal_primitive_lattice"]
+    retdict['kpoints_rel'] = np.array(kpoints_rel)
+    retdict['kpoints_linearcoord'] = np.array(kpoints_linearcoord)
+    retdict['kpoints_labels'] = kpoints_labels
+    retdict['kpoints_abs'] = np.dot(
+        retdict['kpoints_rel'], seekpath_output['reciprocal_primitive_lattice']
     )
-    retdict["segments"] = segments
+    retdict['segments'] = segments
 
     return retdict
 
@@ -79,7 +78,7 @@ def get_explicit_from_implicit(  # pylint: disable=too-many-locals
 def get_path(
     structure,
     with_time_reversal=True,
-    recipe="hpkot",
+    recipe='hpkot',
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
@@ -176,7 +175,7 @@ def get_path(
         orthorhombic systems). In this case, still one of the valid cases
         is picked.
     """
-    if recipe == "hpkot":
+    if recipe == 'hpkot':
         from . import hpkot
 
         res = hpkot.get_path(
@@ -199,7 +198,7 @@ def get_explicit_k_path(
     structure,
     with_time_reversal=True,
     reference_distance=0.025,
-    recipe="hpkot",
+    recipe='hpkot',
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
@@ -304,7 +303,7 @@ def get_explicit_k_path(
           and typically in a graphical representation they are shown at the
           same coordinate, with a label ``R|X``).
     """
-    if recipe == "hpkot":
+    if recipe == 'hpkot':
         from . import hpkot
 
         res = hpkot.get_path(
@@ -325,14 +324,14 @@ def get_explicit_k_path(
         res, reference_distance=reference_distance
     )
     for k, v in explicit_res.items():
-        res["explicit_{}".format(k)] = v
+        res[f'explicit_{k}'] = v
     return res
 
 
 def get_path_orig_cell(
     structure,
     with_time_reversal=True,
-    recipe="hpkot",
+    recipe='hpkot',
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
@@ -422,31 +421,31 @@ def get_path_orig_cell(
         recipe=recipe,
     )
 
-    is_supercell = abs(res["volume_original_wrt_prim"] - 1) > 0.1
+    is_supercell = abs(res['volume_original_wrt_prim'] - 1) > 0.1
 
     if is_supercell:
         warnings.warn(
-            "The provided cell is a supercell: the returned k-path is the "
-            "standard k-path of the associated primitive cell in the basis of "
-            "the supercell reciprocal lattice.",
+            'The provided cell is a supercell: the returned k-path is the '
+            'standard k-path of the associated primitive cell in the basis of '
+            'the supercell reciprocal lattice.',
             SupercellWarning,
         )
 
     # points in the output of get_path are in scaled coordinates of the
     # standardized primitive lattice
-    points_scaled_standard = res["point_coords"]
+    points_scaled_standard = res['point_coords']
 
     # Convert points from scaled coordinates of the standardiced primitive
     # lattice to Cartesian coordinates
     points_cartesian = {}
     for pointname, coords in points_scaled_standard.items():
         points_cartesian[pointname] = coords @ np.array(
-            res["reciprocal_primitive_lattice"]
+            res['reciprocal_primitive_lattice']
         )
 
     # Rotate points in Cartesian space
     for pointname, coords in points_cartesian.items():
-        points_cartesian[pointname] = coords @ res["rotation_matrix"]
+        points_cartesian[pointname] = coords @ res['rotation_matrix']
 
     # Convert points from Cartesian coordinates to the scaled coordinates
     # of the original lattice
@@ -456,15 +455,15 @@ def get_path_orig_cell(
         points_scaled_original[pointname] = list(coords @ cell_orig.T / np.pi / 2)
 
     res_orig = {
-        "point_coords": points_scaled_original,
-        "path": res["path"],
-        "augmented_path": res["augmented_path"],
-        "is_supercell": is_supercell,
-        "has_inversion_symmetry": res["has_inversion_symmetry"],
-        "bravais_lattice": res["bravais_lattice"],
-        "bravais_lattice_extended": res["bravais_lattice_extended"],
-        "spacegroup_number": res["spacegroup_number"],
-        "spacegroup_international": res["spacegroup_international"],
+        'point_coords': points_scaled_original,
+        'path': res['path'],
+        'augmented_path': res['augmented_path'],
+        'is_supercell': is_supercell,
+        'has_inversion_symmetry': res['has_inversion_symmetry'],
+        'bravais_lattice': res['bravais_lattice'],
+        'bravais_lattice_extended': res['bravais_lattice_extended'],
+        'spacegroup_number': res['spacegroup_number'],
+        'spacegroup_international': res['spacegroup_international'],
     }
 
     return res_orig
@@ -474,7 +473,7 @@ def get_explicit_k_path_orig_cell(
     structure,
     with_time_reversal=True,
     reference_distance=0.025,
-    recipe="hpkot",
+    recipe='hpkot',
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
@@ -595,14 +594,14 @@ def get_explicit_k_path_orig_cell(
 
     # Set reciprocal_primitive_lattice as the reciprocal lattice of the original
     # cell. To be used only in the get_explicit_from_implicit function.
-    res["reciprocal_primitive_lattice"] = get_reciprocal_cell_rows(structure[0])
+    res['reciprocal_primitive_lattice'] = get_reciprocal_cell_rows(structure[0])
 
     explicit_res = get_explicit_from_implicit(
         res, reference_distance=reference_distance
     )
 
-    res.pop("reciprocal_primitive_lattice")
+    res.pop('reciprocal_primitive_lattice')
 
     for k, v in explicit_res.items():
-        res["explicit_{}".format(k)] = v
+        res[f'explicit_{k}'] = v
     return res

@@ -17,40 +17,40 @@ import seekpath
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.mathjax",
+    'sphinx.ext.autodoc',
+    'sphinx.ext.mathjax',
     #    'sphinx.ext.intersphinx',
-    "sphinx.ext.viewcode",
+    'sphinx.ext.viewcode',
 ]
 
 intersphinx_mapping = {
     #    'python': ('https://docs.python.org/2.7', None),
 }
 
-nitpick_ignore = [("py:obj", "module")]
+nitpick_ignore = [('py:obj', 'module')]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = ".rst"
+source_suffix = '.rst'
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
 # The master toctree document.
 # ~ master_doc = 'index'
-master_doc = "index"
+master_doc = 'index'
 
 # General information about the project.
-project = "seekpath"
+project = 'seekpath'
 copyright = (
-    "2016-{}, Giovanni Pizzi, PAUL SCHERRER INSTITUT (Laboratory "
-    "for Materials Simulations), ECOLE POLYTECHNIQUE FEDERALE DE "
-    "LAUSANNE (Theory and Simulation of Materials (THEOS) and National Centre for "
-    "Computational Design and Discovery of Novel Materials (NCCR MARVEL)), "
-    "Switzerland. "
-    "All rights reserved.".format(time.localtime().tm_year)
+    '2016-{}, Giovanni Pizzi, PAUL SCHERRER INSTITUT (Laboratory '
+    'for Materials Simulations), ECOLE POLYTECHNIQUE FEDERALE DE '
+    'LAUSANNE (Theory and Simulation of Materials (THEOS) and National Centre for '
+    'Computational Design and Discovery of Novel Materials (NCCR MARVEL)), '
+    'Switzerland. '
+    'All rights reserved.'.format(time.localtime().tm_year)
 )
 
 # The version info for the project you're documenting, acts as replacement for
@@ -58,7 +58,7 @@ copyright = (
 # built documents.
 #
 # The short X.Y version.
-version = ".".join(seekpath.__version__.split(".")[:2])
+version = '.'.join(seekpath.__version__.split('.')[:2])
 # The full version, including alpha/beta/rc tags.
 release = seekpath.__version__
 
@@ -77,7 +77,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["doc.rst"]
+exclude_patterns = ['doc.rst']
 # ~ exclude_patterns = ['index.rst']
 
 # The reST default role (used for this markup: `text`) to use for all
@@ -96,7 +96,7 @@ exclude_patterns = ["doc.rst"]
 show_authors = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -185,7 +185,7 @@ html_show_sourcelink = False
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-html_use_opensearch = "http://seekpath.readthedocs.io"
+html_use_opensearch = 'http://seekpath.readthedocs.io'
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 # html_file_suffix = None
@@ -194,7 +194,7 @@ html_use_opensearch = "http://seekpath.readthedocs.io"
 # Sphinx supports the following languages:
 #   'da', 'de', 'en', 'es', 'fi', 'fr', 'hu', 'it', 'ja'
 #   'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr'
-html_search_language = "en"
+html_search_language = 'en'
 
 # A dictionary with options for the search language support, empty by default.
 # Now only 'ja' uses this config value
@@ -205,7 +205,7 @@ html_search_language = "en"
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "seekpathdoc"
+htmlhelp_basename = 'seekpathdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -277,13 +277,13 @@ latex_elements = {
 # texinfo_no_detailmenu = False
 
 # NOTE: it is needed to have these lines before load_dbenv()
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     try:
         import sphinx_rtd_theme
 
-        html_theme = "sphinx_rtd_theme"
+        html_theme = 'sphinx_rtd_theme'
         html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     except ImportError:
         # No sphinx_rtd_theme installed
@@ -292,60 +292,60 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # Warnings to ignore when using the -n (nitpicky) option
 # We should ignore any python built-in exception, for instance
 nitpick_ignore = [
-    ("py:exc", "ArithmeticError"),
-    ("py:exc", "AssertionError"),
-    ("py:exc", "AttributeError"),
-    ("py:exc", "BaseException"),
-    ("py:exc", "BufferError"),
-    ("py:exc", "DeprecationWarning"),
-    ("py:exc", "EOFError"),
-    ("py:exc", "EnvironmentError"),
-    ("py:exc", "Exception"),
-    ("py:exc", "FloatingPointError"),
-    ("py:exc", "FutureWarning"),
-    ("py:exc", "GeneratorExit"),
-    ("py:exc", "IOError"),
-    ("py:exc", "ImportError"),
-    ("py:exc", "ImportWarning"),
-    ("py:exc", "IndentationError"),
-    ("py:exc", "IndexError"),
-    ("py:exc", "KeyError"),
-    ("py:exc", "KeyboardInterrupt"),
-    ("py:exc", "LookupError"),
-    ("py:exc", "MemoryError"),
-    ("py:exc", "NameError"),
-    ("py:exc", "NotImplementedError"),
-    ("py:exc", "OSError"),
-    ("py:exc", "OverflowError"),
-    ("py:exc", "PendingDeprecationWarning"),
-    ("py:exc", "ReferenceError"),
-    ("py:exc", "RuntimeError"),
-    ("py:exc", "RuntimeWarning"),
-    ("py:exc", "StandardError"),
-    ("py:exc", "StopIteration"),
-    ("py:exc", "SyntaxError"),
-    ("py:exc", "SyntaxWarning"),
-    ("py:exc", "SystemError"),
-    ("py:exc", "SystemExit"),
-    ("py:exc", "TabError"),
-    ("py:exc", "TypeError"),
-    ("py:exc", "UnboundLocalError"),
-    ("py:exc", "UnicodeDecodeError"),
-    ("py:exc", "UnicodeEncodeError"),
-    ("py:exc", "UnicodeError"),
-    ("py:exc", "UnicodeTranslateError"),
-    ("py:exc", "UnicodeWarning"),
-    ("py:exc", "UserWarning"),
-    ("py:exc", "VMSError"),
-    ("py:exc", "ValueError"),
-    ("py:exc", "Warning"),
-    ("py:exc", "WindowsError"),
-    ("py:exc", "ZeroDivisionError"),
-    ("py:obj", "str"),
-    ("py:obj", "list"),
-    ("py:obj", "tuple"),
-    ("py:obj", "int"),
-    ("py:obj", "float"),
-    ("py:obj", "bool"),
-    ("py:obj", "Mapping"),
+    ('py:exc', 'ArithmeticError'),
+    ('py:exc', 'AssertionError'),
+    ('py:exc', 'AttributeError'),
+    ('py:exc', 'BaseException'),
+    ('py:exc', 'BufferError'),
+    ('py:exc', 'DeprecationWarning'),
+    ('py:exc', 'EOFError'),
+    ('py:exc', 'EnvironmentError'),
+    ('py:exc', 'Exception'),
+    ('py:exc', 'FloatingPointError'),
+    ('py:exc', 'FutureWarning'),
+    ('py:exc', 'GeneratorExit'),
+    ('py:exc', 'IOError'),
+    ('py:exc', 'ImportError'),
+    ('py:exc', 'ImportWarning'),
+    ('py:exc', 'IndentationError'),
+    ('py:exc', 'IndexError'),
+    ('py:exc', 'KeyError'),
+    ('py:exc', 'KeyboardInterrupt'),
+    ('py:exc', 'LookupError'),
+    ('py:exc', 'MemoryError'),
+    ('py:exc', 'NameError'),
+    ('py:exc', 'NotImplementedError'),
+    ('py:exc', 'OSError'),
+    ('py:exc', 'OverflowError'),
+    ('py:exc', 'PendingDeprecationWarning'),
+    ('py:exc', 'ReferenceError'),
+    ('py:exc', 'RuntimeError'),
+    ('py:exc', 'RuntimeWarning'),
+    ('py:exc', 'StandardError'),
+    ('py:exc', 'StopIteration'),
+    ('py:exc', 'SyntaxError'),
+    ('py:exc', 'SyntaxWarning'),
+    ('py:exc', 'SystemError'),
+    ('py:exc', 'SystemExit'),
+    ('py:exc', 'TabError'),
+    ('py:exc', 'TypeError'),
+    ('py:exc', 'UnboundLocalError'),
+    ('py:exc', 'UnicodeDecodeError'),
+    ('py:exc', 'UnicodeEncodeError'),
+    ('py:exc', 'UnicodeError'),
+    ('py:exc', 'UnicodeTranslateError'),
+    ('py:exc', 'UnicodeWarning'),
+    ('py:exc', 'UserWarning'),
+    ('py:exc', 'VMSError'),
+    ('py:exc', 'ValueError'),
+    ('py:exc', 'Warning'),
+    ('py:exc', 'WindowsError'),
+    ('py:exc', 'ZeroDivisionError'),
+    ('py:obj', 'str'),
+    ('py:obj', 'list'),
+    ('py:obj', 'tuple'),
+    ('py:obj', 'int'),
+    ('py:obj', 'float'),
+    ('py:obj', 'bool'),
+    ('py:obj', 'Mapping'),
 ]
