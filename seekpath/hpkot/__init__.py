@@ -116,6 +116,8 @@ def get_path(
         - ``inverse_primitive_transformation_matrix``: the inverse of the matrix :math:`P`
           (the determinant is integer and gives the ratio in volume between
           the conventional and primitive cells)
+        - ``transformation_matrix``: the transformation matrix between the original and the 
+          conventional cell
         - ``rotation_matrix``: rotation matrix in Cartesian space from the input
           cell to the standardized cell
         - ``volume_original_wrt_conv``: volume ratio of the user-provided cell
@@ -318,7 +320,7 @@ def get_path(
         ## This is Niggli-reduced
         reciprocal_cell2 = spglib.niggli_reduce(reciprocal_cell_orig)
         real_cell2 = get_real_cell_from_reciprocal_rows(reciprocal_cell2)
-        # TODO: get transformation matrix?
+        M1 = np.dot(np.linalg.inv(conv_lattice.T), real_cell2) 
 
         ka2, kb2, kc2, coskalpha2, coskbeta2, coskgamma2 = get_cell_params(
             reciprocal_cell2
@@ -413,11 +415,8 @@ def get_path(
         # Store the relative coords with respect to the new vectors
         # TODO: decide if we want to do %1. for the fractional coordinates
         conv_positions = np.dot(conv_pos_abs, np.linalg.inv(conv_lattice))
-        # TODO: implement the correct one (probably we need the matrix
-        # out from niggli, and then we can combine it with M2 and M3??)
-        # We set it to None for the time being to avoid confusion
 
-        # transformation_matrix = None
+        transf_matrix = M1 @ M2 @ M3
 
     else:
         raise ValueError(
@@ -498,9 +497,7 @@ def get_path(
         # spg_mapping.get_P_matrix
         'inverse_primitive_transformation_matrix': invP,
         'primitive_transformation_matrix': P,
-        # For the time being disabled, not valid for aP lattices
-        # (for which we would need the transformation matrix from niggli)
-        #'transformation_matrix': transf_matrix,
+        'transformation_matrix': transf_matrix,
         'volume_original_wrt_conv': volume_conv_wrt_original,
         'volume_original_wrt_prim': volume_conv_wrt_original * np.linalg.det(invP),
         'spacegroup_number': dataset.number,
