@@ -1,4 +1,4 @@
-# v2.1.1
+# v2.2.0
 * DevOps: Replaced `setup.py` by `pyproject.toml`, updated README and fixed CI [710fd75](https://github.com/giovannipizzi/seekpath/commit/710fd7542a307adef3a18154860b298131284499)
 * DevOps: Update CI and pre-commit (e.g., black to ruff, enable prospector again) [9ca3dd9](https://github.com/giovannipizzi/seekpath/commit/9ca3dd9cd9f10735db49b05b0ba468ab2558c792)
 * Improve `spglib` version check [d910bb3](https://github.com/giovannipizzi/seekpath/commit/d910bb372139d642ef008931c7f39adf705faaa9)
