@@ -110,7 +110,7 @@ class TestBZ(unittest.TestCase):
         b1 = [1, 0, 0]
         b2 = [0, 1, 0]
         b3 = [0, 0, 1]
-        bz = brillouinzone.get_BZ(b1=b1, b2=b2, b3=b3)
+        bz = brillouinzone.BZ(b1=b1, b2=b2, b3=b3)
 
         expected_faces = [
             [
@@ -162,7 +162,7 @@ class TestBZ(unittest.TestCase):
 
         # The definition of triangles is not unique. I check directly the
         # faces (that should be obtained from the triangles
-        faces = bz['faces']
+        faces = bz.faces
 
         # theFaces = [Face(f) for f in faces]
         # theExpectedFaces = [Face(f) for f in expected_faces]
@@ -177,7 +177,7 @@ class TestBZ(unittest.TestCase):
         b1 = [1, 0, 0]
         b2 = [0, 1, 0]
         b3 = [0.2, 0.2, 1]
-        bz = brillouinzone.get_BZ(b1=b1, b2=b2, b3=b3)
+        bz = brillouinzone.BZ(b1=b1, b2=b2, b3=b3)
 
         expected_faces = [
             [
@@ -264,7 +264,7 @@ class TestBZ(unittest.TestCase):
 
         # The definition of triangles is not unique. I check directly the
         # faces (that should be obtained from the triangles
-        faces = bz['faces']
+        faces = bz.faces
 
         # To print the actual output
         # print "["
