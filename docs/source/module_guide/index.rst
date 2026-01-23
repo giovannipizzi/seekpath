@@ -20,3 +20,9 @@ The HPKOT module
 
 .. automodule:: seekpath.hpkot.tools
    :members:
+
+
+Warnings
+--------
+
+.. autoclass:: seekpath.SupercellWarning
