@@ -1,5 +1,5 @@
 [MASTER]
-disable=import-outside-toplevel,bad-continuation,locally-disabled,invalid-name,too-many-locals,too-many-statements,too-many-return-statements,too-many-branches
+disable=import-outside-toplevel,locally-disabled,invalid-name,too-many-locals,too-many-statements,too-many-return-statements,too-many-branches
 
 [DESIGN]
 
