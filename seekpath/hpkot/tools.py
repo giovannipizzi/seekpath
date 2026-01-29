@@ -258,6 +258,9 @@ def get_dot_access_dataset(dataset):
     To emulate it for older versions, this function is used.
 
     """
+    if dataset is None:
+        return None
+
     spg_version = Version(version('spglib'))
 
     if spg_version < Version('2.5.0'):
