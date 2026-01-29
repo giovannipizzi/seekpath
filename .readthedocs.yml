@@ -6,11 +6,20 @@ version: 2
 # Only compile HTML
 formats: []
 
+build:
+   os: 'ubuntu-24.04'
+   tools:
+      python: '3.13'
+
 python:
-   version: 3.8
    install:
       - requirements: docs/requirements_for_rtd.txt
       - method: pip
         path: .
-        #extra_requirements:
-        #    - docs
+        extra_requirements:
+           - 'bz'
+
+sphinx:
+   configuration: 'docs/source/conf.py'
+   builder: 'html'
+   fail_on_warning: false
