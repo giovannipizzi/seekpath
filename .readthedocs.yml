@@ -13,11 +13,11 @@ build:
 
 python:
    install:
-      - requirements: docs/requirements_for_rtd.txt
       - method: pip
         path: .
         extra_requirements:
            - 'bz'
+           - 'docs'
 
 sphinx:
    configuration: 'docs/source/conf.py'
