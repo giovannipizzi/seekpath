@@ -1,6 +1,6 @@
 # SeeK-path
 
-Test status for default branch: [![Test status](https://github.com/giovannipizzi/seekpath/actions/workflows/ci.yml/badge.svg)](https://github.com/giovannipizzi/seekpath/actions/workflows/ci.yml)
+Test status for default branch: [![Test status](https://github.com/materialscloud-org/seekpath/actions/workflows/ci.yml/badge.svg)](https://github.com/materialscloud-org/seekpath/actions/workflows/ci.yml)
 
 `SeeK-path` is a python module to obtain band paths in the Brillouin zone of crystal structures.
 

@@ -35,8 +35,8 @@ dependencies = [
 license = {text = "The MIT license"}
 
 [project.urls]
-Homepage = "http://github.com/giovannipizzi/seekpath"
-Downloads = "https://github.com/giovannipizzi/seekpath/archive/v2.2.0.tar.gz"
+Homepage = "http://github.com/materialscloud-org/seekpath"
+Downloads = "https://github.com/materialscloud-org/seekpath/archive/v2.2.0.tar.gz"
 
 [project.optional-dependencies]
 bz = [
