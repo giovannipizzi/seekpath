@@ -10,7 +10,7 @@ Maintainer: Timo Reents, PSI (2025-onwards)
 Licence: MIT License, see LICENSE.txt file
 """
 
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 __author__ = 'Giovanni Pizzi, PSI'
 __maintainer__ = 'Timo Reents, PSI'
 __copyright__ = (
