@@ -120,14 +120,14 @@ AiiDA integration
 If you use AiiDA, you might be interested to use the wrappers that are provided in AiiDA.
 
 The documentation of the methods can be found at
-http://aiida-core.readthedocs.io/en/latest/datatypes/kpoints.html
+https://aiida-core.readthedocs.io/en/latest/datatypes/kpoints.html
 
 
-.. _HPKOT paper: http://dx.doi.org/10.1016/j.commatsci.2016.10.015
-.. _JOURNAL LINK: http://dx.doi.org/10.1016/j.commatsci.2016.10.015
+.. _HPKOT paper: https://dx.doi.org/10.1016/j.commatsci.2016.10.015
+.. _JOURNAL LINK: https://dx.doi.org/10.1016/j.commatsci.2016.10.015
 .. _arXiv link: https://arxiv.org/abs/1602.06402
-.. _spglib: http://atztogo.github.io/spglib/
-.. _Materials Cloud: http://www.materialscloud.org/tools/seekpath/
+.. _spglib: https://atztogo.github.io/spglib/
+.. _Materials Cloud: https://www.materialscloud.org/tools/seekpath/
 .. _docker hub: https://hub.docker.com/r/giovannipizzi/seekpath/
-.. _AiiDA: http://www.aiida.net
+.. _AiiDA: https://www.aiida.net
 .. _spglib arXiv link: https://arxiv.org/abs/1808.01590

@@ -185,7 +185,7 @@ html_show_sourcelink = False
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-html_use_opensearch = 'http://seekpath.readthedocs.io'
+html_use_opensearch = 'https://seekpath.readthedocs.io'
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 # html_file_suffix = None

@@ -1,10 +1,10 @@
 # SeeK-path
 
-Test status for default branch: [![Test status](https://github.com/giovannipizzi/seekpath/actions/workflows/ci.yml/badge.svg)](https://github.com/giovannipizzi/seekpath/actions/workflows/ci.yml)
+Test status for default branch: [![Test status](https://github.com/materialscloud-org/seekpath/actions/workflows/ci.yml/badge.svg)](https://github.com/materialscloud-org/seekpath/actions/workflows/ci.yml)
 
 `SeeK-path` is a python module to obtain band paths in the Brillouin zone of crystal structures.
 
-The definition of k-point labels follows crystallographic convention, as defined and discussed in the [HPKOT paper](http://dx.doi.org/10.1016/j.commatsci.2016.10.015). Moreover, the Bravais lattice is detected properly using the spacegroup symmetry. Also, the suggested band path provided in the [HPKOT paper](http://dx.doi.org/10.1016/j.commatsci.2016.10.015) is returned. Systems without time-reversal and inversion-symmetry are also properly taken into account.
+The definition of k-point labels follows crystallographic convention, as defined and discussed in the [HPKOT paper](https://dx.doi.org/10.1016/j.commatsci.2016.10.015). Moreover, the Bravais lattice is detected properly using the spacegroup symmetry. Also, the suggested band path provided in the [HPKOT paper](https://dx.doi.org/10.1016/j.commatsci.2016.10.015) is returned. Systems without time-reversal and inversion-symmetry are also properly taken into account.
 
 ## Contents
 
@@ -18,12 +18,12 @@ The definition of k-point labels follows crystallographic convention, as defined
 
 If you use this tool, please cite the following work:
 
-- Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, *Band structure diagram paths based on crystallography*, Comp. Mat. Sci. 128, 140 (2017) ([JOURNAL LINK](http://dx.doi.org/10.1016/j.commatsci.2016.10.015), [arXiv link](https://arxiv.org/abs/1602.06402)).
-- You should also cite [spglib](http://atztogo.github.io/spglib/) that is an essential library used in the implementation: A. Togo, I. Tanaka, "Spglib: a software library for crystal symmetry search", arXiv:1808.01590 (2018) ([spglib arXiv link](https://arxiv.org/abs/1808.01590)).
+- Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, *Band structure diagram paths based on crystallography*, Comp. Mat. Sci. 128, 140 (2017) ([JOURNAL LINK](https://dx.doi.org/10.1016/j.commatsci.2016.10.015), [arXiv link](https://arxiv.org/abs/1602.06402)).
+- You should also cite [spglib](https://atztogo.github.io/spglib/) that is an essential library used in the implementation: A. Togo, I. Tanaka, "Spglib: a software library for crystal symmetry search", arXiv:1808.01590 (2018) ([spglib arXiv link](https://arxiv.org/abs/1808.01590)).
 
 ## How to install and how to use
 
-Please check the SeeK-path [user guide on ReadTheDocs](http://seekpath.readthedocs.io).
+Please check the SeeK-path [user guide on ReadTheDocs](https://seekpath.readthedocs.io).
 
 ## Acknowledgements
 The `SeeK-path` package was mainly developed by [Giovanni Pizzi](https://github.com/giovannipizzi) and is now maintained by [Timo Reents](https://github.com/t-reents).
@@ -38,7 +38,7 @@ The code is open-source (licensed with a MIT license, see LICENSE.txt).
 
 ## Online service/tool
 
-In the [tools-seekpath](http://www.github.com/materialscloud-org/tools-seekpath/) repository we also provide the code to deploy an online service for the visualization of the band paths and primitive cells of the crystal structures. A live version is hosted on the [Materials Cloud](http://www.materialscloud.org/tools/seekpath/) web portal.
+In the [tools-seekpath](https://www.github.com/materialscloud-org/tools-seekpath/) repository we also provide the code to deploy an online service for the visualization of the band paths and primitive cells of the crystal structures. A live version is hosted on the [Materials Cloud](https://www.materialscloud.org/tools/seekpath/) web portal.
 
 The following is a screenshot of the selection window:
 
