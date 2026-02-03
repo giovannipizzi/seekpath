@@ -33,7 +33,7 @@ nitpick_ignore = [('py:obj', 'module')]
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = {'.rst': 'restructuredtext'}
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
@@ -67,7 +67,7 @@ release = seekpath.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -185,7 +185,7 @@ html_show_sourcelink = False
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-html_use_opensearch = 'http://seekpath.readthedocs.io'
+html_use_opensearch = 'https://seekpath.readthedocs.io'
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 # html_file_suffix = None

@@ -4,7 +4,7 @@ requires = ['flit_core >=3.4,<4']
 
 [project]
 name = "seekpath"
-version = "2.1.0"
+dynamic = ['version']
 description = "A module to obtain and visualize k-vector coefficients and obtain band paths in the Brillouin zone of crystal structures"
 keywords = ["path", "band structure", "Brillouin", "crystallography", "physics", "primitive cell", "conventional cell"]
 readme = "README.md"
@@ -35,8 +35,8 @@ dependencies = [
 license = {text = "The MIT license"}
 
 [project.urls]
-Homepage = "http://github.com/giovannipizzi/seekpath"
-Downloads = "https://github.com/giovannipizzi/seekpath/archive/v2.1.0.tar.gz"
+Homepage = "https://github.com/materialscloud-org/seekpath"
+Downloads = "https://github.com/materialscloud-org/seekpath/archive/v2.2.1.tar.gz"
 
 [project.optional-dependencies]
 bz = [
@@ -47,6 +47,9 @@ dev = [
     "pre-commit~=3.5",
     "prospector==1.11.0",
     "pytest==7.3.1",
+]
+docs = [
+    "sphinx~=7.1.0",
 ]
 
 [tool.ruff.format]

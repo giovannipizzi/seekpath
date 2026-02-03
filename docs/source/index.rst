@@ -2,7 +2,7 @@
 `SeeK-path`
 ###########
 
-.. _GitHub: http://github.com/giovannipizzi/seekpath
+.. _GitHub: https://github.com/materialscloud-org/seekpath
 
 
 .. toctree::

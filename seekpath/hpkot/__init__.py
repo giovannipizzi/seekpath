@@ -10,7 +10,7 @@ Licence: MIT License, see LICENSE.txt
 .. note:: the list of point coordinates and example POSCAR files in
   the band_path_data subfolder have been provided by Yoyo Hinuma,
   Kyoto University, Japan. The POSCARs have been retrieved from
-  the Materials Project (http://materialsproject.org).
+  the Materials Project (https://materialsproject.org).
 """
 
 

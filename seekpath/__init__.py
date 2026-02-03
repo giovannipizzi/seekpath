@@ -4,15 +4,17 @@
 The seekpath module contains routines to get automatically the
 path in a 3D Brillouin zone to plot band structures.
 
-Author: Giovanni Pizzi, PSI (2016-2023)
+Author: Giovanni Pizzi, PSI (2016-onwards)
+Maintainer: Timo Reents, PSI (2025-onwards)
 
 Licence: MIT License, see LICENSE.txt file
 """
 
-__version__ = '2.1.0'
+__version__ = '2.2.1'
 __author__ = 'Giovanni Pizzi, PSI'
+__maintainer__ = 'Timo Reents, PSI'
 __copyright__ = (
-    'Copyright (c), 2016-2023, Giovanni Pizzi, PAUL SCHERRER INSTITUT '
+    'Copyright (c), 2016-2026, Giovanni Pizzi, PAUL SCHERRER INSTITUT '
     '(Laboratory for Materials Simulations), EPFL '
     '(Theory and Simulation of Materials (THEOS) and National Centre '
     'for Computational Design and Discovery of Novel Materials '
