@@ -43,8 +43,12 @@ Downloads = "https://github.com/materialscloud-org/seekpath/archive/v2.2.2.tar.g
 bz = [
     "scipy>=1",
 ]
+moyopy = [
+    "moyopy>=0.21; python_version >= '3.10'",
+]
 dev = [
     "black==23.3.0",
+    "moyopy>=0.21; python_version >= '3.10'",
     "pre-commit~=3.5",
     "prospector==1.11.0",
     "pytest==7.3.1",

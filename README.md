@@ -20,6 +20,7 @@ If you use this tool, please cite the following work:
 
 - Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, *Band structure diagram paths based on crystallography*, Comp. Mat. Sci. 128, 140 (2017) ([JOURNAL LINK](https://dx.doi.org/10.1016/j.commatsci.2016.10.015), [arXiv link](https://arxiv.org/abs/1602.06402)).
 - You should also cite [spglib](https://atztogo.github.io/spglib/) that is an essential library used in the implementation: A. Togo, I. Tanaka, "Spglib: a software library for crystal symmetry search", arXiv:1808.01590 (2018) ([spglib arXiv link](https://arxiv.org/abs/1808.01590)).
+- If you run `SeeK-path` with the optional `moyopy` backend (`backend='moyopy'`), you should cite [moyo](https://github.com/spglib/moyo) in place of spglib for the symmetry analysis: K. Shinohara, *moyo: A fast and robust crystal symmetry finder, written in Rust* (2026) ([figshare link](https://figshare.com/articles/software/moyo_A_fast_and_robust_crystal_symmetry_finder_written_in_Rust_/31081162), doi:10.6084/m9.figshare.31081162.v1).
 
 ## How to install and how to use
 

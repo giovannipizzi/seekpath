@@ -5,6 +5,7 @@ This module contains the main functions to get a path and an explicit path.
 import numpy as np
 import warnings
 from . import SupercellWarning
+from .hpkot import DEFAULT_BACKEND
 
 
 def get_explicit_from_implicit(seekpath_output, reference_distance):
@@ -82,6 +83,7 @@ def get_path(
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
+    backend=DEFAULT_BACKEND,
 ):
     r"""
     Return the kpoint path information for band structure given a
@@ -125,9 +127,16 @@ def get_path(
         Note that depending on the bravais lattice, the meaning of the
         threshold is different (angle, length, ...)
 
-    :param symprec: the symmetry precision used internally by SPGLIB
+    :param symprec: the symmetry precision used internally by the symmetry backend
 
-    :param angle_tolerance: the angle_tolerance used internally by SPGLIB
+    :param angle_tolerance: the angle_tolerance used internally by the symmetry
+        backend
+
+    :param backend: the symmetry backend used to standardize the structure,
+        either ``'spglib'`` (the default) or ``'moyopy'``. The ``'moyopy'``
+        backend requires the optional ``moyopy`` dependency and is usually
+        faster; see the documentation for where the results of the
+        two backends can differ.
 
 
     :return: a dictionary with the following
@@ -185,6 +194,7 @@ def get_path(
             threshold=threshold,
             symprec=symprec,
             angle_tolerance=angle_tolerance,
+            backend=backend,
         )
 
     else:
@@ -203,6 +213,7 @@ def get_explicit_k_path(
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
+    backend=DEFAULT_BACKEND,
 ):
     r"""
     Return the kpoint path for band structure (in scaled and absolute
@@ -257,9 +268,16 @@ def get_explicit_k_path(
         Note that depending on the bravais lattice, the meaning of the
         threshold is different (angle, length, ...)
 
-    :param symprec: the symmetry precision used internally by SPGLIB
+    :param symprec: the symmetry precision used internally by the symmetry backend
 
-    :param angle_tolerance: the angle_tolerance used internally by SPGLIB
+    :param angle_tolerance: the angle_tolerance used internally by the symmetry
+        backend
+
+    :param backend: the symmetry backend used to standardize the structure,
+        either ``'spglib'`` (the default) or ``'moyopy'``. The ``'moyopy'``
+        backend requires the optional ``moyopy`` dependency and is usually
+        faster; see the documentation for where the results of the
+        two backends can differ.
 
     .. versionchanged:: 1.8
         The key ``segments`` has been renamed ``explicit_segments``
@@ -313,6 +331,7 @@ def get_explicit_k_path(
             threshold=threshold,
             symprec=symprec,
             angle_tolerance=angle_tolerance,
+            backend=backend,
         )
 
     else:
@@ -336,6 +355,7 @@ def get_path_orig_cell(
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
+    backend=DEFAULT_BACKEND,
 ):
     r"""
     Return the kpoint path information for band structure given a
@@ -388,9 +408,16 @@ def get_path_orig_cell(
         Note that depending on the bravais lattice, the meaning of the
         threshold is different (angle, length, ...)
 
-    :param symprec: the symmetry precision used internally by SPGLIB
+    :param symprec: the symmetry precision used internally by the symmetry backend
 
-    :param angle_tolerance: the angle_tolerance used internally by SPGLIB
+    :param angle_tolerance: the angle_tolerance used internally by the symmetry
+        backend
+
+    :param backend: the symmetry backend used to standardize the structure,
+        either ``'spglib'`` (the default) or ``'moyopy'``. The ``'moyopy'``
+        backend requires the optional ``moyopy`` dependency and is usually
+        faster; see the documentation for where the results of the
+        two backends can differ.
 
 
     :return: a dictionary with the following
@@ -420,6 +447,7 @@ def get_path_orig_cell(
         symprec=symprec,
         angle_tolerance=angle_tolerance,
         recipe=recipe,
+        backend=backend,
     )
 
     # The volume ratio is negative for a left-handed input cell, so only its
@@ -480,6 +508,7 @@ def get_explicit_k_path_orig_cell(
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
+    backend=DEFAULT_BACKEND,
 ):
     r"""
     Return the kpoint path for band structure (in scaled and absolute
@@ -537,9 +566,16 @@ def get_explicit_k_path_orig_cell(
         Note that depending on the bravais lattice, the meaning of the
         threshold is different (angle, length, ...)
 
-    :param symprec: the symmetry precision used internally by SPGLIB
+    :param symprec: the symmetry precision used internally by the symmetry backend
 
-    :param angle_tolerance: the angle_tolerance used internally by SPGLIB
+    :param angle_tolerance: the angle_tolerance used internally by the symmetry
+        backend
+
+    :param backend: the symmetry backend used to standardize the structure,
+        either ``'spglib'`` (the default) or ``'moyopy'``. The ``'moyopy'``
+        backend requires the optional ``moyopy`` dependency and is usually
+        faster; see the documentation for where the results of the
+        two backends can differ.
 
     .. versionchanged:: 1.8
         The key ``segments`` has been renamed ``explicit_segments``
@@ -593,6 +629,7 @@ def get_explicit_k_path_orig_cell(
         symprec=symprec,
         angle_tolerance=angle_tolerance,
         recipe=recipe,
+        backend=backend,
     )
 
     # Set reciprocal_primitive_lattice as the reciprocal lattice of the original

@@ -13,17 +13,16 @@ Licence: MIT License, see LICENSE.txt
   the Materials Project (https://materialsproject.org).
 """
 
+from .backends import (  # noqa: F401
+    DEFAULT_BACKEND,
+    SymmetryDetectionError,
+)
+
 
 class EdgeCaseWarning(RuntimeWarning):
     """
     A warning issued when the cell is an edge case (e.g. orthorhombic
     symmetry, but ``a==b==c``.
-    """
-
-
-class SymmetryDetectionError(Exception):
-    """
-    Error raised if spglib could not detect the symmetry.
     """
 
 
@@ -33,6 +32,7 @@ def get_path(
     threshold=1.0e-7,
     symprec=1e-05,
     angle_tolerance=-1.0,
+    backend=DEFAULT_BACKEND,
 ):
     r"""
     Return the kpoint path information for band structure given a
@@ -76,9 +76,16 @@ def get_path(
         Note that depending on the bravais lattice, the meaning of the
         threshold is different (angle, length, ...)
 
-    :param symprec: the symmetry precision used internally by SPGLIB
+    :param symprec: the symmetry precision used internally by the symmetry backend
 
-    :param angle_tolerance: the angle_tolerance used internally by SPGLIB
+    :param angle_tolerance: the angle_tolerance used internally by the symmetry
+        backend
+
+    :param backend: the symmetry backend used to standardize the structure,
+        either ``'spglib'`` (the default) or ``'moyopy'``. The ``'moyopy'``
+        backend requires the optional ``moyopy`` dependency and is usually
+        faster; see the documentation for where the results of the
+        two backends can differ.
 
 
     :return: a dictionary with the following
@@ -134,23 +141,19 @@ def get_path(
     import warnings
 
     import numpy as np
+    import spglib
 
     from .tools import (
-        check_spglib_version,
         extend_kparam,
         eval_expr,
         eval_expr_simple,
         get_cell_params,
-        get_dot_access_dataset,
         get_path_data,
         get_reciprocal_cell_rows,
         get_real_cell_from_reciprocal_rows,
     )
+    from .backends import get_symmetry_dataset
     from .spg_mapping import get_spgroup_data, get_primitive
-
-    # I check if the SPGlib version is recent enough (raises ValueError)
-    # otherwise
-    spglib = check_spglib_version()
 
     structure_internal = (
         np.array(structure[0]),
@@ -158,27 +161,20 @@ def get_path(
         np.array(structure[2]),
     )
 
-    # Symmetry analysis by SPGlib, get crystallographic lattice,
+    # Symmetry analysis by the chosen backend, get crystallographic lattice,
     # and cell parameters for this lattice
-    dataset = get_dot_access_dataset(
-        spglib.get_symmetry_dataset(
-            structure_internal, symprec=symprec, angle_tolerance=angle_tolerance
-        )
+    dataset = get_symmetry_dataset(
+        structure_internal,
+        symprec=symprec,
+        angle_tolerance=angle_tolerance,
+        backend=backend,
     )
-    if dataset is None:
-        raise SymmetryDetectionError(
-            'Spglib could not detect the symmetry of the system'
-        )
     conv_lattice = dataset.std_lattice
     conv_positions = dataset.std_positions
     conv_types = dataset.std_types
     a, b, c, cosalpha, cosbeta, cosgamma = get_cell_params(conv_lattice)
     spgrp_num = dataset.number
-    # This is the transformation from the original to the crystallographic
-    # conventional (called std in spglib)
-    #  Lattice^{crystallographic_bravais} = L^{original} * transf_matrix
-    transf_matrix = dataset.transformation_matrix
-    volume_conv_wrt_original = np.linalg.det(transf_matrix)
+    volume_original_wrt_conv = dataset.volume_original_wrt_conv
 
     # Get the properties of the spacegroup, needed to get the bravais_lattice
     properties = get_spgroup_data()[spgrp_num]
@@ -502,8 +498,8 @@ def get_path(
         # For the time being disabled, not valid for aP lattices
         # (for which we would need the transformation matrix from niggli)
         #'transformation_matrix': transf_matrix,
-        'volume_original_wrt_conv': volume_conv_wrt_original,
-        'volume_original_wrt_prim': volume_conv_wrt_original * np.linalg.det(invP),
+        'volume_original_wrt_conv': volume_original_wrt_conv,
+        'volume_original_wrt_prim': volume_original_wrt_conv * np.linalg.det(invP),
         'spacegroup_number': dataset.number,
         'spacegroup_international': dataset.international,
         'rotation_matrix': dataset.std_rotation_matrix,
